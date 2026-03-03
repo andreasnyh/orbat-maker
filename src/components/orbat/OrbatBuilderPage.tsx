@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   Clipboard,
+  Package,
   Pencil,
   RotateCcw,
   Users,
@@ -85,6 +86,7 @@ export function OrbatBuilderPage({
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState(orbat?.name ?? '');
   const [showRoster, setShowRoster] = useState(false);
+  const [showEquipment, setShowEquipment] = useState(true);
   const [confirmClear, setConfirmClear] = useState(false);
 
   // ---- DnD sensors ---------------------------------------------------------
@@ -311,6 +313,15 @@ export function OrbatBuilderPage({
           {template && (
             <div className="shrink-0 flex items-center gap-2">
               <Button
+                variant={showEquipment ? 'primary' : 'secondary'}
+                size="sm"
+                onClick={() => setShowEquipment((v) => !v)}
+                title={showEquipment ? 'Hide equipment' : 'Show equipment'}
+              >
+                <Package size={14} />
+                Equip
+              </Button>
+              <Button
                 variant="secondary"
                 size="sm"
                 onClick={handleCopyDiscord}
@@ -385,6 +396,7 @@ export function OrbatBuilderPage({
                     onAddSlot={handleAddSlot}
                     onRemoveSlot={handleRemoveSlot}
                     onReorderSlots={handleReorderSlots}
+                    showEquipment={showEquipment}
                   />
                 ))}
                 {template.groups.length === 0 && (

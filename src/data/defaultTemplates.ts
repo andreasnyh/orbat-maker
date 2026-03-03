@@ -11,12 +11,21 @@ export const defaultTemplates: Template[] = [
         id: 'default-section-charlie',
         name: 'Charlie',
         slots: [
-          { id: 'default-section-charlie-pm', roleLabel: 'Pointman' },
-          { id: 'default-section-charlie-ic', roleLabel: 'IC' },
+          {
+            id: 'default-section-charlie-pm',
+            roleLabel: 'Pointman',
+            equipment: ['NLAW'],
+          },
+          {
+            id: 'default-section-charlie-ic',
+            roleLabel: 'IC',
+            equipment: ['AT4'],
+          },
           { id: 'default-section-charlie-gren', roleLabel: 'Grenadier' },
           {
             id: 'default-section-charlie-ar',
-            roleLabel: 'Auto Rifleman (Minimi)',
+            roleLabel: 'Auto Rifleman',
+            equipment: ['Minimi'],
           },
         ],
       },
@@ -24,10 +33,22 @@ export const defaultTemplates: Template[] = [
         id: 'default-section-delta',
         name: 'Delta',
         slots: [
-          { id: 'default-section-delta-dm', roleLabel: 'Designated Marksman' },
-          { id: 'default-section-delta-2ic', roleLabel: '2IC' },
+          {
+            id: 'default-section-delta-dm',
+            roleLabel: 'Designated Marksman',
+            equipment: ['NLAW'],
+          },
+          {
+            id: 'default-section-delta-2ic',
+            roleLabel: '2IC',
+            equipment: ['AT4'],
+          },
           { id: 'default-section-delta-med', roleLabel: 'Team Medic' },
-          { id: 'default-section-delta-ar', roleLabel: 'Auto Rifleman (GPMG)' },
+          {
+            id: 'default-section-delta-ar',
+            roleLabel: 'Auto Rifleman',
+            equipment: ['GPMG'],
+          },
         ],
       },
     ],

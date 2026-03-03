@@ -7,6 +7,7 @@ export interface Person {
 export interface Slot {
   id: string;
   roleLabel: string;
+  equipment?: string[];
 }
 
 export interface Group {

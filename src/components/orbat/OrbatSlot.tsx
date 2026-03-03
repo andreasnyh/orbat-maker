@@ -14,6 +14,7 @@ interface OrbatSlotProps {
   person: Person | undefined;
   orbatId: string;
   onRemoveSlot?: (slotId: string) => void;
+  showEquipment?: boolean;
 }
 
 export function OrbatSlot({
@@ -22,6 +23,7 @@ export function OrbatSlot({
   person,
   orbatId,
   onRemoveSlot,
+  showEquipment,
 }: OrbatSlotProps) {
   const { unassignSlot } = useOrbatsState();
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -141,6 +143,20 @@ export function OrbatSlot({
             '[EMPTY]'
           )}
         </span>
+
+        {/* Equipment pills */}
+        {showEquipment && slot.equipment && slot.equipment.length > 0 && (
+          <div className="flex items-center gap-1 shrink-0">
+            {slot.equipment.map((tag) => (
+              <span
+                key={tag}
+                className="inline-block bg-amber-400/15 text-amber-300 text-[10px] font-mono rounded-full px-1.5 py-px"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Unassign button */}
         {assignment && (

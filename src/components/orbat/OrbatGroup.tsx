@@ -15,6 +15,7 @@ interface OrbatGroupProps {
   onAddSlot?: (groupId: string, roleLabel: string) => void;
   onRemoveSlot?: (groupId: string, slotId: string) => void;
   onReorderSlots?: (groupId: string, slots: Slot[]) => void;
+  showEquipment?: boolean;
 }
 
 export function OrbatGroup({
@@ -25,6 +26,7 @@ export function OrbatGroup({
   onAddSlot,
   onRemoveSlot,
   onReorderSlots: _onReorderSlots,
+  showEquipment,
 }: OrbatGroupProps) {
   const [addingSlot, setAddingSlot] = useState(false);
   const [newRoleLabel, setNewRoleLabel] = useState('');
@@ -92,6 +94,7 @@ export function OrbatGroup({
                   person={person}
                   orbatId={orbatId}
                   onRemoveSlot={onRemoveSlot ? handleRemoveSlot : undefined}
+                  showEquipment={showEquipment}
                 />
               );
             })}

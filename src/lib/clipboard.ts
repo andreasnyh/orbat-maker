@@ -46,8 +46,11 @@ export function formatOrbatForTeamspeak(
       const assignment = orbat.assignments.find((a) => a.slotId === slot.id);
       if (!assignment) continue;
       const personDisplay = getPersonDisplay(assignment.personId, personMap);
+      const equipStr = slot.equipment?.length
+        ? ` — ${slot.equipment.join(', ')}`
+        : '';
       lines.push(
-        `  ${padRight(`${slot.roleLabel}:`, maxLen + 1)}  ${personDisplay}`,
+        `  ${padRight(`${slot.roleLabel}:`, maxLen + 1)}  ${personDisplay}${equipStr}`,
       );
     }
   }
@@ -81,7 +84,10 @@ export function formatOrbatForDiscord(
       const assignment = orbat.assignments.find((a) => a.slotId === slot.id);
       if (!assignment) continue;
       const personDisplay = getPersonDisplay(assignment.personId, personMap);
-      lines.push(`\`${slot.roleLabel}\`  ${personDisplay}`);
+      const equipStr = slot.equipment?.length
+        ? ` — ${slot.equipment.join(', ')}`
+        : '';
+      lines.push(`\`${slot.roleLabel}\`  ${personDisplay}${equipStr}`);
     }
   }
 
