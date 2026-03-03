@@ -7,6 +7,7 @@ import { PeopleRosterPage } from './components/people/PeopleRosterPage';
 import { TemplateEditorPage } from './components/templates/TemplateEditorPage';
 import { TemplateListPage } from './components/templates/TemplateListPage';
 import { AppStateProvider } from './context/AppStateContext';
+import { ToastProvider } from './hooks/useToast';
 import type { Page } from './types';
 
 function App() {
@@ -41,9 +42,11 @@ function App() {
 
   return (
     <AppStateProvider>
-      <AppShell currentPage={currentPage} onNavigate={navigate}>
-        {renderPage()}
-      </AppShell>
+      <ToastProvider>
+        <AppShell currentPage={currentPage} onNavigate={navigate}>
+          {renderPage()}
+        </AppShell>
+      </ToastProvider>
     </AppStateProvider>
   );
 }

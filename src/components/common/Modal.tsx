@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { type ReactNode, useEffect } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef } from 'react';
 
 interface ModalProps {
   open: boolean;
@@ -8,7 +8,13 @@ interface ModalProps {
   children: ReactNode;
 }
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+
 export function Modal({ open, onClose, title, children }: ModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Escape key to close
   useEffect(() => {
     if (open) {
       const onKey = (e: KeyboardEvent) => {
@@ -19,6 +25,36 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
     }
   }, [open, onClose]);
 
+  // Focus trap
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key !== 'Tab' || !dialogRef.current) return;
+    const focusable =
+      dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }, []);
+
+  // Auto-focus first focusable element on open
+  useEffect(() => {
+    if (open && dialogRef.current) {
+      const first =
+        dialogRef.current.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+      first?.focus();
+    }
+  }, [open]);
+
   if (!open) return null;
 
   return (
@@ -26,14 +62,17 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       {/* biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop dismiss */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: Escape key handled via document listener */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: focus trap handler */}
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="relative bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto overscroll-contain"
+        className="relative bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto overscroll-contain animate-scale-in"
+        onKeyDown={handleKeyDown}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#2a2a4a]">
           <h2

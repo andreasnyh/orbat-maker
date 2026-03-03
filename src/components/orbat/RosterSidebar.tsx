@@ -118,25 +118,18 @@ export function RosterSidebar({
         </div>
 
         {/* Hide assigned toggle */}
-        {/* biome-ignore lint/a11y/noLabelWithoutControl: custom toggle with keyboard handling */}
         <label className="flex items-center gap-2 cursor-pointer select-none group">
-          {/* biome-ignore lint/a11y/useSemanticElements: custom styled toggle switch */}
-          <div
-            role="checkbox"
-            aria-checked={hideAssigned}
-            tabIndex={0}
-            onClick={() => setHideAssigned((v) => !v)}
-            onKeyDown={(e) => {
-              if (e.key === ' ') {
-                e.preventDefault();
-                setHideAssigned((v) => !v);
-              } else if (e.key === 'Enter') {
-                setHideAssigned((v) => !v);
-              }
-            }}
+          <input
+            type="checkbox"
+            checked={hideAssigned}
+            onChange={(e) => setHideAssigned(e.target.checked)}
+            className="sr-only peer"
+          />
+          <span
+            aria-hidden="true"
             className={clsx(
               'relative w-8 h-4.5 rounded-full transition-colors border shrink-0',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:ring-offset-1 focus-visible:ring-offset-[#1a1a2e]',
+              'peer-focus-visible:ring-2 peer-focus-visible:ring-green-400/60 peer-focus-visible:ring-offset-1 peer-focus-visible:ring-offset-[#1a1a2e]',
               hideAssigned
                 ? 'bg-green-600 border-green-500'
                 : 'bg-[#0f0f23] border-[#2a2a4a]',
@@ -148,7 +141,7 @@ export function RosterSidebar({
                 hideAssigned ? 'translate-x-4' : 'translate-x-0.5',
               )}
             />
-          </div>
+          </span>
           <span className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors">
             Hide assigned
           </span>

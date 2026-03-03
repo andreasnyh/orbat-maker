@@ -15,11 +15,13 @@ import {
   AlertTriangle,
   ArrowLeft,
   Clipboard,
+  Pencil,
   RotateCcw,
   Users,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppState } from '../../context/AppStateContext';
+import { useToast } from '../../hooks/useToast';
 import {
   copyToClipboard,
   formatOrbatForDiscord,
@@ -63,6 +65,7 @@ export function OrbatBuilderPage({
     reorderSlotsInGroup,
     unassignSlot,
   } = useAppState();
+  const toast = useToast();
 
   const orbat = orbats.find((o) => o.id === orbatId);
   const template = orbat
@@ -77,8 +80,6 @@ export function OrbatBuilderPage({
   const overlayRef = useRef<HTMLDivElement>(null);
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState(orbat?.name ?? '');
-  const [discordCopied, setDiscordCopied] = useState(false);
-  const [teamspeakCopied, setTeamspeakCopied] = useState(false);
   const [showRoster, setShowRoster] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
 
@@ -189,20 +190,14 @@ export function OrbatBuilderPage({
     if (!orbat || !template) return;
     const text = formatOrbatForDiscord(orbat, template, people);
     const ok = await copyToClipboard(text);
-    if (ok) {
-      setDiscordCopied(true);
-      setTimeout(() => setDiscordCopied(false), 2000);
-    }
+    if (ok) toast.success('Copied for Discord');
   }
 
   async function handleCopyTeamspeak() {
     if (!orbat || !template) return;
     const text = formatOrbatForTeamspeak(orbat, template, people);
     const ok = await copyToClipboard(text);
-    if (ok) {
-      setTeamspeakCopied(true);
-      setTimeout(() => setTeamspeakCopied(false), 2000);
-    }
+    if (ok) toast.success('Copied for TeamSpeak');
   }
 
   // ---- Slot management (auto-fork + mutate) --------------------------------
@@ -285,7 +280,7 @@ export function OrbatBuilderPage({
               />
             ) : (
               <h1
-                className="font-display text-xl font-bold text-gray-100 uppercase tracking-wide truncate cursor-pointer hover:text-green-400 transition-colors"
+                className="font-display text-xl font-bold text-gray-100 uppercase tracking-wide truncate cursor-pointer hover:text-green-400 transition-colors inline-flex items-center gap-2 group/name"
                 onClick={() => {
                   setNameValue(orbat.name);
                   setEditingName(true);
@@ -300,7 +295,11 @@ export function OrbatBuilderPage({
                 role="button"
                 title="Click to rename"
               >
-                {orbat.name}
+                <span className="truncate">{orbat.name}</span>
+                <Pencil
+                  size={14}
+                  className="shrink-0 text-gray-600 group-hover/name:text-green-400 transition-colors"
+                />
               </h1>
             )}
           </div>
@@ -313,20 +312,18 @@ export function OrbatBuilderPage({
                 size="sm"
                 onClick={handleCopyDiscord}
                 title="Copy formatted ORBAT for Discord"
-                className={discordCopied ? 'text-green-400' : ''}
               >
                 <Clipboard size={14} />
-                {discordCopied ? 'Copied!' : 'Discord'}
+                Discord
               </Button>
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={handleCopyTeamspeak}
                 title="Copy formatted ORBAT for TeamSpeak"
-                className={teamspeakCopied ? 'text-green-400' : ''}
               >
                 <Clipboard size={14} />
-                {teamspeakCopied ? 'Copied!' : 'TeamSpeak'}
+                TeamSpeak
               </Button>
               {orbat.assignments.length > 0 && (
                 <Button

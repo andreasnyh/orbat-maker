@@ -1,4 +1,10 @@
-import { ClipboardList, FolderOpen, Plus, Trash2 } from 'lucide-react';
+import {
+  ChevronDown,
+  ClipboardList,
+  FolderOpen,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
 import { useAppState } from '../../context/AppStateContext';
 import type { Page, Template } from '../../types';
@@ -243,25 +249,31 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
             <label htmlFor="orbat-template" className="text-sm text-gray-400">
               Template
             </label>
-            <select
-              id="orbat-template"
-              value={newTemplateId}
-              onChange={(e) => setNewTemplateId(e.target.value)}
-              className="bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2 text-gray-200 text-sm
-                         focus:outline-none focus:border-green-400/50 focus:ring-1 focus:ring-green-400/25
-                         appearance-none cursor-pointer"
-            >
-              {templates.length === 0 && (
-                <option value="" disabled>
-                  No templates available
-                </option>
-              )}
-              {templates.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                id="orbat-template"
+                value={newTemplateId}
+                onChange={(e) => setNewTemplateId(e.target.value)}
+                className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2 pr-9 text-gray-200 text-sm
+                           focus:outline-none focus:border-green-400/50 focus:ring-1 focus:ring-green-400/25
+                           appearance-none cursor-pointer"
+              >
+                {templates.length === 0 && (
+                  <option value="" disabled>
+                    No templates available
+                  </option>
+                )}
+                {templates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                size={16}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+              />
+            </div>
           </div>
 
           <TextInput

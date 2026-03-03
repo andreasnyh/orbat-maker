@@ -71,7 +71,7 @@ export function AboutPage() {
           Privacy
         </h2>
         <p className="text-gray-400 text-sm">
-          This site uses{" "}
+          This site uses{' '}
           <a
             href="https://www.goatcounter.com"
             target="_blank"
@@ -79,7 +79,7 @@ export function AboutPage() {
             className="text-green-400 hover:text-green-300 transition-colors"
           >
             GoatCounter
-          </a>{" "}
+          </a>{' '}
           for anonymous visit statistics. No cookies are used and no personal
           data is collected.
         </p>
