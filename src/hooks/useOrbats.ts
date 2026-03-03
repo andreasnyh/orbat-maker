@@ -53,6 +53,42 @@ export function useOrbats() {
     [setOrbats],
   )
 
+  const swapSlotAssignments = useCallback(
+    (orbatId: string, slotIdA: string, slotIdB: string) => {
+      setOrbats(prev =>
+        prev.map(o => {
+          if (o.id !== orbatId) return o
+          const assignA = o.assignments.find(a => a.slotId === slotIdA)
+          const assignB = o.assignments.find(a => a.slotId === slotIdB)
+          // Build new assignments with the two slots swapped
+          const updated = o.assignments.map(a => {
+            if (a.slotId === slotIdA && assignB) return { slotId: slotIdA, personId: assignB.personId }
+            if (a.slotId === slotIdB && assignA) return { slotId: slotIdB, personId: assignA.personId }
+            return a
+          })
+          return { ...o, assignments: updated }
+        }),
+      )
+    },
+    [setOrbats],
+  )
+
+  const movePersonToSlot = useCallback(
+    (orbatId: string, sourceSlotId: string, targetSlotId: string) => {
+      setOrbats(prev =>
+        prev.map(o => {
+          if (o.id !== orbatId) return o
+          const assignment = o.assignments.find(a => a.slotId === sourceSlotId)
+          if (!assignment) return o
+          // Remove from source, assign to target
+          const filtered = o.assignments.filter(a => a.slotId !== sourceSlotId)
+          return { ...o, assignments: [...filtered, { slotId: targetSlotId, personId: assignment.personId }] }
+        }),
+      )
+    },
+    [setOrbats],
+  )
+
   const unassignSlot = useCallback(
     (orbatId: string, slotId: string) => {
       setOrbats(prev =>
@@ -65,5 +101,5 @@ export function useOrbats() {
     [setOrbats],
   )
 
-  return { orbats, createOrbat, updateOrbat, deleteOrbat, assignPersonToSlot, unassignSlot, setOrbats }
+  return { orbats, createOrbat, updateOrbat, deleteOrbat, assignPersonToSlot, swapSlotAssignments, movePersonToSlot, unassignSlot, setOrbats }
 }

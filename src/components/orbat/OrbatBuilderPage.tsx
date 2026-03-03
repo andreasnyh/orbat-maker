@@ -33,7 +33,7 @@ interface OrbatBuilderPageProps {
 }
 
 export function OrbatBuilderPage({ orbatId, onNavigate }: OrbatBuilderPageProps) {
-  const { orbats, templates, people, assignPersonToSlot, updateOrbat } = useAppState()
+  const { orbats, templates, people, assignPersonToSlot, swapSlotAssignments, movePersonToSlot, updateOrbat } = useAppState()
 
   const orbat = orbats.find(o => o.id === orbatId)
   const template = orbat ? templates.find(t => t.id === orbat.templateId) : undefined
@@ -80,10 +80,26 @@ export function OrbatBuilderPage({ orbatId, onNavigate }: OrbatBuilderPageProps)
     setPointerPos(null)
     const { active, over } = event
     if (!over) return
+
     const personId = active.data.current?.personId as string | undefined
-    const slotId = over.data.current?.slotId as string | undefined
-    if (personId && slotId) {
-      assignPersonToSlot(orbatId, slotId, personId)
+    const sourceSlotId = active.data.current?.sourceSlotId as string | undefined
+    const targetSlotId = over.data.current?.slotId as string | undefined
+
+    if (!targetSlotId || !personId) return
+
+    // Dragged from a slot (re-arranging within the ORBAT)
+    if (sourceSlotId) {
+      if (sourceSlotId === targetSlotId) return // dropped on same slot
+      // Check if target slot has someone assigned
+      const targetAssignment = orbat?.assignments.find(a => a.slotId === targetSlotId)
+      if (targetAssignment) {
+        swapSlotAssignments(orbatId, sourceSlotId, targetSlotId)
+      } else {
+        movePersonToSlot(orbatId, sourceSlotId, targetSlotId)
+      }
+    } else {
+      // Dragged from roster sidebar
+      assignPersonToSlot(orbatId, targetSlotId, personId)
     }
   }
 
