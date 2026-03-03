@@ -1,5 +1,38 @@
 import type { ExportBundle, ORBAT, Person, Template } from '../types';
 
+export interface Conflict<T> {
+  incoming: T;
+  existingMatch: T;
+  resolution: 'skip' | 'add';
+}
+
+export function detectNameConflicts<T extends { id: string; name: string }>(
+  incoming: T[],
+  existing: T[],
+): Conflict<T>[] {
+  const existingIds = new Set(existing.map((item) => item.id));
+  const existingByName = new Map<string, T>();
+  for (const item of existing) {
+    existingByName.set(item.name.trim().toLowerCase(), item);
+  }
+
+  const conflicts: Conflict<T>[] = [];
+  for (const item of incoming) {
+    // Skip items that already match by ID (those are silently skipped)
+    if (existingIds.has(item.id)) continue;
+
+    const match = existingByName.get(item.name.trim().toLowerCase());
+    if (match) {
+      conflicts.push({
+        incoming: item,
+        existingMatch: match,
+        resolution: 'skip',
+      });
+    }
+  }
+  return conflicts;
+}
+
 const CURRENT_VERSION = 1;
 
 export function createExportBundle(options: {
