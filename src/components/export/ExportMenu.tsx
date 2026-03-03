@@ -29,7 +29,7 @@ export function ExportMenu() {
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, [dropdownOpen]);
 
-  function handleExport(type: 'people' | 'templates' | 'orbats' | 'all') {
+  function handleExport(type: 'people' | 'templates' | 'all') {
     setDropdownOpen(false);
     switch (type) {
       case 'people':
@@ -42,12 +42,6 @@ export function ExportMenu() {
         downloadJson(
           createExportBundle({ templates }),
           generateFilename('templates'),
-        );
-        break;
-      case 'orbats':
-        downloadJson(
-          createExportBundle({ orbats }),
-          generateFilename('orbats'),
         );
         break;
       case 'all':
@@ -86,10 +80,6 @@ export function ExportMenu() {
               <DropdownItem
                 label="Export Templates"
                 onClick={() => handleExport('templates')}
-              />
-              <DropdownItem
-                label="Export ORBATs"
-                onClick={() => handleExport('orbats')}
               />
               <div className="border-t border-[#2a2a4a] my-1" />
               <DropdownItem

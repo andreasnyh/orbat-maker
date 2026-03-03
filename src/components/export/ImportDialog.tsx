@@ -18,8 +18,7 @@ type ImportState =
   | { phase: 'success'; description: string };
 
 export function ImportDialog({ open, onClose }: ImportDialogProps) {
-  const { people, setPeople, templates, setTemplates, orbats, setOrbats } =
-    useAppState();
+  const { people, setPeople, templates, setTemplates } = useAppState();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<ImportState>({ phase: 'idle' });
 
@@ -68,15 +67,6 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
       );
       if (newTemplates.length > 0) {
         setTemplates((prev) => [...prev, ...newTemplates]);
-      }
-    }
-
-    // Merge ORBATs — skip IDs that already exist
-    if (bundle.orbats?.length) {
-      const existingIds = new Set(orbats.map((o) => o.id));
-      const newOrbats = bundle.orbats.filter((o) => !existingIds.has(o.id));
-      if (newOrbats.length > 0) {
-        setOrbats((prev) => [...prev, ...newOrbats]);
       }
     }
 

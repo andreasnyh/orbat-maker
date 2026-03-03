@@ -27,9 +27,7 @@ export function downloadJson(bundle: ExportBundle, filename: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 100);
 }
 
-export function generateFilename(
-  type: 'people' | 'templates' | 'orbats' | 'all',
-): string {
+export function generateFilename(type: 'people' | 'templates' | 'all'): string {
   const date = new Date().toISOString().split('T')[0];
   return `orbat-maker-${type}-${date}.json`;
 }
