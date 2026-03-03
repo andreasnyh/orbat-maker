@@ -66,6 +66,25 @@ export function AboutPage() {
         </a>
       </div>
 
+      <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a4a] p-6 space-y-4">
+        <h2 className="font-display text-lg font-semibold text-gray-200 uppercase tracking-wide">
+          Privacy
+        </h2>
+        <p className="text-gray-400 text-sm">
+          This site uses{" "}
+          <a
+            href="https://www.goatcounter.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-green-400 hover:text-green-300 transition-colors"
+          >
+            GoatCounter
+          </a>{" "}
+          for anonymous visit statistics. No cookies are used and no personal
+          data is collected.
+        </p>
+      </div>
+
       <div className="border-t border-[#2a2a4a] pt-6">
         <p className="text-gray-500 text-xs text-center">
           &copy; {new Date().getFullYear()} Andr&eacute;as Ny. Released under
