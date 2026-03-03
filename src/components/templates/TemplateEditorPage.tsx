@@ -231,7 +231,8 @@ export function TemplateEditorPage({
               onChange={(e) => setNameDraft(e.target.value)}
               onBlur={commitName}
               onKeyDown={handleNameKeyDown}
-              className="w-full bg-[#0f0f23] border border-green-400/50 rounded-md px-3 py-1.5 text-2xl font-bold text-gray-100 focus:outline-none focus:ring-1 focus:ring-green-400/25"
+              aria-label="Template name"
+              className="w-full bg-[#0f0f23] border border-green-400/50 rounded-md px-3 py-1.5 text-2xl font-bold text-gray-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/25"
             />
           ) : (
             <h1
@@ -239,6 +240,8 @@ export function TemplateEditorPage({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') setEditingName(true);
               }}
+              tabIndex={0}
+              role="button"
               className="font-display text-2xl font-bold text-gray-100 uppercase tracking-wide cursor-text hover:text-white"
               title="Click to edit name"
             >
@@ -257,7 +260,8 @@ export function TemplateEditorPage({
               onBlur={commitDesc}
               onKeyDown={handleDescKeyDown}
               placeholder="Add a description…"
-              className="w-full bg-[#0f0f23] border border-green-400/50 rounded-md px-3 py-1 text-sm text-gray-400 focus:outline-none focus:ring-1 focus:ring-green-400/25"
+              aria-label="Template description"
+              className="w-full bg-[#0f0f23] border border-green-400/50 rounded-md px-3 py-1 text-sm text-gray-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/25"
             />
           ) : (
             <p
@@ -265,6 +269,8 @@ export function TemplateEditorPage({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') setEditingDesc(true);
               }}
+              tabIndex={0}
+              role="button"
               className={`text-sm cursor-text hover:text-gray-300 transition-colors ${
                 template.description ? 'text-gray-400' : 'text-gray-600 italic'
               }`}

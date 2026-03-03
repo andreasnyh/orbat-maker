@@ -109,10 +109,11 @@ export function RosterSidebar({
           <input
             type="text"
             placeholder="Search people…"
+            aria-label="Search people"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded-md pl-8 pr-3 py-2 text-gray-200 text-sm
-                       placeholder:text-gray-600 focus:outline-none focus:border-green-400/50 focus:ring-1 focus:ring-green-400/25"
+                       placeholder:text-gray-600 focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25"
           />
         </div>
 

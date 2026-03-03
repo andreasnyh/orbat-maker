@@ -61,6 +61,8 @@ export function ExportMenu() {
           <button
             type="button"
             onClick={() => setDropdownOpen((prev) => !prev)}
+            aria-expanded={dropdownOpen}
+            aria-haspopup="menu"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-gray-400 hover:text-gray-200 transition-colors"
           >
             <Download size={16} />
@@ -72,7 +74,10 @@ export function ExportMenu() {
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 top-full mt-1 w-44 bg-[#1a1a2e] border border-[#2a2a4a] rounded-md shadow-xl z-50 py-1">
+            <div
+              role="menu"
+              className="absolute right-0 top-full mt-1 w-44 bg-[#1a1a2e] border border-[#2a2a4a] rounded-md shadow-xl z-50 py-1"
+            >
               <DropdownItem
                 label="Export People"
                 onClick={() => handleExport('people')}
@@ -117,6 +122,7 @@ function DropdownItem({ label, onClick, bold }: DropdownItemProps) {
   return (
     <button
       type="button"
+      role="menuitem"
       onClick={onClick}
       className={`w-full text-left px-4 py-2 text-sm hover:bg-white/5 hover:text-green-400 transition-colors ${
         bold ? 'text-gray-200 font-medium' : 'text-gray-400'

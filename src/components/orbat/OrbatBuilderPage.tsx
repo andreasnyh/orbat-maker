@@ -296,6 +296,8 @@ export function OrbatBuilderPage({
                     setEditingName(true);
                   }
                 }}
+                tabIndex={0}
+                role="button"
                 title="Click to rename"
               >
                 {orbat.name}
@@ -453,6 +455,7 @@ export function OrbatBuilderPage({
         style={{
           maxHeight: '70dvh',
           paddingBottom: 'env(safe-area-inset-bottom)',
+          overscrollBehavior: 'contain',
         }}
         aria-hidden={!showRoster}
       >

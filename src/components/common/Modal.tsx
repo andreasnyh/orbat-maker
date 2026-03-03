@@ -29,16 +29,24 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        className="relative bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto overscroll-contain"
+      >
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#2a2a4a]">
-          <h2 className="font-display text-lg font-semibold text-gray-200 uppercase tracking-wide">
+          <h2
+            id="modal-title"
+            className="font-display text-lg font-semibold text-gray-200 uppercase tracking-wide"
+          >
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-gray-400 hover:text-gray-200 transition-colors"
+            className="text-gray-400 hover:text-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 rounded"
           >
             <X size={20} />
           </button>

@@ -37,7 +37,7 @@ export function PersonForm({
       <TextInput
         ref={nameRef}
         label="Name"
-        placeholder="e.g. John Smith"
+        placeholder="e.g. John Smith…"
         value={name}
         onChange={(e) => setName(e.target.value)}
         required

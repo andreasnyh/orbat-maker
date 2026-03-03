@@ -113,8 +113,9 @@ export function OrbatGroup({
               onChange={(e) => setNewRoleLabel(e.target.value)}
               onBlur={commitNewSlot}
               onKeyDown={handleInputKeyDown}
-              placeholder="Role label..."
-              className="w-full bg-[#0f0f23] border border-green-400/50 rounded px-3 py-1.5 text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-green-400/25"
+              placeholder="Role label…"
+              aria-label="New slot role label"
+              className="w-full bg-[#0f0f23] border border-green-400/50 rounded px-3 py-1.5 text-xs text-gray-200 placeholder-gray-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/25"
             />
           ) : (
             <button

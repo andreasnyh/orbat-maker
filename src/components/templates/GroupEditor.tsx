@@ -139,6 +139,9 @@ export function GroupEditor({
           {/* Drag handle for the group */}
           <span
             className="text-gray-600 hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
+            role="button"
+            tabIndex={0}
+            aria-label={`Reorder ${group.name}`}
             {...dragHandleProps}
           >
             <GripVertical size={16} />
@@ -153,7 +156,8 @@ export function GroupEditor({
                 onChange={(e) => setNameDraft(e.target.value)}
                 onBlur={commitGroupName}
                 onKeyDown={handleNameKeyDown}
-                className="w-full bg-[#0f0f23] border border-green-400/50 rounded px-2 py-0.5 text-sm font-semibold text-gray-200 focus:outline-none focus:ring-1 focus:ring-green-400/25"
+                aria-label="Group name"
+                className="w-full bg-[#0f0f23] border border-green-400/50 rounded px-2 py-0.5 text-sm font-semibold text-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/25"
               />
             ) : (
               <button
@@ -176,6 +180,7 @@ export function GroupEditor({
           <button
             onClick={() => setConfirmDelete(true)}
             className="shrink-0 text-gray-600 hover:text-red-400 transition-colors"
+            aria-label={`Delete ${group.name}`}
             title="Delete group"
             type="button"
           >

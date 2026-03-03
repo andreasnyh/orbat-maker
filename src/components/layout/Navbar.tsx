@@ -81,6 +81,7 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
                   ? 'text-green-400'
                   : 'text-gray-400 hover:text-green-400/70'
               }`}
+              aria-label="About"
               title="About"
             >
               <Info size={18} />

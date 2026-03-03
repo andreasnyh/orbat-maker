@@ -64,6 +64,9 @@ export function SlotEditor({
       {/* Drag handle */}
       <span
         className="text-gray-600 hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
+        role="button"
+        tabIndex={0}
+        aria-label={`Reorder ${slot.roleLabel}`}
         {...dragHandleProps}
       >
         <GripVertical size={14} />
@@ -78,7 +81,8 @@ export function SlotEditor({
             onChange={(e) => setDraft(e.target.value)}
             onBlur={commitEdit}
             onKeyDown={handleKeyDown}
-            className="w-full bg-[#0f0f23] border border-green-400/50 rounded px-2 py-0.5 text-sm font-mono text-gray-200 focus:outline-none focus:ring-1 focus:ring-green-400/25"
+            aria-label="Role label"
+            className="w-full bg-[#0f0f23] border border-green-400/50 rounded px-2 py-0.5 text-sm font-mono text-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/25"
           />
         ) : (
           <button
@@ -95,7 +99,8 @@ export function SlotEditor({
       {/* Delete button — always visible on hover */}
       <button
         onClick={onDelete}
-        className="shrink-0 text-gray-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+        className="shrink-0 text-gray-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+        aria-label={`Remove ${slot.roleLabel}`}
         title="Remove slot"
         type="button"
       >
