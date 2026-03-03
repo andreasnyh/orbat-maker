@@ -3,8 +3,10 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
 import { GripVertical, Trash2, X } from 'lucide-react';
+import { useState } from 'react';
 import { useAppState } from '../../context/AppStateContext';
 import type { Assignment, Person, Slot } from '../../types';
+import { ConfirmDialog } from '../common/ConfirmDialog';
 
 interface OrbatSlotProps {
   slot: Slot;
@@ -22,6 +24,7 @@ export function OrbatSlot({
   onRemoveSlot,
 }: OrbatSlotProps) {
   const { unassignSlot } = useAppState();
+  const [confirmRemove, setConfirmRemove] = useState(false);
 
   // Sortable — also acts as the droppable target for person drops.
   // The outer DndContext reads `slotId` from `over.data.current` for both
@@ -64,7 +67,7 @@ export function OrbatSlot({
 
   function handleRemoveSlot(e: React.MouseEvent) {
     e.stopPropagation();
-    onRemoveSlot?.(slot.id);
+    setConfirmRemove(true);
   }
 
   const sortableStyle: React.CSSProperties = {
@@ -163,6 +166,15 @@ export function OrbatSlot({
           </button>
         )}
       </div>
+
+      <ConfirmDialog
+        open={confirmRemove}
+        title={`Delete "${slot.roleLabel}" slot?`}
+        message="This will permanently remove the slot from this group."
+        confirmLabel="Delete"
+        onConfirm={() => onRemoveSlot?.(slot.id)}
+        onClose={() => setConfirmRemove(false)}
+      />
     </div>
   );
 }

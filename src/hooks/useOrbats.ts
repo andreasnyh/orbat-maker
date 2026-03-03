@@ -103,6 +103,15 @@ export function useOrbats() {
     [setOrbats],
   );
 
+  const clearAssignments = useCallback(
+    (orbatId: string) => {
+      setOrbats((prev) =>
+        prev.map((o) => (o.id === orbatId ? { ...o, assignments: [] } : o)),
+      );
+    },
+    [setOrbats],
+  );
+
   const unassignSlot = useCallback(
     (orbatId: string, slotId: string) => {
       setOrbats((prev) =>
@@ -126,6 +135,7 @@ export function useOrbats() {
     assignPersonToSlot,
     swapSlotAssignments,
     movePersonToSlot,
+    clearAssignments,
     unassignSlot,
     setOrbats,
   };

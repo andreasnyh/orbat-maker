@@ -11,7 +11,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { AlertTriangle, ArrowLeft, Clipboard, Users } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Clipboard, RotateCcw, Users } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppState } from '../../context/AppStateContext';
 import {
@@ -21,6 +21,7 @@ import {
 } from '../../lib/clipboard';
 import type { Page, Person, Slot } from '../../types';
 import { Button } from '../common/Button';
+import { ConfirmDialog } from '../common/ConfirmDialog';
 import { TextInput } from '../common/TextInput';
 import { PersonCard } from '../people/PersonCard';
 import { OrbatGroup } from './OrbatGroup';
@@ -48,6 +49,7 @@ export function OrbatBuilderPage({
     assignPersonToSlot,
     swapSlotAssignments,
     movePersonToSlot,
+    clearAssignments,
     updateOrbat,
     ensureOwnTemplate,
     addSlotToGroup,
@@ -72,6 +74,7 @@ export function OrbatBuilderPage({
   const [discordCopied, setDiscordCopied] = useState(false);
   const [teamspeakCopied, setTeamspeakCopied] = useState(false);
   const [showRoster, setShowRoster] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
 
   // ---- DnD sensors ---------------------------------------------------------
   const sensors = useSensors(
@@ -300,7 +303,7 @@ export function OrbatBuilderPage({
             {orbat.date && <div>{orbat.date}</div>}
           </div>
 
-          {/* Copy buttons — only shown when a template is available */}
+          {/* Copy & reset buttons — only shown when a template is available */}
           {template && (
             <div className="flex-shrink-0 flex items-center gap-2">
               <Button
@@ -323,6 +326,17 @@ export function OrbatBuilderPage({
                 <Clipboard size={14} />
                 {teamspeakCopied ? 'Copied!' : 'TeamSpeak'}
               </Button>
+              {orbat.assignments.length > 0 && (
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => setConfirmClear(true)}
+                  title="Clear all assignments"
+                >
+                  <RotateCcw size={14} />
+                  Clear
+                </Button>
+              )}
             </div>
           )}
         </div>
@@ -446,6 +460,15 @@ export function OrbatBuilderPage({
           />
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmClear}
+        title="Clear all assignments?"
+        message="This will unassign every person from this ORBAT. The ORBAT structure and roster are kept."
+        confirmLabel="Clear"
+        onConfirm={() => clearAssignments(orbatId)}
+        onClose={() => setConfirmClear(false)}
+      />
     </DndContext>
   );
 }
