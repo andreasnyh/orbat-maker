@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="32" fill="#1a1a2e"/>
+  <!-- Shield shape -->
+  <path d="M96 24 L152 48 L152 96 C152 132 96 168 96 168 C96 168 40 132 40 96 L40 48 Z"
+        fill="#0f0f23" stroke="#4ade80" stroke-width="4"/>
+  <!-- Letter O -->
+  <text x="96" y="118" font-family="monospace,sans-serif" font-size="64" font-weight="bold"
+        fill="#4ade80" text-anchor="middle">O</text>
+</svg>
