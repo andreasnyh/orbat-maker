@@ -63,7 +63,7 @@ export function SlotEditor({
     <div className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-white/5 group">
       {/* Drag handle */}
       <span
-        className="text-gray-600 hover:text-gray-400 cursor-grab active:cursor-grabbing flex-shrink-0"
+        className="text-gray-600 hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
         {...dragHandleProps}
       >
         <GripVertical size={14} />
@@ -95,7 +95,7 @@ export function SlotEditor({
       {/* Delete button — always visible on hover */}
       <button
         onClick={onDelete}
-        className="flex-shrink-0 text-gray-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+        className="shrink-0 text-gray-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
         title="Remove slot"
         type="button"
       >

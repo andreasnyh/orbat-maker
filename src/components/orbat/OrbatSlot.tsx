@@ -95,7 +95,7 @@ export function OrbatSlot({
       >
         {/* Grip handle for reordering */}
         <span
-          className="text-gray-700 hover:text-gray-400 cursor-grab active:cursor-grabbing flex-shrink-0"
+          className="text-gray-700 hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
           {...sortableAttrs}
           {...sortableListeners}
           onPointerDown={(e) => {
@@ -108,14 +108,14 @@ export function OrbatSlot({
 
         {/* Role label */}
         <span
-          className="font-data text-sm text-gray-500 w-44 flex-shrink-0 truncate"
+          className="font-data text-sm text-gray-500 w-44 shrink-0 truncate"
           title={slot.roleLabel}
         >
           {slot.roleLabel}
         </span>
 
         {/* Divider */}
-        <span className="text-gray-700 flex-shrink-0">—</span>
+        <span className="text-gray-700 shrink-0">—</span>
 
         {/* Assigned person or empty indicator */}
         <span
@@ -146,7 +146,7 @@ export function OrbatSlot({
             type="button"
             onClick={handleUnassign}
             onPointerDown={(e) => e.stopPropagation()}
-            className="flex-shrink-0 text-gray-600 hover:text-red-400 transition-colors p-0.5 rounded"
+            className="shrink-0 text-gray-600 hover:text-red-400 transition-colors p-0.5 rounded"
             aria-label={`Remove ${person?.name ?? 'person'} from ${slot.roleLabel}`}
             title="Remove assignment"
           >
@@ -160,7 +160,7 @@ export function OrbatSlot({
             type="button"
             onClick={handleRemoveSlot}
             onPointerDown={(e) => e.stopPropagation()}
-            className="flex-shrink-0 text-gray-700 hover:text-red-400 transition-colors p-0.5 rounded"
+            className="shrink-0 text-gray-700 hover:text-red-400 transition-colors p-0.5 rounded"
             aria-label={`Delete ${slot.roleLabel} slot`}
             title="Delete slot"
           >

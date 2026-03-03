@@ -93,7 +93,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
                 <div className="flex items-center gap-2 min-w-0">
                   <LayoutTemplate
                     size={16}
-                    className="text-indigo-400 flex-shrink-0 mt-0.5"
+                    className="text-indigo-400 shrink-0 mt-0.5"
                   />
                   <span className="font-display font-semibold text-gray-200 truncate">
                     {template.name}

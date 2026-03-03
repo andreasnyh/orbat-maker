@@ -138,7 +138,7 @@ export function GroupEditor({
         <div className="flex items-center gap-2 px-3 py-2 border-b border-[#2a2a4a] bg-[#15152a]">
           {/* Drag handle for the group */}
           <span
-            className="text-gray-600 hover:text-gray-400 cursor-grab active:cursor-grabbing flex-shrink-0"
+            className="text-gray-600 hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
             {...dragHandleProps}
           >
             <GripVertical size={16} />
@@ -168,14 +168,14 @@ export function GroupEditor({
           </div>
 
           {/* Slot count */}
-          <span className="flex-shrink-0 text-xs text-gray-500 font-data">
+          <span className="shrink-0 text-xs text-gray-500 font-data">
             {group.slots.length} {group.slots.length === 1 ? 'slot' : 'slots'}
           </span>
 
           {/* Delete group button */}
           <button
             onClick={() => setConfirmDelete(true)}
-            className="flex-shrink-0 text-gray-600 hover:text-red-400 transition-colors"
+            className="shrink-0 text-gray-600 hover:text-red-400 transition-colors"
             title="Delete group"
             type="button"
           >

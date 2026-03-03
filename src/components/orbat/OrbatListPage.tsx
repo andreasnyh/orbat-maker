@@ -131,7 +131,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                   <div className="flex items-center gap-2 min-w-0">
                     <ClipboardList
                       size={16}
-                      className="text-green-400 flex-shrink-0 mt-0.5"
+                      className="text-green-400 shrink-0 mt-0.5"
                     />
                     <span className="font-display font-semibold text-gray-200 truncate">
                       {orbat.name}

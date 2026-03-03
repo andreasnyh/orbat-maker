@@ -58,7 +58,7 @@ function ConflictSection<T extends { id: string; name: string }>({
               Matches existing: {conflict.existingMatch.name}
             </span>
           </div>
-          <div className="flex gap-1 flex-shrink-0">
+          <div className="flex gap-1 shrink-0">
             <button
               type="button"
               onClick={() => onToggle(i, 'skip')}
@@ -225,7 +225,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
 
             {state.phase === 'error' && (
               <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded-md p-3 text-red-400 text-sm">
-                <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
+                <AlertTriangle size={16} className="shrink-0 mt-0.5" />
                 <span>{state.message}</span>
               </div>
             )}
@@ -285,7 +285,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         {state.phase === 'conflicts' && (
           <>
             <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-md p-3 text-amber-300 text-sm">
-              <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
+              <AlertTriangle size={16} className="shrink-0 mt-0.5" />
               <span>
                 {totalConflicts} name{' '}
                 {totalConflicts === 1 ? 'conflict' : 'conflicts'} found

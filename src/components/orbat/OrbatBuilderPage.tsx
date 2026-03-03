@@ -266,7 +266,7 @@ export function OrbatBuilderPage({
             variant="ghost"
             size="sm"
             onClick={() => onNavigate('orbats')}
-            className="flex-shrink-0"
+            className="shrink-0"
           >
             <ArrowLeft size={14} />
             ORBATs
@@ -305,7 +305,7 @@ export function OrbatBuilderPage({
 
           {/* Copy & reset buttons — only shown when a template is available */}
           {template && (
-            <div className="flex-shrink-0 flex items-center gap-2">
+            <div className="shrink-0 flex items-center gap-2">
               <Button
                 variant="secondary"
                 size="sm"
@@ -353,7 +353,7 @@ export function OrbatBuilderPage({
         {/* Missing template warning */}
         {!template && (
           <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-3 text-yellow-300 text-sm flex items-center gap-2">
-            <AlertTriangle size={16} className="flex-shrink-0" />
+            <AlertTriangle size={16} className="shrink-0" />
             The template for this ORBAT no longer exists. You can still view
             assignments but cannot add new slots.
           </div>
@@ -365,7 +365,7 @@ export function OrbatBuilderPage({
           <div className="hidden md:block">
             <RosterSidebar
               assignments={orbat.assignments}
-              className="w-80 flex-shrink-0"
+              className="w-80 shrink-0"
             />
           </div>
 
@@ -458,7 +458,7 @@ export function OrbatBuilderPage({
       >
         <div className="flex flex-col p-4" style={{ maxHeight: '70dvh' }}>
           {/* Drag handle indicator */}
-          <div className="flex justify-center mb-3 flex-shrink-0">
+          <div className="flex justify-center mb-3 shrink-0">
             <div className="w-10 h-1 rounded-full bg-[#2a2a4a]" />
           </div>
 

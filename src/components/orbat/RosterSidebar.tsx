@@ -134,7 +134,7 @@ export function RosterSidebar({
               }
             }}
             className={clsx(
-              'relative w-8 h-4.5 rounded-full transition-colors border flex-shrink-0',
+              'relative w-8 h-4.5 rounded-full transition-colors border shrink-0',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:ring-offset-1 focus-visible:ring-offset-[#1a1a2e]',
               hideAssigned
                 ? 'bg-green-600 border-green-500'
