@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="80" fill="#1a1a2e"/>
-  <!-- Shield shape -->
-  <path d="M256 60 L412 124 L412 256 C412 356 256 452 256 452 C256 452 100 356 100 256 L100 124 Z"
+  <!-- Shield with subtle angled top -->
+  <path d="M80 102 L256 60 L432 102 L432 256 C432 370 256 462 256 462 C256 462 80 370 80 256 Z"
         fill="#0f0f23" stroke="#4ade80" stroke-width="10"/>
-  <!-- Letter O -->
-  <text x="256" y="316" font-family="monospace,sans-serif" font-size="172" font-weight="bold"
-        fill="#4ade80" text-anchor="middle">O</text>
+  <!-- OM monogram -->
+  <text x="256" y="310" font-family="'Barlow Condensed',sans-serif" font-size="160" font-weight="700"
+        fill="#4ade80" text-anchor="middle" letter-spacing="-5">OM</text>
 </svg>
