@@ -96,11 +96,11 @@ export function OrbatSlot({
         {/* Grip handle for reordering */}
         <span
           className="text-gray-700 hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
-          role="button"
-          tabIndex={0}
           aria-label={`Reorder ${slot.roleLabel}`}
           {...sortableAttrs}
           {...sortableListeners}
+          role="button"
+          tabIndex={0}
           onPointerDown={(e) => {
             e.stopPropagation();
             sortableListeners?.onPointerDown?.(e as unknown as PointerEvent);
