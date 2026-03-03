@@ -1,56 +1,61 @@
-import { useState, useRef, useEffect } from 'react'
-import { GripVertical, X } from 'lucide-react'
-import type { Slot } from '../../types'
+import { GripVertical, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import type { Slot } from '../../types';
 
 interface SlotEditorProps {
-  slot: Slot
-  onUpdate: (slot: Slot) => void
-  onDelete: () => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dragHandleProps?: Record<string, any>
+  slot: Slot;
+  onUpdate: (slot: Slot) => void;
+  onDelete: () => void;
+  // biome-ignore lint/suspicious/noExplicitAny: drag handle props from dnd-kit
+  dragHandleProps?: Record<string, any>;
 }
 
-export function SlotEditor({ slot, onUpdate, onDelete, dragHandleProps }: SlotEditorProps) {
-  const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState(slot.roleLabel)
-  const inputRef = useRef<HTMLInputElement>(null)
+export function SlotEditor({
+  slot,
+  onUpdate,
+  onDelete,
+  dragHandleProps,
+}: SlotEditorProps) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(slot.roleLabel);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (editing) {
-      inputRef.current?.focus()
-      inputRef.current?.select()
+      inputRef.current?.focus();
+      inputRef.current?.select();
     }
-  }, [editing])
+  }, [editing]);
 
   // Keep draft in sync if the slot changes from outside (e.g. parent reorders)
   useEffect(() => {
     if (!editing) {
-      setDraft(slot.roleLabel)
+      setDraft(slot.roleLabel);
     }
-  }, [slot.roleLabel, editing])
+  }, [slot.roleLabel, editing]);
 
   function commitEdit() {
-    const trimmed = draft.trim()
+    const trimmed = draft.trim();
     if (trimmed && trimmed !== slot.roleLabel) {
-      onUpdate({ ...slot, roleLabel: trimmed })
+      onUpdate({ ...slot, roleLabel: trimmed });
     } else {
-      setDraft(slot.roleLabel)
+      setDraft(slot.roleLabel);
     }
-    setEditing(false)
+    setEditing(false);
   }
 
   function cancelEdit() {
-    setDraft(slot.roleLabel)
-    setEditing(false)
+    setDraft(slot.roleLabel);
+    setEditing(false);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
-      e.preventDefault()
-      commitEdit()
+      e.preventDefault();
+      commitEdit();
     } else if (e.key === 'Escape') {
-      e.preventDefault()
-      cancelEdit()
+      e.preventDefault();
+      cancelEdit();
     }
   }
 
@@ -70,22 +75,20 @@ export function SlotEditor({ slot, onUpdate, onDelete, dragHandleProps }: SlotEd
           <input
             ref={inputRef}
             value={draft}
-            onChange={e => setDraft(e.target.value)}
+            onChange={(e) => setDraft(e.target.value)}
             onBlur={commitEdit}
             onKeyDown={handleKeyDown}
             className="w-full bg-[#0f0f23] border border-green-400/50 rounded px-2 py-0.5 text-sm font-mono text-gray-200 focus:outline-none focus:ring-1 focus:ring-green-400/25"
           />
         ) : (
-          <span
-            role="button"
-            tabIndex={0}
+          <button
+            type="button"
             onClick={() => setEditing(true)}
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setEditing(true) }}
-            className="block font-mono text-sm text-gray-300 cursor-text hover:text-gray-100 truncate"
+            className="block w-full text-left font-mono text-sm text-gray-300 cursor-text hover:text-gray-100 truncate bg-transparent border-none p-0"
             title="Click to edit"
           >
             {slot.roleLabel}
-          </span>
+          </button>
         )}
       </div>
 
@@ -99,5 +102,5 @@ export function SlotEditor({ slot, onUpdate, onDelete, dragHandleProps }: SlotEd
         <X size={14} />
       </button>
     </div>
-  )
+  );
 }

@@ -1,12 +1,12 @@
-import { type ReactNode } from 'react'
-import { Navbar } from './Navbar'
-import { MobileNav } from './MobileNav'
-import type { Page } from '../../types'
+import type { ReactNode } from 'react';
+import type { Page } from '../../types';
+import { MobileNav } from './MobileNav';
+import { Navbar } from './Navbar';
 
 interface AppShellProps {
-  currentPage: Page
-  onNavigate: (page: Page, id?: string) => void
-  children: ReactNode
+  currentPage: Page;
+  onNavigate: (page: Page, id?: string) => void;
+  children: ReactNode;
 }
 
 export function AppShell({ currentPage, onNavigate, children }: AppShellProps) {
@@ -18,10 +18,12 @@ export function AppShell({ currentPage, onNavigate, children }: AppShellProps) {
       </div>
 
       {/* Main content — adds bottom padding on mobile to clear the fixed MobileNav */}
-      <main className="max-w-6xl mx-auto px-4 py-6 pb-24 md:pb-6">{children}</main>
+      <main className="max-w-6xl mx-auto px-4 py-6 pb-24 md:pb-6">
+        {children}
+      </main>
 
       {/* Mobile bottom navigation — hidden on desktop */}
       <MobileNav currentPage={currentPage} onNavigate={onNavigate} />
     </div>
-  )
+  );
 }

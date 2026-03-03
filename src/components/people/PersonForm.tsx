@@ -1,31 +1,36 @@
-import { useState, useEffect, useRef } from 'react'
-import { Button } from '../common/Button'
-import { TextInput } from '../common/TextInput'
+import { useEffect, useRef, useState } from 'react';
+import { Button } from '../common/Button';
+import { TextInput } from '../common/TextInput';
 
 interface PersonFormProps {
-  onSubmit: (name: string, rank?: string) => void
-  onCancel: () => void
-  initialName?: string
-  initialRank?: string
+  onSubmit: (name: string, rank?: string) => void;
+  onCancel: () => void;
+  initialName?: string;
+  initialRank?: string;
 }
 
-export function PersonForm({ onSubmit, onCancel, initialName = '', initialRank = '' }: PersonFormProps) {
-  const [name, setName] = useState(initialName)
-  const [rank, setRank] = useState(initialRank)
-  const nameRef = useRef<HTMLInputElement>(null)
+export function PersonForm({
+  onSubmit,
+  onCancel,
+  initialName = '',
+  initialRank = '',
+}: PersonFormProps) {
+  const [name, setName] = useState(initialName);
+  const [rank, setRank] = useState(initialRank);
+  const nameRef = useRef<HTMLInputElement>(null);
 
-  const isEditMode = initialName !== ''
+  const isEditMode = initialName !== '';
 
   useEffect(() => {
-    nameRef.current?.focus()
-  }, [])
+    nameRef.current?.focus();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const trimmedName = name.trim()
-    if (!trimmedName) return
-    onSubmit(trimmedName, rank.trim() || undefined)
-  }
+    e.preventDefault();
+    const trimmedName = name.trim();
+    if (!trimmedName) return;
+    onSubmit(trimmedName, rank.trim() || undefined);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -34,7 +39,7 @@ export function PersonForm({ onSubmit, onCancel, initialName = '', initialRank =
         label="Name"
         placeholder="e.g. John Smith"
         value={name}
-        onChange={e => setName(e.target.value)}
+        onChange={(e) => setName(e.target.value)}
         required
         autoComplete="off"
       />
@@ -42,7 +47,7 @@ export function PersonForm({ onSubmit, onCancel, initialName = '', initialRank =
         label="Rank (optional)"
         placeholder="e.g. SGT, CPT, LTC"
         value={rank}
-        onChange={e => setRank(e.target.value)}
+        onChange={(e) => setRank(e.target.value)}
         autoComplete="off"
       />
       <div className="flex justify-end gap-3 pt-1">
@@ -54,5 +59,5 @@ export function PersonForm({ onSubmit, onCancel, initialName = '', initialRank =
         </Button>
       </div>
     </form>
-  )
+  );
 }

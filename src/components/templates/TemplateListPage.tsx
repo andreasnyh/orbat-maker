@@ -1,65 +1,69 @@
-import { useState } from 'react'
-import { Plus, Pencil, Copy, Trash2, LayoutTemplate } from 'lucide-react'
-import { useAppState } from '../../context/AppStateContext'
-import { Button } from '../common/Button'
-import { TextInput } from '../common/TextInput'
-import { Modal } from '../common/Modal'
-import { ConfirmDialog } from '../common/ConfirmDialog'
-import { Badge } from '../common/Badge'
-import type { Page } from '../../types'
+import { Copy, LayoutTemplate, Pencil, Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { useAppState } from '../../context/AppStateContext';
+import type { Page } from '../../types';
+import { Badge } from '../common/Badge';
+import { Button } from '../common/Button';
+import { ConfirmDialog } from '../common/ConfirmDialog';
+import { Modal } from '../common/Modal';
+import { TextInput } from '../common/TextInput';
 
 interface TemplateListPageProps {
-  onNavigate: (page: Page, id?: string) => void
+  onNavigate: (page: Page, id?: string) => void;
 }
 
 export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
-  const { templates, addTemplate, deleteTemplate, duplicateTemplate } = useAppState()
+  const { templates, addTemplate, deleteTemplate, duplicateTemplate } =
+    useAppState();
 
   // ---- New template modal state ---------------------------------------------
-  const [showNewModal, setShowNewModal] = useState(false)
-  const [newName, setNewName] = useState('')
-  const [newDesc, setNewDesc] = useState('')
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newDesc, setNewDesc] = useState('');
 
   // ---- Delete confirmation state --------------------------------------------
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   // ---- Handlers -------------------------------------------------------------
 
   function handleCreateTemplate() {
-    const trimmedName = newName.trim()
-    if (!trimmedName) return
-    const created = addTemplate(trimmedName, newDesc.trim() || undefined)
-    setShowNewModal(false)
-    setNewName('')
-    setNewDesc('')
+    const trimmedName = newName.trim();
+    if (!trimmedName) return;
+    const created = addTemplate(trimmedName, newDesc.trim() || undefined);
+    setShowNewModal(false);
+    setNewName('');
+    setNewDesc('');
     // Navigate directly into the editor for the new template
-    onNavigate('template-editor', created.id)
+    onNavigate('template-editor', created.id);
   }
 
   function handleCloseNewModal() {
-    setShowNewModal(false)
-    setNewName('')
-    setNewDesc('')
+    setShowNewModal(false);
+    setNewName('');
+    setNewDesc('');
   }
 
   function handleDuplicate(id: string) {
-    duplicateTemplate(id)
+    duplicateTemplate(id);
   }
 
   function handleDeleteConfirm() {
     if (deleteTarget) {
-      deleteTemplate(deleteTarget.id)
-      setDeleteTarget(null)
+      deleteTemplate(deleteTarget.id);
+      setDeleteTarget(null);
     }
   }
 
   // ---- Derived stats --------------------------------------------------------
 
   function templateStats(templateId: string) {
-    const t = templates.find(t => t.id === templateId)
-    if (!t) return { groups: 0, slots: 0 }
-    const slots = t.groups.reduce((sum, g) => sum + g.slots.length, 0)
-    return { groups: t.groups.length, slots }
+    const t = templates.find((t) => t.id === templateId);
+    if (!t) return { groups: 0, slots: 0 };
+    const slots = t.groups.reduce((sum, g) => sum + g.slots.length, 0);
+    return { groups: t.groups.length, slots };
   }
 
   // ---- Render ---------------------------------------------------------------
@@ -84,8 +88,8 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
 
       {/* Template grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {templates.map(template => {
-          const { groups, slots } = templateStats(template.id)
+        {templates.map((template) => {
+          const { groups, slots } = templateStats(template.id);
           return (
             <div
               key={template.id}
@@ -94,24 +98,33 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
               {/* Card header */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <LayoutTemplate size={16} className="text-green-400 flex-shrink-0 mt-0.5" />
-                  <span className="font-semibold text-gray-200 truncate">{template.name}</span>
+                  <LayoutTemplate
+                    size={16}
+                    className="text-green-400 flex-shrink-0 mt-0.5"
+                  />
+                  <span className="font-semibold text-gray-200 truncate">
+                    {template.name}
+                  </span>
                 </div>
-                {template.isDefault && (
-                  <Badge variant="green">Default</Badge>
-                )}
+                {template.isDefault && <Badge variant="green">Default</Badge>}
               </div>
 
               {/* Description */}
               {template.description && (
-                <p className="text-sm text-gray-400 line-clamp-2">{template.description}</p>
+                <p className="text-sm text-gray-400 line-clamp-2">
+                  {template.description}
+                </p>
               )}
 
               {/* Stats */}
               <div className="flex items-center gap-3 text-xs text-gray-500">
-                <span>{groups} {groups === 1 ? 'group' : 'groups'}</span>
+                <span>
+                  {groups} {groups === 1 ? 'group' : 'groups'}
+                </span>
                 <span className="text-gray-700">·</span>
-                <span>{slots} {slots === 1 ? 'slot' : 'slots'}</span>
+                <span>
+                  {slots} {slots === 1 ? 'slot' : 'slots'}
+                </span>
               </div>
 
               {/* Card actions */}
@@ -137,7 +150,9 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
                   <Button
                     variant="danger"
                     size="sm"
-                    onClick={() => setDeleteTarget({ id: template.id, name: template.name })}
+                    onClick={() =>
+                      setDeleteTarget({ id: template.id, name: template.name })
+                    }
                     title="Delete template"
                   >
                     <Trash2 size={13} />
@@ -145,27 +160,35 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
                 )}
               </div>
             </div>
-          )
+          );
         })}
       </div>
 
       {/* New Template modal */}
-      <Modal open={showNewModal} onClose={handleCloseNewModal} title="New Template">
+      <Modal
+        open={showNewModal}
+        onClose={handleCloseNewModal}
+        title="New Template"
+      >
         <div className="flex flex-col gap-4">
           <TextInput
             label="Name"
             placeholder="e.g. Fire Team, Squad, Platoon…"
             value={newName}
-            onChange={e => setNewName(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleCreateTemplate() }}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleCreateTemplate();
+            }}
             autoFocus
           />
           <TextInput
             label="Description (optional)"
             placeholder="Brief description of this template"
             value={newDesc}
-            onChange={e => setNewDesc(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleCreateTemplate() }}
+            onChange={(e) => setNewDesc(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleCreateTemplate();
+            }}
           />
           <div className="flex justify-end gap-3 pt-1">
             <Button variant="secondary" onClick={handleCloseNewModal}>
@@ -192,5 +215,5 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
         confirmLabel="Delete Template"
       />
     </div>
-  )
+  );
 }

@@ -1,150 +1,229 @@
-import { useEffect, useRef, useState } from 'react'
 import {
   DndContext,
+  type DragEndEvent,
   DragOverlay,
-  pointerWithin,
+  type DragStartEvent,
+  MeasuringStrategy,
   PointerSensor,
+  pointerWithin,
   TouchSensor,
   useSensor,
   useSensors,
-  MeasuringStrategy,
-  type DragStartEvent,
-  type DragEndEvent,
-} from '@dnd-kit/core'
-import { ArrowLeft, AlertTriangle, Clipboard, Users } from 'lucide-react'
-import { useAppState } from '../../context/AppStateContext'
-import { RosterSidebar } from './RosterSidebar'
-import { OrbatGroup } from './OrbatGroup'
-import { PersonCard } from '../people/PersonCard'
-import { TextInput } from '../common/TextInput'
-import { Button } from '../common/Button'
-import { formatOrbatForDiscord, formatOrbatForTeamspeak, copyToClipboard } from '../../lib/clipboard'
-import type { Page, Person } from '../../types'
+} from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
+import { AlertTriangle, ArrowLeft, Clipboard, Users } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useAppState } from '../../context/AppStateContext';
+import {
+  copyToClipboard,
+  formatOrbatForDiscord,
+  formatOrbatForTeamspeak,
+} from '../../lib/clipboard';
+import type { Page, Person, Slot } from '../../types';
+import { Button } from '../common/Button';
+import { TextInput } from '../common/TextInput';
+import { PersonCard } from '../people/PersonCard';
+import { OrbatGroup } from './OrbatGroup';
+import { RosterSidebar } from './RosterSidebar';
 
 // Re-measure droppable rects frequently so collision detection stays
 // accurate when the page or a nested container has been scrolled.
 const measuringConfig = {
   droppable: { strategy: MeasuringStrategy.Always },
-}
+};
 
 interface OrbatBuilderPageProps {
-  orbatId: string
-  onNavigate: (page: Page) => void
+  orbatId: string;
+  onNavigate: (page: Page) => void;
 }
 
-export function OrbatBuilderPage({ orbatId, onNavigate }: OrbatBuilderPageProps) {
-  const { orbats, templates, people, assignPersonToSlot, swapSlotAssignments, movePersonToSlot, updateOrbat } = useAppState()
+export function OrbatBuilderPage({
+  orbatId,
+  onNavigate,
+}: OrbatBuilderPageProps) {
+  const {
+    orbats,
+    templates,
+    people,
+    assignPersonToSlot,
+    swapSlotAssignments,
+    movePersonToSlot,
+    updateOrbat,
+    ensureOwnTemplate,
+    addSlotToGroup,
+    removeSlotFromGroup,
+    reorderSlotsInGroup,
+    unassignSlot,
+  } = useAppState();
 
-  const orbat = orbats.find(o => o.id === orbatId)
-  const template = orbat ? templates.find(t => t.id === orbat.templateId) : undefined
+  const orbat = orbats.find((o) => o.id === orbatId);
+  const template = orbat
+    ? templates.find((t) => t.id === orbat.templateId)
+    : undefined;
 
   // ---- Local state ----------------------------------------------------------
-  const [activePerson, setActivePerson] = useState<Person | null>(null)
-  const [pointerPos, setPointerPos] = useState<{ x: number; y: number } | null>(null)
-  const overlayRef = useRef<HTMLDivElement>(null)
-  const [editingName, setEditingName] = useState(false)
-  const [nameValue, setNameValue] = useState(orbat?.name ?? '')
-  const [discordCopied, setDiscordCopied] = useState(false)
-  const [teamspeakCopied, setTeamspeakCopied] = useState(false)
-  const [showRoster, setShowRoster] = useState(false)
+  const [activePerson, setActivePerson] = useState<Person | null>(null);
+  const [pointerPos, setPointerPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const [editingName, setEditingName] = useState(false);
+  const [nameValue, setNameValue] = useState(orbat?.name ?? '');
+  const [discordCopied, setDiscordCopied] = useState(false);
+  const [teamspeakCopied, setTeamspeakCopied] = useState(false);
+  const [showRoster, setShowRoster] = useState(false);
 
   // ---- DnD sensors ---------------------------------------------------------
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { distance: 8 } }),
-  )
+  );
 
   // ---- Pointer tracking for custom overlay ---------------------------------
   useEffect(() => {
     if (!activePerson) {
-      setPointerPos(null)
-      return
+      setPointerPos(null);
+      return;
     }
     function onPointerMove(e: PointerEvent) {
-      setPointerPos({ x: e.clientX, y: e.clientY })
+      setPointerPos({ x: e.clientX, y: e.clientY });
     }
-    window.addEventListener('pointermove', onPointerMove)
-    return () => window.removeEventListener('pointermove', onPointerMove)
-  }, [activePerson])
+    window.addEventListener('pointermove', onPointerMove);
+    return () => window.removeEventListener('pointermove', onPointerMove);
+  }, [activePerson]);
 
   // ---- Drag handlers -------------------------------------------------------
 
   function handleDragStart(event: DragStartEvent) {
-    const personId = event.active.data.current?.personId
-    const person = people.find(p => p.id === personId)
-    setActivePerson(person ?? null)
+    const personId = event.active.data.current?.personId;
+    const person = people.find((p) => p.id === personId);
+    setActivePerson(person ?? null);
   }
 
   function handleDragEnd(event: DragEndEvent) {
-    setActivePerson(null)
-    setPointerPos(null)
-    const { active, over } = event
-    if (!over) return
+    setActivePerson(null);
+    setPointerPos(null);
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-    const personId = active.data.current?.personId as string | undefined
-    const sourceSlotId = active.data.current?.sourceSlotId as string | undefined
-    const targetSlotId = over.data.current?.slotId as string | undefined
+    // ---- Slot reorder drag (grip handle) ----
+    if (active.data.current?.type === 'slot-reorder') {
+      const activeSlotId = active.data.current.slotId as string;
+      const overSlotId = over.data.current?.slotId as string | undefined;
+      if (!overSlotId || !template) return;
 
-    if (!targetSlotId || !personId) return
+      // Find the group containing this slot
+      const group = template.groups.find((g) =>
+        g.slots.some((s) => s.id === activeSlotId),
+      );
+      if (!group) return;
+
+      const oldIndex = group.slots.findIndex((s) => s.id === activeSlotId);
+      const newIndex = group.slots.findIndex((s) => s.id === overSlotId);
+      if (oldIndex === -1 || newIndex === -1) return;
+
+      handleReorderSlots(group.id, arrayMove(group.slots, oldIndex, newIndex));
+      return;
+    }
+
+    // ---- Person drag (roster or slot-to-slot) ----
+    const personId = active.data.current?.personId as string | undefined;
+    const sourceSlotId = active.data.current?.sourceSlotId as
+      | string
+      | undefined;
+    const targetSlotId = over.data.current?.slotId as string | undefined;
+
+    if (!targetSlotId || !personId) return;
 
     // Dragged from a slot (re-arranging within the ORBAT)
     if (sourceSlotId) {
-      if (sourceSlotId === targetSlotId) return // dropped on same slot
+      if (sourceSlotId === targetSlotId) return; // dropped on same slot
       // Check if target slot has someone assigned
-      const targetAssignment = orbat?.assignments.find(a => a.slotId === targetSlotId)
+      const targetAssignment = orbat?.assignments.find(
+        (a) => a.slotId === targetSlotId,
+      );
       if (targetAssignment) {
-        swapSlotAssignments(orbatId, sourceSlotId, targetSlotId)
+        swapSlotAssignments(orbatId, sourceSlotId, targetSlotId);
       } else {
-        movePersonToSlot(orbatId, sourceSlotId, targetSlotId)
+        movePersonToSlot(orbatId, sourceSlotId, targetSlotId);
       }
     } else {
       // Dragged from roster sidebar
-      assignPersonToSlot(orbatId, targetSlotId, personId)
+      assignPersonToSlot(orbatId, targetSlotId, personId);
     }
   }
 
   // ---- Name editing --------------------------------------------------------
 
   function handleNameCommit() {
-    const trimmed = nameValue.trim()
+    const trimmed = nameValue.trim();
     if (trimmed && trimmed !== orbat?.name) {
-      updateOrbat(orbatId, { name: trimmed })
+      updateOrbat(orbatId, { name: trimmed });
     } else if (!trimmed) {
       // Revert to existing name if field is cleared
-      setNameValue(orbat?.name ?? '')
+      setNameValue(orbat?.name ?? '');
     }
-    setEditingName(false)
+    setEditingName(false);
   }
 
   function handleNameKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter') handleNameCommit()
+    if (e.key === 'Enter') handleNameCommit();
     if (e.key === 'Escape') {
-      setNameValue(orbat?.name ?? '')
-      setEditingName(false)
+      setNameValue(orbat?.name ?? '');
+      setEditingName(false);
     }
   }
 
   // ---- Clipboard copy handlers --------------------------------------------
 
   async function handleCopyDiscord() {
-    if (!orbat || !template) return
-    const text = formatOrbatForDiscord(orbat, template, people)
-    const ok = await copyToClipboard(text)
+    if (!orbat || !template) return;
+    const text = formatOrbatForDiscord(orbat, template, people);
+    const ok = await copyToClipboard(text);
     if (ok) {
-      setDiscordCopied(true)
-      setTimeout(() => setDiscordCopied(false), 2000)
+      setDiscordCopied(true);
+      setTimeout(() => setDiscordCopied(false), 2000);
     }
   }
 
   async function handleCopyTeamspeak() {
-    if (!orbat || !template) return
-    const text = formatOrbatForTeamspeak(orbat, template, people)
-    const ok = await copyToClipboard(text)
+    if (!orbat || !template) return;
+    const text = formatOrbatForTeamspeak(orbat, template, people);
+    const ok = await copyToClipboard(text);
     if (ok) {
-      setTeamspeakCopied(true)
-      setTimeout(() => setTeamspeakCopied(false), 2000)
+      setTeamspeakCopied(true);
+      setTimeout(() => setTeamspeakCopied(false), 2000);
     }
   }
+
+  // ---- Slot management (auto-fork + mutate) --------------------------------
+
+  const handleAddSlot = useCallback(
+    (groupId: string, roleLabel: string) => {
+      const tid = ensureOwnTemplate(orbatId);
+      if (tid) addSlotToGroup(tid, groupId, roleLabel);
+    },
+    [orbatId, ensureOwnTemplate, addSlotToGroup],
+  );
+
+  const handleRemoveSlot = useCallback(
+    (groupId: string, slotId: string) => {
+      const tid = ensureOwnTemplate(orbatId);
+      if (tid) {
+        unassignSlot(orbatId, slotId);
+        removeSlotFromGroup(tid, groupId, slotId);
+      }
+    },
+    [orbatId, ensureOwnTemplate, removeSlotFromGroup, unassignSlot],
+  );
+
+  const handleReorderSlots = useCallback(
+    (groupId: string, slots: Slot[]) => {
+      const tid = ensureOwnTemplate(orbatId);
+      if (tid) reorderSlotsInGroup(tid, groupId, slots);
+    },
+    [orbatId, ensureOwnTemplate, reorderSlotsInGroup],
+  );
 
   // ---- Guard: ORBAT not found ---------------------------------------------
 
@@ -158,7 +237,7 @@ export function OrbatBuilderPage({ orbatId, onNavigate }: OrbatBuilderPageProps)
           Back to ORBATs
         </Button>
       </div>
-    )
+    );
   }
 
   // ---- Render -------------------------------------------------------------
@@ -189,7 +268,7 @@ export function OrbatBuilderPage({ orbatId, onNavigate }: OrbatBuilderPageProps)
             {editingName ? (
               <TextInput
                 value={nameValue}
-                onChange={e => setNameValue(e.target.value)}
+                onChange={(e) => setNameValue(e.target.value)}
                 onBlur={handleNameCommit}
                 onKeyDown={handleNameKeyDown}
                 autoFocus
@@ -199,8 +278,14 @@ export function OrbatBuilderPage({ orbatId, onNavigate }: OrbatBuilderPageProps)
               <h1
                 className="text-xl font-bold text-gray-100 truncate cursor-pointer hover:text-green-400 transition-colors"
                 onClick={() => {
-                  setNameValue(orbat.name)
-                  setEditingName(true)
+                  setNameValue(orbat.name);
+                  setEditingName(true);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    setNameValue(orbat.name);
+                    setEditingName(true);
+                  }
                 }}
                 title="Click to rename"
               >
@@ -246,7 +331,8 @@ export function OrbatBuilderPage({ orbatId, onNavigate }: OrbatBuilderPageProps)
         {!template && (
           <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-3 text-yellow-300 text-sm flex items-center gap-2">
             <AlertTriangle size={16} className="flex-shrink-0" />
-            The template for this ORBAT no longer exists. You can still view assignments but cannot add new slots.
+            The template for this ORBAT no longer exists. You can still view
+            assignments but cannot add new slots.
           </div>
         )}
 
@@ -264,18 +350,22 @@ export function OrbatBuilderPage({ orbatId, onNavigate }: OrbatBuilderPageProps)
           <div className="flex-1 overflow-y-auto">
             {template ? (
               <div className="flex flex-col gap-6">
-                {template.groups.map(group => (
+                {template.groups.map((group) => (
                   <OrbatGroup
                     key={group.id}
                     group={group}
                     assignments={orbat.assignments}
                     people={people}
                     orbatId={orbatId}
+                    onAddSlot={handleAddSlot}
+                    onRemoveSlot={handleRemoveSlot}
+                    onReorderSlots={handleReorderSlots}
                   />
                 ))}
                 {template.groups.length === 0 && (
                   <div className="text-center py-16 text-gray-600 text-sm italic">
-                    This template has no groups. Edit the template to add groups and slots.
+                    This template has no groups. Edit the template to add groups
+                    and slots.
                   </div>
                 )}
               </div>
@@ -314,6 +404,7 @@ export function OrbatBuilderPage({ orbatId, onNavigate }: OrbatBuilderPageProps)
 
       {/* FAB: Show Roster button — mobile only */}
       <button
+        type="button"
         onClick={() => setShowRoster(true)}
         className="fixed bottom-20 right-4 z-40 md:hidden flex items-center gap-2 bg-green-600 hover:bg-green-500 active:bg-green-700 text-white rounded-full px-4 py-3 shadow-lg shadow-black/40 transition-colors min-h-[44px]"
         aria-label="Show roster"
@@ -356,5 +447,5 @@ export function OrbatBuilderPage({ orbatId, onNavigate }: OrbatBuilderPageProps)
         </div>
       </div>
     </DndContext>
-  )
+  );
 }

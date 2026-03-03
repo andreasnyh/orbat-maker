@@ -1,4 +1,4 @@
-import type { Template } from '../types'
+import type { Template } from '../types';
 
 export const defaultTemplates: Template[] = [
   {
@@ -14,7 +14,10 @@ export const defaultTemplates: Template[] = [
           { id: 'default-section-charlie-pm', roleLabel: 'Pointman' },
           { id: 'default-section-charlie-ic', roleLabel: 'IC' },
           { id: 'default-section-charlie-gren', roleLabel: 'Grenadier' },
-          { id: 'default-section-charlie-ar', roleLabel: 'Auto Rifleman (Minimi)' },
+          {
+            id: 'default-section-charlie-ar',
+            roleLabel: 'Auto Rifleman (Minimi)',
+          },
         ],
       },
       {
@@ -64,4 +67,4 @@ export const defaultTemplates: Template[] = [
       },
     ],
   },
-]
+];

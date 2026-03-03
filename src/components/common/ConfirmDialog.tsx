@@ -1,14 +1,14 @@
-import { Modal } from './Modal'
-import { Button } from './Button'
+import { Button } from './Button';
+import { Modal } from './Modal';
 
 interface ConfirmDialogProps {
-  open: boolean
-  onClose: () => void
-  onConfirm: () => void
-  title: string
-  message: string
-  confirmLabel?: string
-  variant?: 'danger' | 'primary'
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  variant?: 'danger' | 'primary';
 }
 
 export function ConfirmDialog({
@@ -30,13 +30,13 @@ export function ConfirmDialog({
         <Button
           variant={variant}
           onClick={() => {
-            onConfirm()
-            onClose()
+            onConfirm();
+            onClose();
           }}
         >
           {confirmLabel}
         </Button>
       </div>
     </Modal>
-  )
+  );
 }

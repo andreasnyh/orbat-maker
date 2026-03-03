@@ -1,9 +1,9 @@
-import { type ReactNode } from 'react'
-import clsx from 'clsx'
+import clsx from 'clsx';
+import type { ReactNode } from 'react';
 
 interface BadgeProps {
-  children: ReactNode
-  variant?: 'default' | 'green' | 'yellow'
+  children: ReactNode;
+  variant?: 'default' | 'green' | 'yellow';
 }
 
 export function Badge({ children, variant = 'default' }: BadgeProps) {
@@ -20,5 +20,5 @@ export function Badge({ children, variant = 'default' }: BadgeProps) {
     >
       {children}
     </span>
-  )
+  );
 }

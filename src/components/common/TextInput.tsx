@@ -1,14 +1,20 @@
-import { type InputHTMLAttributes, type Ref, useId } from 'react'
-import clsx from 'clsx'
+import clsx from 'clsx';
+import { type InputHTMLAttributes, type Ref, useId } from 'react';
 
 interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string
-  ref?: Ref<HTMLInputElement>
+  label?: string;
+  ref?: Ref<HTMLInputElement>;
 }
 
-export function TextInput({ label, className, id, ref, ...props }: TextInputProps) {
-  const reactId = useId()
-  const inputId = id || reactId
+export function TextInput({
+  label,
+  className,
+  id,
+  ref,
+  ...props
+}: TextInputProps) {
+  const reactId = useId();
+  const inputId = id || reactId;
   return (
     <div className="flex flex-col gap-1">
       {label && (
@@ -27,5 +33,5 @@ export function TextInput({ label, className, id, ref, ...props }: TextInputProp
         {...props}
       />
     </div>
-  )
+  );
 }

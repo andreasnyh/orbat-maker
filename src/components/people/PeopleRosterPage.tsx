@@ -1,53 +1,53 @@
-import { useState, useMemo } from 'react'
-import { UserPlus, Users } from 'lucide-react'
-import { useAppState } from '../../context/AppStateContext'
-import { Badge } from '../common/Badge'
-import { Button } from '../common/Button'
-import { TextInput } from '../common/TextInput'
-import { Modal } from '../common/Modal'
-import { ConfirmDialog } from '../common/ConfirmDialog'
-import { PersonForm } from './PersonForm'
-import { PersonList } from './PersonList'
-import type { Person } from '../../types'
+import { UserPlus, Users } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { useAppState } from '../../context/AppStateContext';
+import type { Person } from '../../types';
+import { Badge } from '../common/Badge';
+import { Button } from '../common/Button';
+import { ConfirmDialog } from '../common/ConfirmDialog';
+import { Modal } from '../common/Modal';
+import { TextInput } from '../common/TextInput';
+import { PersonForm } from './PersonForm';
+import { PersonList } from './PersonList';
 
 export function PeopleRosterPage() {
-  const { people, addPerson, updatePerson, deletePerson } = useAppState()
+  const { people, addPerson, updatePerson, deletePerson } = useAppState();
 
-  const [search, setSearch] = useState('')
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [editTarget, setEditTarget] = useState<Person | null>(null)
-  const [deleteTarget, setDeleteTarget] = useState<Person | null>(null)
+  const [search, setSearch] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<Person | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Person | null>(null);
 
   const filteredPeople = useMemo(() => {
-    const query = search.trim().toLowerCase()
-    if (!query) return people
-    return people.filter(p => p.name.toLowerCase().includes(query))
-  }, [people, search])
+    const query = search.trim().toLowerCase();
+    if (!query) return people;
+    return people.filter((p) => p.name.toLowerCase().includes(query));
+  }, [people, search]);
 
   const handleAdd = (name: string, rank?: string) => {
-    addPerson(name, rank)
-    setIsAddModalOpen(false)
-  }
+    addPerson(name, rank);
+    setIsAddModalOpen(false);
+  };
 
   const handleEditOpen = (person: Person) => {
-    setEditTarget(person)
-  }
+    setEditTarget(person);
+  };
 
   const handleEditSubmit = (name: string, rank?: string) => {
-    if (!editTarget) return
-    updatePerson(editTarget.id, { name, rank: rank ?? undefined })
-    setEditTarget(null)
-  }
+    if (!editTarget) return;
+    updatePerson(editTarget.id, { name, rank: rank ?? undefined });
+    setEditTarget(null);
+  };
 
   const handleDeleteOpen = (person: Person) => {
-    setDeleteTarget(person)
-  }
+    setDeleteTarget(person);
+  };
 
   const handleDeleteConfirm = () => {
-    if (!deleteTarget) return
-    deletePerson(deleteTarget.id)
-    setDeleteTarget(null)
-  }
+    if (!deleteTarget) return;
+    deletePerson(deleteTarget.id);
+    setDeleteTarget(null);
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -68,7 +68,7 @@ export function PeopleRosterPage() {
         <TextInput
           placeholder="Search by name…"
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           aria-label="Search people"
         />
       )}
@@ -81,7 +81,8 @@ export function PeopleRosterPage() {
           <div className="flex flex-col gap-1">
             <p className="text-gray-300 font-medium">No people yet</p>
             <p className="text-gray-500 text-sm max-w-xs">
-              Add your first person to the roster and they will be available to assign to ORBAT slots.
+              Add your first person to the roster and they will be available to
+              assign to ORBAT slots.
             </p>
           </div>
           <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
@@ -93,7 +94,9 @@ export function PeopleRosterPage() {
         /* Search no-results state */
         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
           <p className="text-gray-400 font-medium">No results for "{search}"</p>
-          <p className="text-gray-500 text-sm">Try a different name or clear the search.</p>
+          <p className="text-gray-500 text-sm">
+            Try a different name or clear the search.
+          </p>
         </div>
       ) : (
         <PersonList
@@ -147,5 +150,5 @@ export function PeopleRosterPage() {
         variant="danger"
       />
     </div>
-  )
+  );
 }

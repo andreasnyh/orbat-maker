@@ -1,18 +1,18 @@
-import { useState } from 'react'
-import { useDraggable } from '@dnd-kit/core'
-import { Search, X } from 'lucide-react'
-import clsx from 'clsx'
-import { useAppState } from '../../context/AppStateContext'
-import { PersonCard } from '../people/PersonCard'
-import { Badge } from '../common/Badge'
-import type { Assignment, Person } from '../../types'
+import { useDraggable } from '@dnd-kit/core';
+import clsx from 'clsx';
+import { Search, X } from 'lucide-react';
+import { useState } from 'react';
+import { useAppState } from '../../context/AppStateContext';
+import type { Assignment, Person } from '../../types';
+import { Badge } from '../common/Badge';
+import { PersonCard } from '../people/PersonCard';
 
 interface RosterSidebarProps {
-  assignments: Assignment[]
+  assignments: Assignment[];
   /** When provided, renders a close button at the top (used in mobile bottom-sheet mode) */
-  onClose?: () => void
+  onClose?: () => void;
   /** Additional class names applied to the root <aside> element */
-  className?: string
+  className?: string;
 }
 
 // Thin wrapper that makes a single PersonCard draggable
@@ -20,16 +20,19 @@ function DraggablePersonCard({
   person,
   isAssigned,
 }: {
-  person: Person
-  isAssigned: boolean
+  person: Person;
+  isAssigned: boolean;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: person.id,
     data: { type: 'person', personId: person.id },
-  })
+  });
 
   return (
-    <div ref={setNodeRef} className={clsx('relative', isDragging && 'opacity-40')}>
+    <div
+      ref={setNodeRef}
+      className={clsx('relative', isDragging && 'opacity-40')}
+    >
       <PersonCard
         person={person}
         className={clsx(
@@ -45,27 +48,31 @@ function DraggablePersonCard({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export function RosterSidebar({ assignments, onClose, className }: RosterSidebarProps) {
-  const { people } = useAppState()
-  const [search, setSearch] = useState('')
-  const [hideAssigned, setHideAssigned] = useState(false)
+export function RosterSidebar({
+  assignments,
+  onClose,
+  className,
+}: RosterSidebarProps) {
+  const { people } = useAppState();
+  const [search, setSearch] = useState('');
+  const [hideAssigned, setHideAssigned] = useState(false);
 
-  const assignedPersonIds = new Set(assignments.map(a => a.personId))
+  const assignedPersonIds = new Set(assignments.map((a) => a.personId));
 
-  const filtered = people.filter(p => {
-    if (hideAssigned && assignedPersonIds.has(p.id)) return false
-    if (!search.trim()) return true
-    const q = search.toLowerCase()
+  const filtered = people.filter((p) => {
+    if (hideAssigned && assignedPersonIds.has(p.id)) return false;
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
     return (
       p.name.toLowerCase().includes(q) ||
       (p.rank?.toLowerCase().includes(q) ?? false)
-    )
-  })
+    );
+  });
 
-  const assignedCount = assignedPersonIds.size
+  const assignedCount = assignedPersonIds.size;
 
   return (
     <aside className={clsx('flex flex-col gap-3 h-full', className)}>
@@ -82,6 +89,7 @@ export function RosterSidebar({ assignments, onClose, className }: RosterSidebar
             {/* Close button — only rendered in mobile bottom-sheet mode */}
             {onClose && (
               <button
+                type="button"
                 onClick={onClose}
                 className="text-gray-500 hover:text-gray-300 transition-colors p-1 -mr-1"
                 aria-label="Close roster"
@@ -94,30 +102,35 @@ export function RosterSidebar({ assignments, onClose, className }: RosterSidebar
 
         {/* Search */}
         <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none"
+          />
           <input
             type="text"
             placeholder="Search people…"
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded-md pl-8 pr-3 py-2 text-gray-200 text-sm
                        placeholder:text-gray-600 focus:outline-none focus:border-green-400/50 focus:ring-1 focus:ring-green-400/25"
           />
         </div>
 
         {/* Hide assigned toggle */}
+        {/* biome-ignore lint/a11y/noLabelWithoutControl: custom toggle with keyboard handling */}
         <label className="flex items-center gap-2 cursor-pointer select-none group">
+          {/* biome-ignore lint/a11y/useSemanticElements: custom styled toggle switch */}
           <div
             role="checkbox"
             aria-checked={hideAssigned}
             tabIndex={0}
-            onClick={() => setHideAssigned(v => !v)}
-            onKeyDown={e => {
+            onClick={() => setHideAssigned((v) => !v)}
+            onKeyDown={(e) => {
               if (e.key === ' ') {
-                e.preventDefault()
-                setHideAssigned(v => !v)
+                e.preventDefault();
+                setHideAssigned((v) => !v);
               } else if (e.key === 'Enter') {
-                setHideAssigned(v => !v)
+                setHideAssigned((v) => !v);
               }
             }}
             className={clsx(
@@ -153,7 +166,7 @@ export function RosterSidebar({ assignments, onClose, className }: RosterSidebar
               : 'No matches found.'}
           </p>
         ) : (
-          filtered.map(person => (
+          filtered.map((person) => (
             <DraggablePersonCard
               key={person.id}
               person={person}
@@ -163,5 +176,5 @@ export function RosterSidebar({ assignments, onClose, className }: RosterSidebar
         )}
       </div>
     </aside>
-  )
+  );
 }

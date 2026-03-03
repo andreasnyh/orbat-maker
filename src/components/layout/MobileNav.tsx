@@ -1,22 +1,22 @@
-import { Users, LayoutTemplate, Shield } from 'lucide-react'
-import type { Page } from '../../types'
+import { LayoutTemplate, Shield, Users } from 'lucide-react';
+import type { Page } from '../../types';
 
 interface MobileNavProps {
-  currentPage: Page
-  onNavigate: (page: Page) => void
+  currentPage: Page;
+  onNavigate: (page: Page) => void;
 }
 
 const navItems: { page: Page; label: string; icon: typeof Users }[] = [
   { page: 'orbats', label: 'ORBATs', icon: Shield },
   { page: 'people', label: 'People', icon: Users },
   { page: 'templates', label: 'Templates', icon: LayoutTemplate },
-]
+];
 
 export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {
   const isActive = (p: Page) =>
     p === currentPage ||
     (p === 'templates' && currentPage === 'template-editor') ||
-    (p === 'orbats' && currentPage === 'orbat-builder')
+    (p === 'orbats' && currentPage === 'orbat-builder');
 
   return (
     <nav
@@ -25,9 +25,10 @@ export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {
     >
       <div className="flex items-stretch h-16">
         {navItems.map(({ page, label, icon: Icon }) => {
-          const active = isActive(page)
+          const active = isActive(page);
           return (
             <button
+              type="button"
               key={page}
               onClick={() => onNavigate(page)}
               className={`flex-1 flex flex-col items-center justify-center gap-1 min-h-[44px] transition-colors ${
@@ -37,11 +38,13 @@ export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {
               }`}
             >
               <Icon size={20} />
-              <span className="text-[10px] font-medium tracking-wide uppercase">{label}</span>
+              <span className="text-[10px] font-medium tracking-wide uppercase">
+                {label}
+              </span>
             </button>
-          )
+          );
         })}
       </div>
     </nav>
-  )
+  );
 }

@@ -1,19 +1,25 @@
-import { type HTMLAttributes } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
-import clsx from 'clsx'
-import { Badge } from '../common/Badge'
-import { Button } from '../common/Button'
-import type { Person } from '../../types'
+import clsx from 'clsx';
+import { Pencil, Trash2 } from 'lucide-react';
+import type { HTMLAttributes } from 'react';
+import type { Person } from '../../types';
+import { Badge } from '../common/Badge';
+import { Button } from '../common/Button';
 
 // Extends HTMLAttributes so the card can accept drag-and-drop attributes,
 // data attributes, aria props, etc. when reused in the ORBAT builder.
 interface PersonCardProps extends HTMLAttributes<HTMLDivElement> {
-  person: Person
-  onEdit?: (person: Person) => void
-  onDelete?: (person: Person) => void
+  person: Person;
+  onEdit?: (person: Person) => void;
+  onDelete?: (person: Person) => void;
 }
 
-export function PersonCard({ person, onEdit, onDelete, className, ...rest }: PersonCardProps) {
+export function PersonCard({
+  person,
+  onEdit,
+  onDelete,
+  className,
+  ...rest
+}: PersonCardProps) {
   return (
     <div
       className={clsx(
@@ -26,9 +32,7 @@ export function PersonCard({ person, onEdit, onDelete, className, ...rest }: Per
     >
       {/* Name and rank */}
       <div className="flex flex-col gap-1.5 min-w-0">
-        {person.rank && (
-          <Badge variant="green">{person.rank}</Badge>
-        )}
+        {person.rank && <Badge variant="green">{person.rank}</Badge>}
         <span className="text-gray-200 font-semibold text-base leading-tight truncate">
           {person.name}
         </span>
@@ -65,5 +69,5 @@ export function PersonCard({ person, onEdit, onDelete, className, ...rest }: Per
         </div>
       )}
     </div>
-  )
+  );
 }

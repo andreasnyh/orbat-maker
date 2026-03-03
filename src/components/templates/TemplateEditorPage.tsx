@@ -1,42 +1,48 @@
-import { useState, useRef, useEffect } from 'react'
-import { ArrowLeft, Plus } from 'lucide-react'
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   PointerSensor,
   TouchSensor,
   useSensor,
   useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core'
+} from '@dnd-kit/core';
 import {
-  SortableContext,
-  verticalListSortingStrategy,
-  useSortable,
   arrayMove,
-} from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { useAppState } from '../../context/AppStateContext'
-import { generateId } from '../../lib/ids'
-import { GroupEditor } from './GroupEditor'
-import type { Page, Group } from '../../types'
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { ArrowLeft, Plus } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useAppState } from '../../context/AppStateContext';
+import { generateId } from '../../lib/ids';
+import type { Group, Page } from '../../types';
+import { GroupEditor } from './GroupEditor';
 
 interface TemplateEditorPageProps {
-  templateId: string
-  onNavigate: (page: Page) => void
+  templateId: string;
+  onNavigate: (page: Page) => void;
 }
 
 // ---- Sortable wrapper for each group ----------------------------------------
 
 interface SortableGroupProps {
-  group: Group
-  onUpdate: (group: Group) => void
-  onDelete: () => void
+  group: Group;
+  onUpdate: (group: Group) => void;
+  onDelete: () => void;
 }
 
 function SortableGroup({ group, onUpdate, onDelete }: SortableGroupProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: group.id })
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: group.id });
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -44,7 +50,7 @@ function SortableGroup({ group, onUpdate, onDelete }: SortableGroupProps) {
     opacity: isDragging ? 0.5 : 1,
     position: 'relative',
     zIndex: isDragging ? 10 : undefined,
-  }
+  };
 
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
@@ -55,127 +61,150 @@ function SortableGroup({ group, onUpdate, onDelete }: SortableGroupProps) {
         dragHandleProps={listeners}
       />
     </div>
-  )
+  );
 }
 
 // ---- TemplateEditorPage -----------------------------------------------------
 
-export function TemplateEditorPage({ templateId, onNavigate }: TemplateEditorPageProps) {
-  const { templates, updateTemplate } = useAppState()
-  const template = templates.find(t => t.id === templateId)
+export function TemplateEditorPage({
+  templateId,
+  onNavigate,
+}: TemplateEditorPageProps) {
+  const { templates, updateTemplate } = useAppState();
+  const template = templates.find((t) => t.id === templateId);
 
-  const [editingName, setEditingName] = useState(false)
-  const [nameDraft, setNameDraft] = useState(template?.name ?? '')
-  const [editingDesc, setEditingDesc] = useState(false)
-  const [descDraft, setDescDraft] = useState(template?.description ?? '')
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState(template?.name ?? '');
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [descDraft, setDescDraft] = useState(template?.description ?? '');
 
-  const nameInputRef = useRef<HTMLInputElement>(null)
-  const descInputRef = useRef<HTMLInputElement>(null)
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const descInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (editingName) {
-      nameInputRef.current?.focus()
-      nameInputRef.current?.select()
+      nameInputRef.current?.focus();
+      nameInputRef.current?.select();
     }
-  }, [editingName])
+  }, [editingName]);
 
   useEffect(() => {
     if (editingDesc) {
-      descInputRef.current?.focus()
-      descInputRef.current?.select()
+      descInputRef.current?.focus();
+      descInputRef.current?.select();
     }
-  }, [editingDesc])
+  }, [editingDesc]);
 
   // Keep drafts in sync when template changes externally
   useEffect(() => {
-    if (!editingName) setNameDraft(template?.name ?? '')
-  }, [template?.name, editingName])
+    if (!editingName) setNameDraft(template?.name ?? '');
+  }, [template?.name, editingName]);
 
   useEffect(() => {
-    if (!editingDesc) setDescDraft(template?.description ?? '')
-  }, [template?.description, editingDesc])
+    if (!editingDesc) setDescDraft(template?.description ?? '');
+  }, [template?.description, editingDesc]);
+
+  // ---- DnD sensors (must be before early return to satisfy rules-of-hooks) ---
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { distance: 8 } }),
+  );
 
   if (!template) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <p className="text-gray-400">Template not found.</p>
         <button
+          type="button"
           onClick={() => onNavigate('templates')}
           className="text-green-400 hover:text-green-300 text-sm"
         >
           Back to Templates
         </button>
       </div>
-    )
+    );
   }
+
+  // After the guard, `t` carries the narrowed non-undefined type into closures.
+  const t = template;
 
   // ---- Name editing ----------------------------------------------------------
 
   function commitName() {
-    const trimmed = nameDraft.trim()
-    if (trimmed && trimmed !== template!.name) {
-      updateTemplate(templateId, { name: trimmed })
+    const trimmed = nameDraft.trim();
+    if (trimmed && trimmed !== t.name) {
+      updateTemplate(templateId, { name: trimmed });
     } else {
-      setNameDraft(template!.name)
+      setNameDraft(t.name);
     }
-    setEditingName(false)
+    setEditingName(false);
   }
 
   function handleNameKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter') { e.preventDefault(); commitName() }
-    else if (e.key === 'Escape') { e.preventDefault(); setNameDraft(template!.name); setEditingName(false) }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      commitName();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setNameDraft(t.name);
+      setEditingName(false);
+    }
   }
 
   // ---- Description editing ---------------------------------------------------
 
   function commitDesc() {
-    const trimmed = descDraft.trim()
-    if (trimmed !== (template!.description ?? '')) {
-      updateTemplate(templateId, { description: trimmed || undefined })
+    const trimmed = descDraft.trim();
+    if (trimmed !== (t.description ?? '')) {
+      updateTemplate(templateId, { description: trimmed || undefined });
     } else {
-      setDescDraft(template!.description ?? '')
+      setDescDraft(t.description ?? '');
     }
-    setEditingDesc(false)
+    setEditingDesc(false);
   }
 
   function handleDescKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter') { e.preventDefault(); commitDesc() }
-    else if (e.key === 'Escape') { e.preventDefault(); setDescDraft(template!.description ?? ''); setEditingDesc(false) }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      commitDesc();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setDescDraft(t.description ?? '');
+      setEditingDesc(false);
+    }
   }
 
   // ---- Group operations -------------------------------------------------------
 
   function addGroup() {
-    const newGroup: Group = { id: generateId(), name: 'New Group', slots: [] }
-    updateTemplate(templateId, { groups: [...template!.groups, newGroup] })
+    const newGroup: Group = { id: generateId(), name: 'New Group', slots: [] };
+    updateTemplate(templateId, {
+      groups: [...t.groups, newGroup],
+    });
   }
 
   function handleGroupUpdate(updated: Group) {
     updateTemplate(templateId, {
-      groups: template!.groups.map(g => (g.id === updated.id ? updated : g)),
-    })
+      groups: t.groups.map((g) => (g.id === updated.id ? updated : g)),
+    });
   }
 
   function handleGroupDelete(groupId: string) {
     updateTemplate(templateId, {
-      groups: template!.groups.filter(g => g.id !== groupId),
-    })
+      groups: t.groups.filter((g) => g.id !== groupId),
+    });
   }
 
   function handleGroupDragEnd(event: DragEndEvent) {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    const oldIndex = template!.groups.findIndex(g => g.id === active.id)
-    const newIndex = template!.groups.findIndex(g => g.id === over.id)
-    if (oldIndex === -1 || newIndex === -1) return
-    updateTemplate(templateId, { groups: arrayMove(template!.groups, oldIndex, newIndex) })
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = t.groups.findIndex((g) => g.id === active.id);
+    const newIndex = t.groups.findIndex((g) => g.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+    updateTemplate(templateId, {
+      groups: arrayMove(t.groups, oldIndex, newIndex),
+    });
   }
-
-  // ---- DnD sensors ---------------------------------------------------------
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { distance: 8 } }),
-  )
 
   // ---- Render -----------------------------------------------------------------
 
@@ -199,17 +228,17 @@ export function TemplateEditorPage({ templateId, onNavigate }: TemplateEditorPag
             <input
               ref={nameInputRef}
               value={nameDraft}
-              onChange={e => setNameDraft(e.target.value)}
+              onChange={(e) => setNameDraft(e.target.value)}
               onBlur={commitName}
               onKeyDown={handleNameKeyDown}
               className="w-full bg-[#0f0f23] border border-green-400/50 rounded-md px-3 py-1.5 text-2xl font-bold text-gray-100 focus:outline-none focus:ring-1 focus:ring-green-400/25"
             />
           ) : (
             <h1
-              role="button"
-              tabIndex={0}
               onClick={() => setEditingName(true)}
-              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setEditingName(true) }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') setEditingName(true);
+              }}
               className="text-2xl font-bold text-gray-100 cursor-text hover:text-white"
               title="Click to edit name"
             >
@@ -224,7 +253,7 @@ export function TemplateEditorPage({ templateId, onNavigate }: TemplateEditorPag
             <input
               ref={descInputRef}
               value={descDraft}
-              onChange={e => setDescDraft(e.target.value)}
+              onChange={(e) => setDescDraft(e.target.value)}
               onBlur={commitDesc}
               onKeyDown={handleDescKeyDown}
               placeholder="Add a description…"
@@ -232,10 +261,10 @@ export function TemplateEditorPage({ templateId, onNavigate }: TemplateEditorPag
             />
           ) : (
             <p
-              role="button"
-              tabIndex={0}
               onClick={() => setEditingDesc(true)}
-              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setEditingDesc(true) }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') setEditingDesc(true);
+              }}
               className={`text-sm cursor-text hover:text-gray-300 transition-colors ${
                 template.description ? 'text-gray-400' : 'text-gray-600 italic'
               }`}
@@ -265,11 +294,11 @@ export function TemplateEditorPage({ templateId, onNavigate }: TemplateEditorPag
           onDragEnd={handleGroupDragEnd}
         >
           <SortableContext
-            items={template.groups.map(g => g.id)}
+            items={template.groups.map((g) => g.id)}
             strategy={verticalListSortingStrategy}
           >
             <div className="flex flex-col gap-3">
-              {template.groups.map(group => (
+              {template.groups.map((group) => (
                 <SortableGroup
                   key={group.id}
                   group={group}
@@ -283,7 +312,9 @@ export function TemplateEditorPage({ templateId, onNavigate }: TemplateEditorPag
       ) : (
         <div className="bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg py-10 text-center mb-3">
           <p className="text-gray-500 text-sm mb-1">No groups yet</p>
-          <p className="text-gray-600 text-xs">Add a group to start building your template</p>
+          <p className="text-gray-600 text-xs">
+            Add a group to start building your template
+          </p>
         </div>
       )}
 
@@ -299,5 +330,5 @@ export function TemplateEditorPage({ templateId, onNavigate }: TemplateEditorPag
         </button>
       </div>
     </div>
-  )
+  );
 }
