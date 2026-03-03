@@ -22,17 +22,21 @@ export function formatOrbatForTeamspeak(
   lines.push(header)
 
   for (const group of template.groups) {
+    const assignedSlots = group.slots.filter(s =>
+      orbat.assignments.some(a => a.slotId === s.id)
+    )
+
+    if (assignedSlots.length === 0) continue
+
     lines.push('')
     lines.push(`--- ${group.name} ---`)
 
     // Find max role label length for alignment padding
-    const maxLen = Math.max(...group.slots.map(s => s.roleLabel.length))
+    const maxLen = Math.max(...assignedSlots.map(s => s.roleLabel.length))
 
-    for (const slot of group.slots) {
-      const assignment = orbat.assignments.find(a => a.slotId === slot.id)
-      const personDisplay = assignment
-        ? getPersonDisplay(assignment.personId, people)
-        : '[EMPTY]'
+    for (const slot of assignedSlots) {
+      const assignment = orbat.assignments.find(a => a.slotId === slot.id)!
+      const personDisplay = getPersonDisplay(assignment.personId, people)
       lines.push(`  ${padRight(slot.roleLabel + ':', maxLen + 1)}  ${personDisplay}`)
     }
   }
@@ -52,14 +56,18 @@ export function formatOrbatForDiscord(
   lines.push(header)
 
   for (const group of template.groups) {
+    const assignedSlots = group.slots.filter(s =>
+      orbat.assignments.some(a => a.slotId === s.id)
+    )
+
+    if (assignedSlots.length === 0) continue
+
     lines.push('')
     lines.push(`**--- ${group.name} ---**`)
 
-    for (const slot of group.slots) {
-      const assignment = orbat.assignments.find(a => a.slotId === slot.id)
-      const personDisplay = assignment
-        ? getPersonDisplay(assignment.personId, people)
-        : '*[EMPTY]*'
+    for (const slot of assignedSlots) {
+      const assignment = orbat.assignments.find(a => a.slotId === slot.id)!
+      const personDisplay = getPersonDisplay(assignment.personId, people)
       lines.push(`\`${slot.roleLabel}\`  ${personDisplay}`)
     }
   }
