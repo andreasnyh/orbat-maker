@@ -2,8 +2,8 @@ import { useDraggable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
-import { GripVertical, Trash2, X } from 'lucide-react';
-import { useState } from 'react';
+import { GripVertical, Plus, Trash2, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { useOrbatsState } from '../../context/AppStateContext';
 import type { Assignment, Person, Slot } from '../../types';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -14,6 +14,8 @@ interface OrbatSlotProps {
   person: Person | undefined;
   orbatId: string;
   onRemoveSlot?: (slotId: string) => void;
+  onUpdateEquipment?: (slotId: string, equipment: string[]) => void;
+  equipmentSuggestions?: string[];
   showEquipment?: boolean;
 }
 
@@ -23,10 +25,16 @@ export function OrbatSlot({
   person,
   orbatId,
   onRemoveSlot,
+  onUpdateEquipment,
+  equipmentSuggestions,
   showEquipment,
 }: OrbatSlotProps) {
   const { unassignSlot } = useOrbatsState();
   const [confirmRemove, setConfirmRemove] = useState(false);
+  const [equipPopoverOpen, setEquipPopoverOpen] = useState(false);
+  const [newTag, setNewTag] = useState('');
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const tagInputRef = useRef<HTMLInputElement>(null);
 
   // Sortable — also acts as the droppable target for person drops.
   // The outer DndContext reads `slotId` from `over.data.current` for both
@@ -70,6 +78,42 @@ export function OrbatSlot({
   function handleRemoveSlot(e: React.MouseEvent) {
     e.stopPropagation();
     setConfirmRemove(true);
+  }
+
+  // Click-outside to close equipment popover
+  useEffect(() => {
+    if (!equipPopoverOpen) return;
+    function onClickOutside(e: MouseEvent) {
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(e.target as Node)
+      ) {
+        setEquipPopoverOpen(false);
+        setNewTag('');
+      }
+    }
+    document.addEventListener('pointerdown', onClickOutside);
+    return () => document.removeEventListener('pointerdown', onClickOutside);
+  }, [equipPopoverOpen]);
+
+  // Auto-focus tag input when popover opens
+  useEffect(() => {
+    if (equipPopoverOpen) tagInputRef.current?.focus();
+  }, [equipPopoverOpen]);
+
+  function handleRemoveEquipment(tag: string) {
+    onUpdateEquipment?.(
+      slot.id,
+      (slot.equipment ?? []).filter((t) => t !== tag),
+    );
+  }
+
+  function handleAddEquipment(tag: string) {
+    const trimmed = tag.trim();
+    if (!trimmed) return;
+    const current = slot.equipment ?? [];
+    if (current.includes(trimmed)) return;
+    onUpdateEquipment?.(slot.id, [...current, trimmed]);
   }
 
   const sortableStyle: React.CSSProperties = {
@@ -145,16 +189,92 @@ export function OrbatSlot({
         </span>
 
         {/* Equipment pills */}
-        {showEquipment && slot.equipment && slot.equipment.length > 0 && (
-          <div className="flex items-center gap-1 shrink-0">
-            {slot.equipment.map((tag) => (
+        {showEquipment && (
+          <div className="flex items-center gap-1 shrink-0 relative">
+            {(slot.equipment ?? []).map((tag) => (
               <span
                 key={tag}
-                className="inline-block bg-amber-400/15 text-amber-300 text-[10px] font-mono rounded-full px-1.5 py-px"
+                className="inline-flex items-center gap-0.5 bg-amber-400/15 text-amber-300 text-[10px] font-mono rounded-full px-1.5 py-px"
               >
                 {tag}
+                {onUpdateEquipment && (
+                  <button
+                    type="button"
+                    className="hover:text-red-400 transition-colors"
+                    aria-label={`Remove ${tag}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveEquipment(tag);
+                    }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                  >
+                    <X size={10} />
+                  </button>
+                )}
               </span>
             ))}
+            {onUpdateEquipment && (
+              <>
+                <button
+                  type="button"
+                  className="text-amber-400/50 hover:text-amber-300 transition-colors p-0.5 rounded"
+                  aria-label="Add equipment"
+                  title="Add equipment"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEquipPopoverOpen((v) => !v);
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                >
+                  <Plus size={12} />
+                </button>
+                {equipPopoverOpen && (
+                  <div
+                    ref={popoverRef}
+                    className="absolute right-0 top-full mt-1 z-50 bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl p-2 min-w-[200px]"
+                    onPointerDown={(e) => e.stopPropagation()}
+                  >
+                    {/* Suggestion chips */}
+                    {equipmentSuggestions &&
+                      equipmentSuggestions.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {equipmentSuggestions
+                            .filter((s) => !(slot.equipment ?? []).includes(s))
+                            .map((s) => (
+                              <button
+                                key={s}
+                                type="button"
+                                className="bg-amber-400/10 text-amber-300/80 hover:bg-amber-400/25 text-[10px] font-mono rounded-full px-2 py-0.5 transition-colors"
+                                onClick={() => handleAddEquipment(s)}
+                              >
+                                {s}
+                              </button>
+                            ))}
+                        </div>
+                      )}
+                    {/* Custom tag input */}
+                    <input
+                      ref={tagInputRef}
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleAddEquipment(newTag);
+                          setNewTag('');
+                        }
+                        if (e.key === 'Escape') {
+                          setEquipPopoverOpen(false);
+                          setNewTag('');
+                        }
+                      }}
+                      placeholder="New tag…"
+                      aria-label="New equipment tag"
+                      className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded px-2 py-1 text-[11px] text-gray-200 placeholder-gray-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-400/25 font-mono"
+                    />
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
 

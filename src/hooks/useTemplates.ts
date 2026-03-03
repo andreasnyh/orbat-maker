@@ -134,6 +134,36 @@ export function useTemplates() {
     [setTemplates],
   );
 
+  const updateSlot = useCallback(
+    (
+      templateId: string,
+      groupId: string,
+      slotId: string,
+      updates: Partial<Omit<Slot, 'id'>>,
+    ) => {
+      setTemplates((prev) =>
+        prev.map((t) =>
+          t.id === templateId
+            ? {
+                ...t,
+                groups: t.groups.map((g) =>
+                  g.id === groupId
+                    ? {
+                        ...g,
+                        slots: g.slots.map((s) =>
+                          s.id === slotId ? { ...s, ...updates } : s,
+                        ),
+                      }
+                    : g,
+                ),
+              }
+            : t,
+        ),
+      );
+    },
+    [setTemplates],
+  );
+
   const reorderSlotsInGroup = useCallback(
     (templateId: string, groupId: string, slots: Slot[]) => {
       setTemplates((prev) =>
@@ -162,6 +192,7 @@ export function useTemplates() {
     addSlotToGroup,
     removeSlotFromGroup,
     reorderSlotsInGroup,
+    updateSlot,
     setTemplates,
   };
 }

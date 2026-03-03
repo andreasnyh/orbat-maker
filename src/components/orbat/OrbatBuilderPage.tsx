@@ -20,7 +20,7 @@ import {
   RotateCcw,
   Users,
 } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   useCrossCuttingState,
   useOrbatsState,
@@ -62,6 +62,7 @@ export function OrbatBuilderPage({
     addSlotToGroup,
     removeSlotFromGroup,
     reorderSlotsInGroup,
+    updateSlot,
   } = useTemplatesState();
   const {
     orbats,
@@ -241,6 +242,28 @@ export function OrbatBuilderPage({
     [orbatId, ensureOwnTemplate, reorderSlotsInGroup],
   );
 
+  const handleUpdateSlot = useCallback(
+    (groupId: string, slotId: string, updates: Partial<Omit<Slot, 'id'>>) => {
+      const tid = ensureOwnTemplate(orbatId);
+      if (tid) updateSlot(tid, groupId, slotId, updates);
+    },
+    [orbatId, ensureOwnTemplate, updateSlot],
+  );
+
+  const equipmentSuggestions = useMemo(
+    () =>
+      template
+        ? Array.from(
+            new Set(
+              template.groups.flatMap((g) =>
+                g.slots.flatMap((s) => s.equipment ?? []),
+              ),
+            ),
+          )
+        : [],
+    [template],
+  );
+
   // ---- Guard: ORBAT not found ---------------------------------------------
 
   if (!orbat) {
@@ -396,6 +419,8 @@ export function OrbatBuilderPage({
                     onAddSlot={handleAddSlot}
                     onRemoveSlot={handleRemoveSlot}
                     onReorderSlots={handleReorderSlots}
+                    onUpdateSlot={handleUpdateSlot}
+                    equipmentSuggestions={equipmentSuggestions}
                     showEquipment={showEquipment}
                   />
                 ))}
