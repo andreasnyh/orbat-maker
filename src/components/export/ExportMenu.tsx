@@ -61,7 +61,7 @@ export function ExportMenu() {
           <button
             type="button"
             onClick={() => setDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-gray-400 hover:text-gray-200 hover:bg-white/5 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-gray-400 hover:text-gray-200 transition-colors"
           >
             <Download size={16} />
             Export
@@ -95,7 +95,7 @@ export function ExportMenu() {
         <button
           type="button"
           onClick={() => setImportOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-gray-400 hover:text-gray-200 hover:bg-white/5 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-gray-400 hover:text-gray-200 transition-colors"
         >
           <Upload size={16} />
           Import

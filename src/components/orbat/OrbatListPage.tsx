@@ -125,10 +125,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
               total > 0 ? Math.round((filled / total) * 100) : 0;
 
             return (
-              <div
-                key={orbat.id}
-                className="bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg p-4 flex flex-col gap-3 hover:border-[#3a3a5a] transition-colors"
-              >
+              <div key={orbat.id} className="card p-4 flex flex-col gap-3">
                 {/* Card header */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">

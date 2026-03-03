@@ -52,19 +52,23 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
           </svg>
           <div className="flex gap-1">
             {navItems.map(({ page, label, icon: Icon }) => (
-              <button
-                type="button"
-                key={page}
-                onClick={() => onNavigate(page)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activePage(page)
-                    ? 'bg-green-400/10 text-green-400'
-                    : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
-                }`}
-              >
-                <Icon size={18} />
-                {label}
-              </button>
+              <div key={page} className="relative">
+                <button
+                  type="button"
+                  onClick={() => onNavigate(page)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activePage(page)
+                      ? 'text-green-400'
+                      : 'text-gray-400 hover:text-green-400/70'
+                  }`}
+                >
+                  <Icon size={18} />
+                  {label}
+                </button>
+                {activePage(page) && (
+                  <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-green-400 rounded-full" />
+                )}
+              </div>
             ))}
           </div>
           <div className="ml-auto flex items-center gap-2">
@@ -74,8 +78,8 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
               onClick={() => onNavigate('about')}
               className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 currentPage === 'about'
-                  ? 'bg-green-400/10 text-green-400'
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                  ? 'text-green-400'
+                  : 'text-gray-400 hover:text-green-400/70'
               }`}
               title="About"
             >

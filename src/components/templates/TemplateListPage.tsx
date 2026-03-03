@@ -87,10 +87,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
         {templates.map((template) => {
           const { groups, slots } = templateStats(template.id);
           return (
-            <div
-              key={template.id}
-              className="bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg p-4 flex flex-col gap-3 hover:border-[#3a3a5a] transition-colors"
-            >
+            <div key={template.id} className="card p-4 flex flex-col gap-3">
               {/* Card header */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">

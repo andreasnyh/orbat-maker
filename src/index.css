@@ -7,3 +7,39 @@
   --font-display: "Barlow Condensed", ui-sans-serif, system-ui, sans-serif;
   --font-data: "JetBrains Mono", ui-monospace, monospace;
 }
+
+/* ── Base ────────────────────────────────────────────────────────────── */
+
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
+/* ── Utilities ────────────────────────────────────────────────────────── */
+
+/* Subtle dot-grid texture for the app background */
+.bg-grid-pattern {
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.04) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+}
+
+/* Shared card base — visual depth with shadow + top-edge highlight.
+   Add layout/spacing classes (p-4, flex, gap-3, etc.) alongside this. */
+.card {
+  background-color: #1a1a2e;
+  border: 1px solid #2a2a4a;
+  border-top-color: #3a3a5a;
+  border-radius: 0.5rem;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.2),
+    0 2px 4px -2px rgba(0, 0, 0, 0.2);
+  transition: border-color 150ms;
+}
+
+.card:hover {
+  border-color: #3a3a5a;
+}

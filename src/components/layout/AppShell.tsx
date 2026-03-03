@@ -11,7 +11,7 @@ interface AppShellProps {
 
 export function AppShell({ currentPage, onNavigate, children }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-[#0f0f23] text-gray-200">
+    <div className="min-h-screen bg-[#0f0f23] bg-grid-pattern text-gray-200">
       {/* Desktop top navigation — hidden on mobile */}
       <div className="hidden md:block">
         <Navbar currentPage={currentPage} onNavigate={onNavigate} />

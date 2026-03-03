@@ -22,12 +22,7 @@ export function PersonCard({
 }: PersonCardProps) {
   return (
     <div
-      className={clsx(
-        'bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg p-4',
-        'flex flex-col gap-3',
-        'transition-colors hover:border-[#3a3a5a]',
-        className,
-      )}
+      className={clsx('card p-4', 'flex flex-col gap-3', className)}
       {...rest}
     >
       {/* Name and rank */}
