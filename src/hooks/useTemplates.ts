@@ -12,9 +12,18 @@ export function useTemplates() {
     [],
   );
 
-  // Seed defaults on first load
+  // Seed missing defaults and sync existing ones with source data on every load
   useEffect(() => {
-    setTemplates((prev) => (prev.length === 0 ? defaultTemplates : prev));
+    setTemplates((prev) => {
+      if (prev.length === 0) return defaultTemplates;
+      const defaultById = new Map(defaultTemplates.map((d) => [d.id, d]));
+      // Update existing defaults in-place, keep custom templates as-is
+      const updated = prev.map((t) => defaultById.get(t.id) ?? t);
+      // Append any new defaults not yet present
+      const existingIds = new Set(prev.map((t) => t.id));
+      const missing = defaultTemplates.filter((d) => !existingIds.has(d.id));
+      return missing.length > 0 ? [...updated, ...missing] : updated;
+    });
   }, [setTemplates]);
 
   const addTemplate = useCallback(
