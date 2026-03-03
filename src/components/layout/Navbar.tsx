@@ -23,7 +23,7 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
     <nav className="bg-[#1a1a2e] border-b border-[#2a2a4a]">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center h-14 gap-8">
-          <span className="font-bold text-green-400 tracking-wide text-lg font-mono">
+          <span className="font-display font-bold text-green-400 tracking-widest text-xl uppercase">
             ORBAT
           </span>
           <div className="flex gap-1">

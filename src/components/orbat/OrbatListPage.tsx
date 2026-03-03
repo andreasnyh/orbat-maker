@@ -98,7 +98,9 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
       {/* Page header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-100">ORBATs</h1>
+          <h1 className="font-display text-2xl font-bold text-gray-100 uppercase tracking-wide">
+            ORBATs
+          </h1>
           <Badge variant="default">{orbats.length}</Badge>
         </div>
         <Button
@@ -141,7 +143,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                       size={16}
                       className="text-green-400 flex-shrink-0 mt-0.5"
                     />
-                    <span className="font-semibold text-gray-200 truncate">
+                    <span className="font-display font-semibold text-gray-200 truncate">
                       {orbat.name}
                     </span>
                   </div>
@@ -166,11 +168,11 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-gray-500">Assignments</span>
                     <span
-                      className={
+                      className={`font-data ${
                         filled === total && total > 0
                           ? 'text-green-400'
                           : 'text-gray-400'
-                      }
+                      }`}
                     >
                       {filled}/{total}
                     </span>

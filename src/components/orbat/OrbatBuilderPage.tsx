@@ -11,7 +11,13 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { AlertTriangle, ArrowLeft, Clipboard, RotateCcw, Users } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Clipboard,
+  RotateCcw,
+  Users,
+} from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppState } from '../../context/AppStateContext';
 import {
@@ -279,7 +285,7 @@ export function OrbatBuilderPage({
               />
             ) : (
               <h1
-                className="text-xl font-bold text-gray-100 truncate cursor-pointer hover:text-green-400 transition-colors"
+                className="font-display text-xl font-bold text-gray-100 uppercase tracking-wide truncate cursor-pointer hover:text-green-400 transition-colors"
                 onClick={() => {
                   setNameValue(orbat.name);
                   setEditingName(true);

@@ -108,7 +108,7 @@ export function OrbatSlot({
 
         {/* Role label */}
         <span
-          className="font-mono text-xs text-gray-500 w-32 flex-shrink-0 truncate"
+          className="font-data text-sm text-gray-500 w-44 flex-shrink-0 truncate"
           title={slot.roleLabel}
         >
           {slot.roleLabel}
@@ -120,14 +120,14 @@ export function OrbatSlot({
         {/* Assigned person or empty indicator */}
         <span
           className={clsx(
-            'flex-1 text-sm truncate',
-            person ? 'text-gray-200 font-medium' : 'text-gray-600 italic',
+            'flex-1 truncate',
+            person ? 'font-display text-lg text-gray-200 font-medium' : 'text-sm text-gray-600 italic font-data',
           )}
         >
           {person ? (
             <>
               {person.rank && (
-                <span className="text-green-400 text-xs font-normal mr-1">
+                <span className="text-green-400 text-xs font-normal font-data mr-1">
                   {person.rank}
                 </span>
               )}

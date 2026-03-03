@@ -54,7 +54,9 @@ export function PeopleRosterPage() {
       {/* Page header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-200">People Roster</h1>
+          <h1 className="font-display text-2xl font-bold text-gray-200 uppercase tracking-wide">
+            People Roster
+          </h1>
           <Badge variant="default">{people.length}</Badge>
         </div>
         <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>

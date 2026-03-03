@@ -239,7 +239,7 @@ export function TemplateEditorPage({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') setEditingName(true);
               }}
-              className="text-2xl font-bold text-gray-100 cursor-text hover:text-white"
+              className="font-display text-2xl font-bold text-gray-100 uppercase tracking-wide cursor-text hover:text-white"
               title="Click to edit name"
             >
               {template.name}
@@ -278,9 +278,9 @@ export function TemplateEditorPage({
 
       {/* Groups section */}
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+        <h2 className="font-display text-sm font-semibold text-gray-400 uppercase tracking-widest">
           Groups
-          <span className="ml-2 text-gray-600 normal-case font-normal">
+          <span className="ml-2 text-gray-600 normal-case font-normal font-data">
             ({template.groups.length})
           </span>
         </h2>

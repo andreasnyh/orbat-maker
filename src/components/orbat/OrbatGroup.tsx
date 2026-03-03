@@ -63,10 +63,10 @@ export function OrbatGroup({
     <div className="flex flex-col gap-2">
       {/* Group header */}
       <div className="flex items-center justify-between py-2 border-b border-[#2a2a4a]">
-        <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wider">
+        <h3 className="font-display text-sm font-bold text-gray-300 uppercase tracking-widest">
           {group.name}
         </h3>
-        <span className="text-xs text-gray-600">
+        <span className="text-xs text-gray-600 font-data">
           {filledCount}/{group.slots.length}
         </span>
       </div>

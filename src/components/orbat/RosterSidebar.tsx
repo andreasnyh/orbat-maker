@@ -79,11 +79,11 @@ export function RosterSidebar({
       {/* Sidebar header */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+          <h2 className="font-display text-sm font-semibold text-gray-400 uppercase tracking-widest">
             Roster
           </h2>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-gray-600 font-data">
               {assignedCount}/{people.length} assigned
             </span>
             {/* Close button — only rendered in mobile bottom-sheet mode */}

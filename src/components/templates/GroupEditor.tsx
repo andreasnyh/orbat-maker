@@ -159,7 +159,7 @@ export function GroupEditor({
               <button
                 type="button"
                 onClick={() => setEditingName(true)}
-                className="block w-full text-left text-sm font-semibold text-gray-200 cursor-text hover:text-white truncate bg-transparent border-none p-0"
+                className="block w-full text-left font-display text-sm font-semibold text-gray-200 cursor-text hover:text-white truncate bg-transparent border-none p-0"
                 title="Click to edit group name"
               >
                 {group.name}
@@ -168,7 +168,7 @@ export function GroupEditor({
           </div>
 
           {/* Slot count */}
-          <span className="flex-shrink-0 text-xs text-gray-500">
+          <span className="flex-shrink-0 text-xs text-gray-500 font-data">
             {group.slots.length} {group.slots.length === 1 ? 'slot' : 'slots'}
           </span>
 

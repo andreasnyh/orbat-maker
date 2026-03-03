@@ -39,7 +39,7 @@ export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {
               }`}
             >
               <Icon size={20} />
-              <span className="text-[10px] font-medium tracking-wide uppercase">
+              <span className="font-display text-[10px] font-semibold tracking-wide uppercase">
                 {label}
               </span>
             </button>

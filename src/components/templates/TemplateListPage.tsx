@@ -73,7 +73,9 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
       {/* Page header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-100">Templates</h1>
+          <h1 className="font-display text-2xl font-bold text-gray-100 uppercase tracking-wide">
+            Templates
+          </h1>
           <Badge variant="default">{templates.length}</Badge>
         </div>
         <Button
@@ -102,7 +104,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
                     size={16}
                     className="text-green-400 flex-shrink-0 mt-0.5"
                   />
-                  <span className="font-semibold text-gray-200 truncate">
+                  <span className="font-display font-semibold text-gray-200 truncate">
                     {template.name}
                   </span>
                 </div>
@@ -117,7 +119,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
               )}
 
               {/* Stats */}
-              <div className="flex items-center gap-3 text-xs text-gray-500">
+              <div className="flex items-center gap-3 text-xs text-gray-500 font-data">
                 <span>
                   {groups} {groups === 1 ? 'group' : 'groups'}
                 </span>

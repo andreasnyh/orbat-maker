@@ -33,7 +33,7 @@ export function PersonCard({
       {/* Name and rank */}
       <div className="flex flex-col gap-1.5 min-w-0">
         {person.rank && <Badge variant="green">{person.rank}</Badge>}
-        <span className="text-gray-200 font-semibold text-base leading-tight truncate">
+        <span className="font-display text-gray-200 font-semibold text-lg leading-tight truncate">
           {person.name}
         </span>
       </div>
