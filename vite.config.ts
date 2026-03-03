@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  base: '/orbat-maker/',
   plugins: [
     react(),
     tailwindcss(),
@@ -19,7 +20,7 @@ export default defineConfig({
         theme_color: '#1a1a2e',
         background_color: '#0f0f23',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/orbat-maker/',
         icons: [
           {
             src: '/icon-192.svg',
