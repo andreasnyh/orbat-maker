@@ -90,30 +90,3 @@ export function describeBundle(bundle: ExportBundle): string {
     parts.push(`${bundle.templates.length} templates`);
   return parts.length ? parts.join(', ') : 'Empty file';
 }
-
-export function describeImportPreview(
-  bundle: ExportBundle,
-  existingPeople: Person[],
-  existingTemplates: Template[],
-): { total: string; newItems: string; skippedCount: number } {
-  const total = describeBundle(bundle);
-
-  const peopleIds = new Set(existingPeople.map((p) => p.id));
-  const templateIds = new Set(existingTemplates.map((t) => t.id));
-
-  const newPeopleCount =
-    bundle.people?.filter((p) => !peopleIds.has(p.id)).length ?? 0;
-  const newTemplateCount =
-    bundle.templates?.filter((t) => !templateIds.has(t.id)).length ?? 0;
-
-  const totalInFile =
-    (bundle.people?.length ?? 0) + (bundle.templates?.length ?? 0);
-  const skippedCount = totalInFile - newPeopleCount - newTemplateCount;
-
-  const newParts: string[] = [];
-  if (newPeopleCount > 0) newParts.push(`${newPeopleCount} people`);
-  if (newTemplateCount > 0) newParts.push(`${newTemplateCount} templates`);
-  const newItems = newParts.length ? newParts.join(', ') : 'nothing new';
-
-  return { total, newItems, skippedCount };
-}

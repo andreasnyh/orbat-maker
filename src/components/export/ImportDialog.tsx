@@ -4,7 +4,6 @@ import { useAppState } from '../../context/AppStateContext';
 import {
   type Conflict,
   describeBundle,
-  describeImportPreview,
   detectNameConflicts,
   parseImportFile,
 } from '../../lib/exportImport';
