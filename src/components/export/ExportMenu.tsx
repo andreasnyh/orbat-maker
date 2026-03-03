@@ -9,7 +9,7 @@ import {
 import { ImportDialog } from './ImportDialog';
 
 export function ExportMenu() {
-  const { people, templates, orbats } = useAppState();
+  const { people, templates } = useAppState();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -46,7 +46,7 @@ export function ExportMenu() {
         break;
       case 'all':
         downloadJson(
-          createExportBundle({ people, templates, orbats }),
+          createExportBundle({ people, templates }),
           generateFilename('all'),
         );
         break;
