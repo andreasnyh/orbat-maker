@@ -23,11 +23,32 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
     <nav className="bg-[#1a1a2e] border-b border-[#2a2a4a]">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center h-14 gap-8">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="24 16 144 164" className="shrink-0" aria-label="Orbat Maker">
-            <path d="M32 40 L96 24 L160 40 L160 96 C160 138 96 172 96 172 C96 172 32 138 32 96 Z"
-                  fill="none" stroke="#4ade80" strokeWidth="8"/>
-            <text x="96" y="118" fontFamily="'Barlow Condensed',sans-serif" fontSize="60" fontWeight="700"
-                  fill="#4ade80" textAnchor="middle" letterSpacing="-2">OM</text>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="24 16 144 164"
+            className="shrink-0"
+            aria-label="Orbat Maker"
+          >
+            <path
+              d="M32 40 L96 24 L160 40 L160 96 C160 138 96 172 96 172 C96 172 32 138 32 96 Z"
+              fill="none"
+              stroke="#4ade80"
+              strokeWidth="8"
+            />
+            <text
+              x="96"
+              y="118"
+              fontFamily="'Barlow Condensed',sans-serif"
+              fontSize="60"
+              fontWeight="700"
+              fill="#4ade80"
+              textAnchor="middle"
+              letterSpacing="-2"
+            >
+              OM
+            </text>
           </svg>
           <div className="flex gap-1">
             {navItems.map(({ page, label, icon: Icon }) => (

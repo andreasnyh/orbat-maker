@@ -121,7 +121,9 @@ export function OrbatSlot({
         <span
           className={clsx(
             'flex-1 truncate',
-            person ? 'font-display text-lg text-gray-200 font-medium' : 'text-sm text-gray-600 italic font-data',
+            person
+              ? 'font-display text-lg text-gray-200 font-medium'
+              : 'text-sm text-gray-600 italic font-data',
           )}
         >
           {person ? (
