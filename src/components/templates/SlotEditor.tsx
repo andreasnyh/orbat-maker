@@ -1,6 +1,7 @@
-import { GripVertical, Plus, X } from 'lucide-react';
+import { GripVertical, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { Slot } from '../../types';
+import { EquipmentPills } from '../common/EquipmentPills';
 
 interface SlotEditorProps {
   slot: Slot;
@@ -18,10 +19,7 @@ export function SlotEditor({
 }: SlotEditorProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(slot.roleLabel);
-  const [equipmentDraft, setEquipmentDraft] = useState('');
-  const [addingEquipment, setAddingEquipment] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const equipmentInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (editing) {
@@ -62,37 +60,17 @@ export function SlotEditor({
     }
   }
 
-  function addEquipmentTag() {
-    const trimmed = equipmentDraft.trim();
-    if (trimmed) {
-      const current = slot.equipment ?? [];
-      if (!current.includes(trimmed)) {
-        onUpdate({ ...slot, equipment: [...current, trimmed] });
-      }
+  function handleAddEquipment(tag: string) {
+    const current = slot.equipment ?? [];
+    if (!current.includes(tag)) {
+      onUpdate({ ...slot, equipment: [...current, tag] });
     }
-    setEquipmentDraft('');
-    setAddingEquipment(false);
   }
 
-  function removeEquipmentTag(tag: string) {
+  function handleRemoveEquipment(tag: string) {
     const updated = (slot.equipment ?? []).filter((t) => t !== tag);
     onUpdate({ ...slot, equipment: updated.length > 0 ? updated : undefined });
   }
-
-  function handleEquipmentKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addEquipmentTag();
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      setEquipmentDraft('');
-      setAddingEquipment(false);
-    }
-  }
-
-  useEffect(() => {
-    if (addingEquipment) equipmentInputRef.current?.focus();
-  }, [addingEquipment]);
 
   return (
     <div className="px-2 py-1.5 rounded hover:bg-white/5 group">
@@ -145,42 +123,12 @@ export function SlotEditor({
 
       {/* Equipment pills */}
       <div className="flex items-center gap-1.5 mt-1 ml-6 flex-wrap">
-        {(slot.equipment ?? []).map((tag) => (
-          <span
-            key={tag}
-            className="inline-flex items-center gap-0.5 bg-amber-400/15 text-amber-300 text-[10px] font-mono rounded-full px-2 py-0.5"
-          >
-            {tag}
-            <button
-              type="button"
-              onClick={() => removeEquipmentTag(tag)}
-              className="hover:text-red-400 transition-colors ml-0.5"
-              aria-label={`Remove ${tag}`}
-            >
-              <X size={10} />
-            </button>
-          </span>
-        ))}
-        {addingEquipment ? (
-          <input
-            ref={equipmentInputRef}
-            value={equipmentDraft}
-            onChange={(e) => setEquipmentDraft(e.target.value)}
-            onBlur={addEquipmentTag}
-            onKeyDown={handleEquipmentKeyDown}
-            placeholder="Tag…"
-            className="bg-[#0f0f23] border border-amber-400/30 rounded-full px-2 py-0.5 text-[10px] font-mono text-gray-200 w-20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-400/25"
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={() => setAddingEquipment(true)}
-            className="inline-flex items-center gap-0.5 text-[10px] text-amber-400/50 hover:text-amber-400 transition-colors"
-            title="Add equipment tag"
-          >
-            <Plus size={10} />
-          </button>
-        )}
+        <EquipmentPills
+          equipment={slot.equipment ?? []}
+          onAdd={handleAddEquipment}
+          onRemove={handleRemoveEquipment}
+          size="md"
+        />
       </div>
     </div>
   );

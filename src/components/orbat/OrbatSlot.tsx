@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useOrbatsState } from '../../context/AppStateContext';
 import type { Assignment, Person, Slot } from '../../types';
 import { ConfirmDialog } from '../common/ConfirmDialog';
+import { EquipmentPills } from '../common/EquipmentPills';
 
 interface OrbatSlotProps {
   slot: Slot;
@@ -191,28 +192,10 @@ export function OrbatSlot({
         {/* Equipment pills */}
         {showEquipment && (
           <div className="flex items-center gap-1 shrink-0 relative">
-            {(slot.equipment ?? []).map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center gap-0.5 bg-amber-400/15 text-amber-300 text-[10px] font-mono rounded-full px-1.5 py-px"
-              >
-                {tag}
-                {onUpdateEquipment && (
-                  <button
-                    type="button"
-                    className="hover:text-red-400 transition-colors"
-                    aria-label={`Remove ${tag}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveEquipment(tag);
-                    }}
-                    onPointerDown={(e) => e.stopPropagation()}
-                  >
-                    <X size={10} />
-                  </button>
-                )}
-              </span>
-            ))}
+            <EquipmentPills
+              equipment={slot.equipment ?? []}
+              onRemove={onUpdateEquipment ? handleRemoveEquipment : undefined}
+            />
             {onUpdateEquipment && (
               <>
                 <button
@@ -237,7 +220,7 @@ export function OrbatSlot({
                     {/* Suggestion chips */}
                     {equipmentSuggestions &&
                       equipmentSuggestions.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-2">
+                        <div className="flex flex-wrap gap-1 mb-2 max-h-40 overflow-y-auto">
                           {equipmentSuggestions
                             .filter((s) => !(slot.equipment ?? []).includes(s))
                             .map((s) => (

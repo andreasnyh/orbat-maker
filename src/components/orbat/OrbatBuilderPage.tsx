@@ -250,18 +250,19 @@ export function OrbatBuilderPage({
     [orbatId, ensureOwnTemplate, updateSlot],
   );
 
+  const templateGroups = template?.groups;
   const equipmentSuggestions = useMemo(
     () =>
-      template
+      templateGroups
         ? Array.from(
             new Set(
-              template.groups.flatMap((g) =>
+              templateGroups.flatMap((g) =>
                 g.slots.flatMap((s) => s.equipment ?? []),
               ),
             ),
           )
         : [],
-    [template],
+    [templateGroups],
   );
 
   // ---- Guard: ORBAT not found ---------------------------------------------

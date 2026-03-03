@@ -67,18 +67,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [orbats, templates],
   );
 
-  const peopleValue = useMemo(() => people, [people]);
-  const templatesValue = useMemo(() => templates, [templates]);
-  const orbatsValue = useMemo(() => orbats, [orbats]);
   const crossCuttingValue = useMemo(
     () => ({ ensureOwnTemplate }),
     [ensureOwnTemplate],
   );
 
   return (
-    <PeopleContext.Provider value={peopleValue}>
-      <TemplatesContext.Provider value={templatesValue}>
-        <OrbatsContext.Provider value={orbatsValue}>
+    <PeopleContext.Provider value={people}>
+      <TemplatesContext.Provider value={templates}>
+        <OrbatsContext.Provider value={orbats}>
           <CrossCuttingContext.Provider value={crossCuttingValue}>
             {children}
           </CrossCuttingContext.Provider>
@@ -124,6 +121,7 @@ export function useCrossCuttingState(): CrossCuttingState {
 
 type AppState = PeopleState & TemplatesState & OrbatsState & CrossCuttingState;
 
+/** @deprecated Use the granular hooks (usePeopleState, useTemplatesState, useOrbatsState, useCrossCuttingState) instead. */
 export function useAppState(): AppState {
   const people = usePeopleState();
   const templates = useTemplatesState();
