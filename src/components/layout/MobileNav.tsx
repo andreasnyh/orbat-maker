@@ -1,4 +1,4 @@
-import { LayoutTemplate, Shield, Users } from 'lucide-react';
+import { Info, LayoutTemplate, Shield, Users } from 'lucide-react';
 import type { Page } from '../../types';
 
 interface MobileNavProps {
@@ -10,6 +10,7 @@ const navItems: { page: Page; label: string; icon: typeof Users }[] = [
   { page: 'orbats', label: 'ORBATs', icon: Shield },
   { page: 'people', label: 'People', icon: Users },
   { page: 'templates', label: 'Templates', icon: LayoutTemplate },
+  { page: 'about', label: 'About', icon: Info },
 ];
 
 export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {

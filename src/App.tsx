@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { AboutPage } from './components/about/AboutPage';
 import { AppShell } from './components/layout/AppShell';
 import { OrbatBuilderPage } from './components/orbat/OrbatBuilderPage';
 import { OrbatListPage } from './components/orbat/OrbatListPage';
@@ -33,6 +34,8 @@ function App() {
       case 'orbat-builder':
         if (!activeId) return null;
         return <OrbatBuilderPage orbatId={activeId} onNavigate={navigate} />;
+      case 'about':
+        return <AboutPage />;
     }
   };
 

@@ -1,4 +1,4 @@
-import { LayoutTemplate, Shield, Users } from 'lucide-react';
+import { Info, LayoutTemplate, Shield, Users } from 'lucide-react';
 import type { Page } from '../../types';
 import { ExportMenu } from '../export/ExportMenu';
 
@@ -43,8 +43,20 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
               </button>
             ))}
           </div>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
             <ExportMenu />
+            <button
+              type="button"
+              onClick={() => onNavigate('about')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                currentPage === 'about'
+                  ? 'bg-green-400/10 text-green-400'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+              }`}
+              title="About"
+            >
+              <Info size={18} />
+            </button>
           </div>
         </div>
       </div>

@@ -49,4 +49,5 @@ export type Page =
   | 'templates'
   | 'template-editor'
   | 'orbats'
-  | 'orbat-builder';
+  | 'orbat-builder'
+  | 'about';
