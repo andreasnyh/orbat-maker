@@ -2,7 +2,6 @@ import { ClipboardList, FolderOpen, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useAppState } from '../../context/AppStateContext';
 import type { Page, Template } from '../../types';
-import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { Modal } from '../common/Modal';
@@ -96,13 +95,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
   return (
     <div>
       {/* Page header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <h1 className="font-display text-2xl font-bold text-gray-100 uppercase tracking-wide">
-            ORBATs
-          </h1>
-          <Badge variant="default">{orbats.length}</Badge>
-        </div>
+      <div className="flex items-center justify-end mb-6">
         <Button
           onClick={handleOpenNewModal}
           variant="primary"

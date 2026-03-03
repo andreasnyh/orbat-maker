@@ -2,7 +2,6 @@ import { UserPlus, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useAppState } from '../../context/AppStateContext';
 import type { Person } from '../../types';
-import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { Modal } from '../common/Modal';
@@ -52,13 +51,7 @@ export function PeopleRosterPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Page header */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-3">
-          <h1 className="font-display text-2xl font-bold text-gray-200 uppercase tracking-wide">
-            People Roster
-          </h1>
-          <Badge variant="default">{people.length}</Badge>
-        </div>
+      <div className="flex items-center justify-end gap-4 flex-wrap">
         <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
           <UserPlus size={16} />
           Add Person

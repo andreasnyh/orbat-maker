@@ -71,13 +71,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
   return (
     <div>
       {/* Page header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <h1 className="font-display text-2xl font-bold text-gray-100 uppercase tracking-wide">
-            Templates
-          </h1>
-          <Badge variant="default">{templates.length}</Badge>
-        </div>
+      <div className="flex items-center justify-end mb-6">
         <Button
           onClick={() => setShowNewModal(true)}
           variant="primary"
@@ -102,13 +96,13 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
                 <div className="flex items-center gap-2 min-w-0">
                   <LayoutTemplate
                     size={16}
-                    className="text-green-400 flex-shrink-0 mt-0.5"
+                    className="text-indigo-400 flex-shrink-0 mt-0.5"
                   />
                   <span className="font-display font-semibold text-gray-200 truncate">
                     {template.name}
                   </span>
                 </div>
-                {template.isDefault && <Badge variant="green">Default</Badge>}
+                {template.isDefault && <Badge variant="indigo">Default</Badge>}
               </div>
 
               {/* Description */}
