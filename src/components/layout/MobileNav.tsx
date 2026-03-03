@@ -32,7 +32,7 @@ export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {
               type="button"
               key={page}
               onClick={() => onNavigate(page)}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 min-h-[44px] transition-colors ${
+              className={`flex-1 flex flex-col items-center justify-center gap-1 min-h-11 transition-colors ${
                 active
                   ? 'text-green-400'
                   : 'text-gray-500 hover:text-gray-300 active:text-gray-200'

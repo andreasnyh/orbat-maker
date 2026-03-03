@@ -62,7 +62,7 @@ export function OrbatGroup({
   return (
     <div className="flex flex-col gap-2">
       {/* Group header */}
-      <div className="flex items-center justify-between py-2 px-2 border-b border-[#2a2a4a] border-l-2 border-l-green-500/50 bg-gradient-to-r from-green-500/5 to-transparent rounded-sm">
+      <div className="flex items-center justify-between py-2 px-2 border-b border-[#2a2a4a] border-l-2 border-l-green-500/50 bg-linear-to-r from-green-500/5 to-transparent rounded-sm">
         <h3 className="font-display text-sm font-bold text-gray-300 uppercase tracking-widest">
           {group.name}
         </h3>

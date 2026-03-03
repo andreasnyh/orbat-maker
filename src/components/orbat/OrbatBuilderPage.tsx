@@ -429,7 +429,7 @@ export function OrbatBuilderPage({
       <button
         type="button"
         onClick={() => setShowRoster(true)}
-        className="fixed bottom-20 right-4 z-40 md:hidden flex items-center gap-2 bg-green-600 hover:bg-green-500 active:bg-green-700 text-white rounded-full px-4 py-3 shadow-lg shadow-black/40 transition-colors min-h-[44px]"
+        className="fixed bottom-20 right-4 z-40 md:hidden flex items-center gap-2 bg-green-600 hover:bg-green-500 active:bg-green-700 text-white rounded-full px-4 py-3 shadow-lg shadow-black/40 transition-colors min-h-11"
         aria-label="Show roster"
       >
         <Users size={18} />
