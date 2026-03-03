@@ -5,9 +5,12 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
-import { useState } from 'react';
-import { useAppState } from '../../context/AppStateContext';
-import type { Page, Template } from '../../types';
+import { useMemo, useState } from 'react';
+import {
+  useOrbatsState,
+  useTemplatesState,
+} from '../../context/AppStateContext';
+import type { Page } from '../../types';
 import { Button } from '../common/Button';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { Modal } from '../common/Modal';
@@ -18,7 +21,8 @@ interface OrbatListPageProps {
 }
 
 export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
-  const { orbats, templates, createOrbat, deleteOrbat } = useAppState();
+  const { orbats, createOrbat, deleteOrbat } = useOrbatsState();
+  const { templates } = useTemplatesState();
 
   // ---- New ORBAT modal state -----------------------------------------------
   const [showNewModal, setShowNewModal] = useState(false);
@@ -50,7 +54,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
   function handleCreateOrbat() {
     const trimmedName = newName.trim();
     if (!trimmedName || !newTemplateId) return;
-    const template = templates.find((t) => t.id === newTemplateId);
+    const template = templateMap.get(newTemplateId);
     if (!template) return;
     const created = createOrbat(trimmedName, template, newDate || undefined);
     handleCloseNewModal();
@@ -64,23 +68,26 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
     }
   }
 
-  // ---- Derived helpers -----------------------------------------------------
+  // ---- Derived helpers (memoized) -------------------------------------------
 
-  function getTemplate(templateId: string): Template | undefined {
-    return templates.find((t) => t.id === templateId);
-  }
+  const templateMap = useMemo(
+    () => new Map(templates.map((t) => [t.id, t])),
+    [templates],
+  );
 
-  function getAssignmentProgress(orbatId: string): {
-    filled: number;
-    total: number;
-  } {
-    const orbat = orbats.find((o) => o.id === orbatId);
-    if (!orbat) return { filled: 0, total: 0 };
-    const template = getTemplate(orbat.templateId);
-    if (!template) return { filled: orbat.assignments.length, total: 0 };
-    const total = template.groups.reduce((sum, g) => sum + g.slots.length, 0);
-    return { filled: orbat.assignments.length, total };
-  }
+  const progressMap = useMemo(() => {
+    const map = new Map<string, { filled: number; total: number }>();
+    for (const o of orbats) {
+      const t = templateMap.get(o.templateId);
+      if (!t) {
+        map.set(o.id, { filled: o.assignments.length, total: 0 });
+      } else {
+        const total = t.groups.reduce((sum, g) => sum + g.slots.length, 0);
+        map.set(o.id, { filled: o.assignments.length, total });
+      }
+    }
+    return map;
+  }, [orbats, templateMap]);
 
   function formatDate(dateStr?: string): string {
     if (!dateStr) return '';
@@ -125,8 +132,11 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
       {orbats.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {orbats.map((orbat) => {
-            const template = getTemplate(orbat.templateId);
-            const { filled, total } = getAssignmentProgress(orbat.id);
+            const template = templateMap.get(orbat.templateId);
+            const { filled, total } = progressMap.get(orbat.id) ?? {
+              filled: 0,
+              total: 0,
+            };
             const progressPercent =
               total > 0 ? Math.round((filled / total) * 100) : 0;
 

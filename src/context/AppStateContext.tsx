@@ -4,24 +4,36 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
 } from 'react';
 import { useOrbats } from '../hooks/useOrbats';
 import { usePeople } from '../hooks/usePeople';
 import { useTemplates } from '../hooks/useTemplates';
 import { initStorage } from '../lib/storage';
 
-type AppState = ReturnType<typeof usePeople> &
-  ReturnType<typeof useTemplates> &
-  ReturnType<typeof useOrbats> & {
-    ensureOwnTemplate: (orbatId: string) => string | null;
-  };
+// ---- Individual context types ------------------------------------------------
 
-const AppStateContext = createContext<AppState | null>(null);
+type PeopleState = ReturnType<typeof usePeople>;
+type TemplatesState = ReturnType<typeof useTemplates>;
+type OrbatsState = ReturnType<typeof useOrbats>;
+interface CrossCuttingState {
+  ensureOwnTemplate: (orbatId: string) => string | null;
+}
+
+// ---- Contexts ----------------------------------------------------------------
+
+const PeopleContext = createContext<PeopleState | null>(null);
+const TemplatesContext = createContext<TemplatesState | null>(null);
+const OrbatsContext = createContext<OrbatsState | null>(null);
+const CrossCuttingContext = createContext<CrossCuttingState | null>(null);
+
+// ---- Provider ----------------------------------------------------------------
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     initStorage();
   }, []);
+
   const people = usePeople();
   const templates = useTemplates();
   const orbats = useOrbats();
@@ -55,17 +67,67 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [orbats, templates],
   );
 
+  const peopleValue = useMemo(() => people, [people]);
+  const templatesValue = useMemo(() => templates, [templates]);
+  const orbatsValue = useMemo(() => orbats, [orbats]);
+  const crossCuttingValue = useMemo(
+    () => ({ ensureOwnTemplate }),
+    [ensureOwnTemplate],
+  );
+
   return (
-    <AppStateContext.Provider
-      value={{ ...people, ...templates, ...orbats, ensureOwnTemplate }}
-    >
-      {children}
-    </AppStateContext.Provider>
+    <PeopleContext.Provider value={peopleValue}>
+      <TemplatesContext.Provider value={templatesValue}>
+        <OrbatsContext.Provider value={orbatsValue}>
+          <CrossCuttingContext.Provider value={crossCuttingValue}>
+            {children}
+          </CrossCuttingContext.Provider>
+        </OrbatsContext.Provider>
+      </TemplatesContext.Provider>
+    </PeopleContext.Provider>
   );
 }
 
-export function useAppState(): AppState {
-  const ctx = useContext(AppStateContext);
-  if (!ctx) throw new Error('useAppState must be used within AppStateProvider');
+// ---- Granular hooks ----------------------------------------------------------
+
+export function usePeopleState(): PeopleState {
+  const ctx = useContext(PeopleContext);
+  if (!ctx)
+    throw new Error('usePeopleState must be used within AppStateProvider');
   return ctx;
+}
+
+export function useTemplatesState(): TemplatesState {
+  const ctx = useContext(TemplatesContext);
+  if (!ctx)
+    throw new Error('useTemplatesState must be used within AppStateProvider');
+  return ctx;
+}
+
+export function useOrbatsState(): OrbatsState {
+  const ctx = useContext(OrbatsContext);
+  if (!ctx)
+    throw new Error('useOrbatsState must be used within AppStateProvider');
+  return ctx;
+}
+
+export function useCrossCuttingState(): CrossCuttingState {
+  const ctx = useContext(CrossCuttingContext);
+  if (!ctx)
+    throw new Error(
+      'useCrossCuttingState must be used within AppStateProvider',
+    );
+  return ctx;
+}
+
+// ---- Facade hook (backwards-compatible) --------------------------------------
+
+type AppState = PeopleState & TemplatesState & OrbatsState & CrossCuttingState;
+
+export function useAppState(): AppState {
+  const people = usePeopleState();
+  const templates = useTemplatesState();
+  const orbats = useOrbatsState();
+  const crossCutting = useCrossCuttingState();
+  return { ...people, ...templates, ...orbats, ...crossCutting };
 }

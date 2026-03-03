@@ -4,7 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
 import { GripVertical, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
-import { useAppState } from '../../context/AppStateContext';
+import { useOrbatsState } from '../../context/AppStateContext';
 import type { Assignment, Person, Slot } from '../../types';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 
@@ -23,7 +23,7 @@ export function OrbatSlot({
   orbatId,
   onRemoveSlot,
 }: OrbatSlotProps) {
-  const { unassignSlot } = useAppState();
+  const { unassignSlot } = useOrbatsState();
   const [confirmRemove, setConfirmRemove] = useState(false);
 
   // Sortable — also acts as the droppable target for person drops.
@@ -94,20 +94,19 @@ export function OrbatSlot({
         {...dragListeners}
       >
         {/* Grip handle for reordering */}
-        <span
+        <button
+          type="button"
           className="text-gray-700 hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
           aria-label={`Reorder ${slot.roleLabel}`}
           {...sortableAttrs}
           {...sortableListeners}
-          role="button"
-          tabIndex={0}
           onPointerDown={(e) => {
             e.stopPropagation();
             sortableListeners?.onPointerDown?.(e as unknown as PointerEvent);
           }}
         >
           <GripVertical size={14} />
-        </span>
+        </button>
 
         {/* Role label */}
         <span

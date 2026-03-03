@@ -1,6 +1,9 @@
 import { AlertTriangle, CheckCircle, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { useAppState } from '../../context/AppStateContext';
+import {
+  usePeopleState,
+  useTemplatesState,
+} from '../../context/AppStateContext';
 import {
   type Conflict,
   describeBundle,
@@ -89,7 +92,8 @@ function ConflictSection<T extends { id: string; name: string }>({
 }
 
 export function ImportDialog({ open, onClose }: ImportDialogProps) {
-  const { people, setPeople, templates, setTemplates } = useAppState();
+  const { people, setPeople } = usePeopleState();
+  const { templates, setTemplates } = useTemplatesState();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<ImportState>({ phase: 'idle' });
 

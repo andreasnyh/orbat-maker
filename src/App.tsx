@@ -1,14 +1,47 @@
-import { useCallback, useState } from 'react';
-import { AboutPage } from './components/about/AboutPage';
+import { lazy, Suspense, useCallback, useState } from 'react';
 import { AppShell } from './components/layout/AppShell';
-import { OrbatBuilderPage } from './components/orbat/OrbatBuilderPage';
-import { OrbatListPage } from './components/orbat/OrbatListPage';
-import { PeopleRosterPage } from './components/people/PeopleRosterPage';
-import { TemplateEditorPage } from './components/templates/TemplateEditorPage';
-import { TemplateListPage } from './components/templates/TemplateListPage';
 import { AppStateProvider } from './context/AppStateContext';
 import { ToastProvider } from './hooks/useToast';
 import type { Page } from './types';
+
+const PeopleRosterPage = lazy(() =>
+  import('./components/people/PeopleRosterPage').then((m) => ({
+    default: m.PeopleRosterPage,
+  })),
+);
+const TemplateListPage = lazy(() =>
+  import('./components/templates/TemplateListPage').then((m) => ({
+    default: m.TemplateListPage,
+  })),
+);
+const TemplateEditorPage = lazy(() =>
+  import('./components/templates/TemplateEditorPage').then((m) => ({
+    default: m.TemplateEditorPage,
+  })),
+);
+const OrbatListPage = lazy(() =>
+  import('./components/orbat/OrbatListPage').then((m) => ({
+    default: m.OrbatListPage,
+  })),
+);
+const OrbatBuilderPage = lazy(() =>
+  import('./components/orbat/OrbatBuilderPage').then((m) => ({
+    default: m.OrbatBuilderPage,
+  })),
+);
+const AboutPage = lazy(() =>
+  import('./components/about/AboutPage').then((m) => ({
+    default: m.AboutPage,
+  })),
+);
+
+function PageSkeleton() {
+  return (
+    <div className="flex items-center justify-center py-24">
+      <div className="w-6 h-6 border-2 border-green-400/30 border-t-green-400 rounded-full animate-spin" />
+    </div>
+  );
+}
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('orbats');
@@ -44,7 +77,7 @@ function App() {
     <AppStateProvider>
       <ToastProvider>
         <AppShell currentPage={currentPage} onNavigate={navigate}>
-          {renderPage()}
+          <Suspense fallback={<PageSkeleton />}>{renderPage()}</Suspense>
         </AppShell>
       </ToastProvider>
     </AppStateProvider>

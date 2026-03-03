@@ -1,9 +1,10 @@
 import { Check } from 'lucide-react';
 import {
-  type ReactNode,
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -29,20 +30,35 @@ export function useToast(): ToastContextValue {
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const nextId = useRef(0);
+  const timeoutIds = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+
+  // Clear all pending timeouts on unmount
+  useEffect(() => {
+    const ids = timeoutIds.current;
+    return () => {
+      for (const id of ids) clearTimeout(id);
+      ids.clear();
+    };
+  }, []);
 
   const success = useCallback((message: string) => {
     const id = nextId.current++;
     setToasts((prev) => [...prev.slice(-1), { id, message }]);
 
     // Start exit animation after 1.7s, remove after 2s
-    setTimeout(() => {
+    const t1 = setTimeout(() => {
+      timeoutIds.current.delete(t1);
       setToasts((prev) =>
         prev.map((t) => (t.id === id ? { ...t, exiting: true } : t)),
       );
     }, 1700);
-    setTimeout(() => {
+    timeoutIds.current.add(t1);
+
+    const t2 = setTimeout(() => {
+      timeoutIds.current.delete(t2);
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 2000);
+    timeoutIds.current.add(t2);
   }, []);
 
   return (

@@ -1,6 +1,6 @@
 import { UserPlus, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { useAppState } from '../../context/AppStateContext';
+import { usePeopleState } from '../../context/AppStateContext';
 import type { Person } from '../../types';
 import { Button } from '../common/Button';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -10,7 +10,7 @@ import { PersonForm } from './PersonForm';
 import { PersonList } from './PersonList';
 
 export function PeopleRosterPage() {
-  const { people, addPerson, updatePerson, deletePerson } = useAppState();
+  const { people, addPerson, updatePerson, deletePerson } = usePeopleState();
 
   const [search, setSearch] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);

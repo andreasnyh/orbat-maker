@@ -137,15 +137,14 @@ export function GroupEditor({
         {/* Group header */}
         <div className="flex items-center gap-2 px-3 py-2 border-b border-[#2a2a4a] bg-[#15152a]">
           {/* Drag handle for the group */}
-          <span
+          <button
+            type="button"
             className="text-gray-600 hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
-            role="button"
-            tabIndex={0}
             aria-label={`Reorder ${group.name}`}
             {...dragHandleProps}
           >
             <GripVertical size={16} />
-          </span>
+          </button>
 
           {/* Group name — inline editable */}
           <div className="flex-1 min-w-0">

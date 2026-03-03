@@ -1,7 +1,14 @@
 import type { ORBAT, Person, Template } from '../types';
 
-function getPersonDisplay(personId: string, people: Person[]): string {
-  const person = people.find((p) => p.id === personId);
+function buildPersonMap(people: Person[]): Map<string, Person> {
+  return new Map(people.map((p) => [p.id, p]));
+}
+
+function getPersonDisplay(
+  personId: string,
+  personMap: Map<string, Person>,
+): string {
+  const person = personMap.get(personId);
   if (!person) return '[UNKNOWN]';
   return person.rank ? `${person.rank} ${person.name}` : person.name;
 }
@@ -15,6 +22,7 @@ export function formatOrbatForTeamspeak(
   template: Template,
   people: Person[],
 ): string {
+  const personMap = buildPersonMap(people);
   const lines: string[] = [];
   const header = orbat.date
     ? `=== ${orbat.name} (${orbat.date}) ===`
@@ -37,7 +45,7 @@ export function formatOrbatForTeamspeak(
     for (const slot of assignedSlots) {
       const assignment = orbat.assignments.find((a) => a.slotId === slot.id);
       if (!assignment) continue;
-      const personDisplay = getPersonDisplay(assignment.personId, people);
+      const personDisplay = getPersonDisplay(assignment.personId, personMap);
       lines.push(
         `  ${padRight(`${slot.roleLabel}:`, maxLen + 1)}  ${personDisplay}`,
       );
@@ -52,6 +60,7 @@ export function formatOrbatForDiscord(
   template: Template,
   people: Person[],
 ): string {
+  const personMap = buildPersonMap(people);
   const lines: string[] = [];
   const header = orbat.date
     ? `**=== ${orbat.name} (${orbat.date}) ===**`
@@ -71,7 +80,7 @@ export function formatOrbatForDiscord(
     for (const slot of assignedSlots) {
       const assignment = orbat.assignments.find((a) => a.slotId === slot.id);
       if (!assignment) continue;
-      const personDisplay = getPersonDisplay(assignment.personId, people);
+      const personDisplay = getPersonDisplay(assignment.personId, personMap);
       lines.push(`\`${slot.roleLabel}\`  ${personDisplay}`);
     }
   }

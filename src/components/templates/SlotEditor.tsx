@@ -62,15 +62,14 @@ export function SlotEditor({
   return (
     <div className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-white/5 group">
       {/* Drag handle */}
-      <span
+      <button
+        type="button"
         className="text-gray-600 hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
-        role="button"
-        tabIndex={0}
         aria-label={`Reorder ${slot.roleLabel}`}
         {...dragHandleProps}
       >
         <GripVertical size={14} />
-      </span>
+      </button>
 
       {/* Role label — inline editable */}
       <div className="flex-1 min-w-0">

@@ -2,7 +2,7 @@ import { useDraggable } from '@dnd-kit/core';
 import clsx from 'clsx';
 import { Search, X } from 'lucide-react';
 import { useState } from 'react';
-import { useAppState } from '../../context/AppStateContext';
+import { usePeopleState } from '../../context/AppStateContext';
 import type { Assignment, Person } from '../../types';
 import { Badge } from '../common/Badge';
 import { PersonCard } from '../people/PersonCard';
@@ -56,7 +56,7 @@ export function RosterSidebar({
   onClose,
   className,
 }: RosterSidebarProps) {
-  const { people } = useAppState();
+  const { people } = usePeopleState();
   const [search, setSearch] = useState('');
   const [hideAssigned, setHideAssigned] = useState(false);
 

@@ -20,7 +20,12 @@ import {
   Users,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useAppState } from '../../context/AppStateContext';
+import {
+  useCrossCuttingState,
+  useOrbatsState,
+  usePeopleState,
+  useTemplatesState,
+} from '../../context/AppStateContext';
 import { useToast } from '../../hooks/useToast';
 import {
   copyToClipboard,
@@ -50,21 +55,23 @@ export function OrbatBuilderPage({
   orbatId,
   onNavigate,
 }: OrbatBuilderPageProps) {
+  const { people } = usePeopleState();
+  const {
+    templates,
+    addSlotToGroup,
+    removeSlotFromGroup,
+    reorderSlotsInGroup,
+  } = useTemplatesState();
   const {
     orbats,
-    templates,
-    people,
     assignPersonToSlot,
     swapSlotAssignments,
     movePersonToSlot,
     clearAssignments,
     updateOrbat,
-    ensureOwnTemplate,
-    addSlotToGroup,
-    removeSlotFromGroup,
-    reorderSlotsInGroup,
     unassignSlot,
-  } = useAppState();
+  } = useOrbatsState();
+  const { ensureOwnTemplate } = useCrossCuttingState();
   const toast = useToast();
 
   const orbat = orbats.find((o) => o.id === orbatId);
@@ -74,9 +81,6 @@ export function OrbatBuilderPage({
 
   // ---- Local state ----------------------------------------------------------
   const [activePerson, setActivePerson] = useState<Person | null>(null);
-  const [pointerPos, setPointerPos] = useState<{ x: number; y: number } | null>(
-    null,
-  );
   const overlayRef = useRef<HTMLDivElement>(null);
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState(orbat?.name ?? '');
@@ -92,11 +96,18 @@ export function OrbatBuilderPage({
   // ---- Pointer tracking for custom overlay ---------------------------------
   useEffect(() => {
     if (!activePerson) {
-      setPointerPos(null);
+      if (overlayRef.current) {
+        overlayRef.current.style.display = 'none';
+      }
       return;
     }
+    if (overlayRef.current) {
+      overlayRef.current.style.display = '';
+    }
     function onPointerMove(e: PointerEvent) {
-      setPointerPos({ x: e.clientX, y: e.clientY });
+      if (overlayRef.current) {
+        overlayRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+      }
     }
     window.addEventListener('pointermove', onPointerMove);
     return () => window.removeEventListener('pointermove', onPointerMove);
@@ -112,7 +123,6 @@ export function OrbatBuilderPage({
 
   function handleDragEnd(event: DragEndEvent) {
     setActivePerson(null);
-    setPointerPos(null);
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -279,20 +289,13 @@ export function OrbatBuilderPage({
                 className="text-xl font-bold"
               />
             ) : (
-              <h1
+              <button
+                type="button"
                 className="font-display text-xl font-bold text-gray-100 uppercase tracking-wide truncate cursor-pointer hover:text-green-400 transition-colors inline-flex items-center gap-2 group/name"
                 onClick={() => {
                   setNameValue(orbat.name);
                   setEditingName(true);
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    setNameValue(orbat.name);
-                    setEditingName(true);
-                  }
-                }}
-                tabIndex={0}
-                role="button"
                 title="Click to rename"
               >
                 <span className="truncate">{orbat.name}</span>
@@ -300,7 +303,7 @@ export function OrbatBuilderPage({
                   size={14}
                   className="shrink-0 text-gray-600 group-hover/name:text-green-400 transition-colors"
                 />
-              </h1>
+              </button>
             )}
           </div>
 
@@ -403,24 +406,24 @@ export function OrbatBuilderPage({
       {/* Floating drag overlay — positioned directly at pointer to avoid
           scroll-offset issues with DragOverlay's built-in positioning */}
       <DragOverlay dropAnimation={null} />
-      {activePerson && pointerPos && (
-        <div
-          ref={overlayRef}
-          className="pointer-events-none"
-          style={{
-            position: 'fixed',
-            top: pointerPos.y,
-            left: pointerPos.x,
-            transform: 'translate(-50%, -50%)',
-            zIndex: 9999,
-          }}
-        >
+      <div
+        ref={overlayRef}
+        className="pointer-events-none"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          zIndex: 9999,
+          display: 'none',
+        }}
+      >
+        {activePerson && (
           <PersonCard
             person={activePerson}
             className="rotate-2 shadow-2xl shadow-black/50 cursor-grabbing opacity-95"
           />
-        </div>
-      )}
+        )}
+      </div>
 
       {/* ---- Mobile roster bottom-sheet ---- */}
 

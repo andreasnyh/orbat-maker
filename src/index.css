@@ -10,9 +10,11 @@
 
 /* ── Base ────────────────────────────────────────────────────────────── */
 
-button,
-[role="button"] {
-  cursor: pointer;
+@layer base {
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
 }
 
 /* ── Utilities ────────────────────────────────────────────────────────── */

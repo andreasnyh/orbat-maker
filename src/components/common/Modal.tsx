@@ -65,7 +65,6 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: focus trap handler */}
       <div
         ref={dialogRef}
         role="dialog"

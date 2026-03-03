@@ -1,6 +1,9 @@
 import { ChevronDown, Download, Upload } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { useAppState } from '../../context/AppStateContext';
+import {
+  usePeopleState,
+  useTemplatesState,
+} from '../../context/AppStateContext';
 import {
   createExportBundle,
   downloadJson,
@@ -9,7 +12,8 @@ import {
 import { ImportDialog } from './ImportDialog';
 
 export function ExportMenu() {
-  const { people, templates } = useAppState();
+  const { people } = usePeopleState();
+  const { templates } = useTemplatesState();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);

@@ -16,7 +16,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { useAppState } from '../../context/AppStateContext';
+import { useTemplatesState } from '../../context/AppStateContext';
 import { generateId } from '../../lib/ids';
 import type { Group, Page } from '../../types';
 import { GroupEditor } from './GroupEditor';
@@ -70,7 +70,7 @@ export function TemplateEditorPage({
   templateId,
   onNavigate,
 }: TemplateEditorPageProps) {
-  const { templates, updateTemplate } = useAppState();
+  const { templates, updateTemplate } = useTemplatesState();
   const template = templates.find((t) => t.id === templateId);
 
   const [editingName, setEditingName] = useState(false);
@@ -235,18 +235,14 @@ export function TemplateEditorPage({
               className="w-full bg-[#0f0f23] border border-green-400/50 rounded-md px-3 py-1.5 text-2xl font-bold text-gray-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/25"
             />
           ) : (
-            <h1
+            <button
+              type="button"
               onClick={() => setEditingName(true)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') setEditingName(true);
-              }}
-              tabIndex={0}
-              role="button"
-              className="font-display text-2xl font-bold text-gray-100 uppercase tracking-wide cursor-text hover:text-white"
+              className="font-display text-2xl font-bold text-gray-100 uppercase tracking-wide cursor-text hover:text-white text-left"
               title="Click to edit name"
             >
               {template.name}
-            </h1>
+            </button>
           )}
         </div>
 
@@ -264,20 +260,16 @@ export function TemplateEditorPage({
               className="w-full bg-[#0f0f23] border border-green-400/50 rounded-md px-3 py-1 text-sm text-gray-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/25"
             />
           ) : (
-            <p
+            <button
+              type="button"
               onClick={() => setEditingDesc(true)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') setEditingDesc(true);
-              }}
-              tabIndex={0}
-              role="button"
-              className={`text-sm cursor-text hover:text-gray-300 transition-colors ${
+              className={`text-sm cursor-text hover:text-gray-300 transition-colors text-left ${
                 template.description ? 'text-gray-400' : 'text-gray-600 italic'
               }`}
               title="Click to edit description"
             >
               {template.description ?? 'No description — click to add'}
-            </p>
+            </button>
           )}
         </div>
       </div>

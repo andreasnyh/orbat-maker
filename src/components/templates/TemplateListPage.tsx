@@ -1,6 +1,6 @@
 import { Copy, LayoutTemplate, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { useAppState } from '../../context/AppStateContext';
+import { useTemplatesState } from '../../context/AppStateContext';
 import type { Page } from '../../types';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
@@ -14,7 +14,7 @@ interface TemplateListPageProps {
 
 export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
   const { templates, addTemplate, deleteTemplate, duplicateTemplate } =
-    useAppState();
+    useTemplatesState();
 
   // ---- New template modal state ---------------------------------------------
   const [showNewModal, setShowNewModal] = useState(false);
