@@ -1,73 +1,60 @@
-# React + TypeScript + Vite
+# ORBAT Maker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A drag-and-drop Order of Battle builder for ARMA 3 units. Create reusable organizational templates, maintain a personnel roster, and assign people to roles — all from your browser.
 
-Currently, two official plugins are available:
+Data is stored locally in your browser with full offline support via PWA.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- **People roster** — manage personnel with names and ranks; search and filter
+- **Template editor** — build reusable ORBAT structures with groups and role slots; ships with default ARMA 3 templates (Infantry Section, Weapons Team, Vehicle Crew)
+- **Drag-and-drop builder** — assign people to slots by dragging from the roster; swap and reassign with ease
+- **Export/import** — save and load people, templates, and ORBATs as JSON for backup and sharing
+- **Clipboard export** — copy formatted ORBATs as plain text for Discord or TeamSpeak
+- **PWA** — installable on desktop and mobile, works offline, auto-updates
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting started
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start development server |
+| `npm run build` | Type-check and build for production |
+| `npm run preview` | Preview production build locally |
+| `npm run lint` | Lint with Biome |
+| `npm run format` | Format with Biome |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Tech stack
+
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS 4
+- dnd-kit (drag-and-drop)
+- Lucide React (icons)
+- vite-plugin-pwa (service worker + install prompt)
+- Biome (lint + format)
+
+## Project structure
+
+```
+src/
+├── components/
+│   ├── about/        About page
+│   ├── common/       Button, Modal, TextInput, etc.
+│   ├── export/       Export menu and import dialog
+│   ├── layout/       App shell, navbar, mobile nav
+│   ├── orbat/        ORBAT list, builder, roster sidebar
+│   ├── people/       People roster, person cards and forms
+│   └── templates/    Template list and editor
+├── context/          Global app state (React context + localStorage)
+├── hooks/            usePeople, useTemplates, useOrbats, useLocalStorage
+├── lib/              Clipboard formatting, export/import, ID generation
+├── types/            TypeScript interfaces
+└── data/             Default ARMA 3 templates
 ```
