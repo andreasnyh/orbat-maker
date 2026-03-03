@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-  base: '/orbat-maker/',
+  base: process.env.NODE_ENV === 'production' ? '/orbat-maker/' : '/',
   plugins: [
     react(),
     tailwindcss(),
