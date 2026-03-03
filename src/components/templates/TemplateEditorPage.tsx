@@ -213,7 +213,7 @@ export function TemplateEditorPage({
       {/* Back navigation */}
       <button
         onClick={() => onNavigate('templates')}
-        className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-200 transition-colors mb-6"
+        className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-200 transition-colors mb-6 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:text-green-400"
         type="button"
       >
         <ArrowLeft size={16} />

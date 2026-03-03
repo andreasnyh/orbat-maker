@@ -56,7 +56,7 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
                 <button
                   type="button"
                   onClick={() => onNavigate(page)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:text-green-400 ${
                     activePage(page)
                       ? 'text-green-400'
                       : 'text-gray-400 hover:text-green-400/70'
@@ -76,7 +76,7 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
             <button
               type="button"
               onClick={() => onNavigate('about')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:text-green-400 ${
                 currentPage === 'about'
                   ? 'text-green-400'
                   : 'text-gray-400 hover:text-green-400/70'
