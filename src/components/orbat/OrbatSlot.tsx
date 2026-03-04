@@ -127,7 +127,7 @@ export function OrbatSlot({
         <>
           <button
             type="button"
-            className="text-amber-400/50 hover:text-amber-300 transition-colors p-2 md:p-0.5 rounded"
+            className="text-amber-400/50 hover:text-amber-300 transition-colors p-2 md:p-1 rounded"
             aria-label="Add equipment"
             title="Add equipment"
             onClick={(e) => {
@@ -136,7 +136,7 @@ export function OrbatSlot({
             }}
             onPointerDown={(e) => e.stopPropagation()}
           >
-            <Plus size={12} className="md:size-3 size-5" />
+            <Plus size={12} className="md:size-4 size-5" />
           </button>
           {equipPopoverOpen && (
             <>
@@ -198,11 +198,11 @@ export function OrbatSlot({
       type="button"
       onClick={handleUnassign}
       onPointerDown={(e) => e.stopPropagation()}
-      className="shrink-0 text-gray-600 hover:text-red-400 transition-colors p-2 md:p-0.5 rounded"
+      className="shrink-0 text-gray-600 hover:text-red-400 transition-colors p-2 md:p-1 rounded"
       aria-label={`Remove ${person?.name ?? 'person'} from ${slot.roleLabel}`}
       title="Remove assignment"
     >
-      <X size={14} className="md:size-3.5 size-5" />
+      <X size={14} className="md:size-4 size-5" />
     </button>
   );
 
@@ -211,11 +211,11 @@ export function OrbatSlot({
       type="button"
       onClick={handleRemoveSlot}
       onPointerDown={(e) => e.stopPropagation()}
-      className="shrink-0 text-gray-700 hover:text-red-400 transition-colors p-2 md:p-0.5 rounded"
+      className="shrink-0 text-gray-700 hover:text-red-400 transition-colors p-2 md:p-1 rounded"
       aria-label={`Delete ${slot.roleLabel} slot`}
       title="Delete slot"
     >
-      <Trash2 size={13} className="md:size-3.5 size-5" />
+      <Trash2 size={13} className="md:size-4 size-5" />
     </button>
   );
 
