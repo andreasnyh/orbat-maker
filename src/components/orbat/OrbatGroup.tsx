@@ -102,7 +102,7 @@ export const OrbatGroup = memo(function OrbatGroup({
         </span>
       </div>
 
-      {/* Slots — SortableContext uses the outer DndContext from OrbatBuilderPage */}
+      {/* Slots */}
       <div ref={setDroppableRef} className="flex flex-col gap-1.5">
         {group.slots.length > 0 ? (
           <SortableContext
