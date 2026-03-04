@@ -322,50 +322,97 @@ export function OrbatBuilderPage({
       >
         <div className="flex flex-col gap-4 h-full">
           {/* Top bar */}
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onNavigate('orbats')}
-              className="shrink-0"
-            >
-              <ArrowLeft size={14} />
-              <span className="hidden sm:inline">ORBATs</span>
-            </Button>
+          <div className="flex flex-col gap-3">
+            {/* Row 1: Back button + ORBAT name */}
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onNavigate('orbats')}
+                className="shrink-0"
+              >
+                <ArrowLeft size={14} />
+                <span className="hidden sm:inline">ORBATs</span>
+              </Button>
 
-            {/* Editable ORBAT name */}
-            <div className="flex-1 min-w-0">
-              {editingName ? (
-                <TextInput
-                  value={nameValue}
-                  onChange={(e) => setNameValue(e.target.value)}
-                  onBlur={handleNameCommit}
-                  onKeyDown={handleNameKeyDown}
-                  autoFocus
-                  className="text-xl font-bold"
-                />
-              ) : (
-                <button
-                  type="button"
-                  className="font-display text-xl font-bold text-gray-100 uppercase tracking-wide truncate cursor-pointer hover:text-green-400 transition-colors inline-flex items-center gap-2 group/name"
-                  onClick={() => {
-                    setNameValue(orbat.name);
-                    setEditingName(true);
-                  }}
-                  title="Click to rename"
-                >
-                  <span className="truncate">{orbat.name}</span>
-                  <Pencil
-                    size={14}
-                    className="shrink-0 text-gray-600 group-hover/name:text-green-400 transition-colors"
+              {/* Editable ORBAT name */}
+              <div className="flex-1 min-w-0">
+                {editingName ? (
+                  <TextInput
+                    value={nameValue}
+                    onChange={(e) => setNameValue(e.target.value)}
+                    onBlur={handleNameCommit}
+                    onKeyDown={handleNameKeyDown}
+                    autoFocus
+                    className="text-xl font-bold"
                   />
-                </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="font-display text-xl font-bold text-gray-100 uppercase tracking-wide truncate cursor-pointer hover:text-green-400 transition-colors inline-flex items-center gap-2 group/name"
+                    onClick={() => {
+                      setNameValue(orbat.name);
+                      setEditingName(true);
+                    }}
+                    title="Click to rename"
+                  >
+                    <span className="truncate">{orbat.name}</span>
+                    <Pencil
+                      size={14}
+                      className="shrink-0 text-gray-600 group-hover/name:text-green-400 transition-colors"
+                    />
+                  </button>
+                )}
+              </div>
+
+              {/* Copy & reset buttons — inline on desktop */}
+              {template && (
+                <div className="shrink-0 hidden md:flex items-center gap-2">
+                  <Button
+                    variant={showEquipment ? 'primary' : 'secondary'}
+                    size="sm"
+                    onClick={() => setShowEquipment((v) => !v)}
+                    title={showEquipment ? 'Hide equipment' : 'Show equipment'}
+                  >
+                    <Package size={14} />
+                    Equip
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleCopyDiscord}
+                    title="Copy formatted ORBAT for Discord"
+                  >
+                    <Clipboard size={14} />
+                    Discord
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleCopyTeamspeak}
+                    title="Copy formatted ORBAT for TeamSpeak"
+                  >
+                    <Clipboard size={14} />
+                    TeamSpeak
+                  </Button>
+                  {orbat.assignments.length > 0 && (
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => setConfirmClear(true)}
+                      title="Clear all assignments"
+                    >
+                      <RotateCcw size={14} />
+                      Clear
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
 
-            {/* Copy & reset buttons — only shown when a template is available */}
+            {/* Row 2: Action buttons on mobile */}
             {template && (
-              <div className="shrink-0 flex items-center gap-2">
+              <div className="flex md:hidden items-center gap-2 flex-wrap">
                 <Button
                   variant={showEquipment ? 'primary' : 'secondary'}
                   size="sm"
@@ -373,7 +420,7 @@ export function OrbatBuilderPage({
                   title={showEquipment ? 'Hide equipment' : 'Show equipment'}
                 >
                   <Package size={14} />
-                  <span className="hidden md:inline">Equip</span>
+                  Equip
                 </Button>
                 <Button
                   variant="secondary"
@@ -382,7 +429,7 @@ export function OrbatBuilderPage({
                   title="Copy formatted ORBAT for Discord"
                 >
                   <Clipboard size={14} />
-                  <span className="hidden md:inline">Discord</span>
+                  Discord
                 </Button>
                 <Button
                   variant="secondary"
@@ -391,7 +438,7 @@ export function OrbatBuilderPage({
                   title="Copy formatted ORBAT for TeamSpeak"
                 >
                   <Clipboard size={14} />
-                  <span className="hidden md:inline">TeamSpeak</span>
+                  TeamSpeak
                 </Button>
                 {orbat.assignments.length > 0 && (
                   <Button
@@ -401,7 +448,7 @@ export function OrbatBuilderPage({
                     title="Clear all assignments"
                   >
                     <RotateCcw size={14} />
-                    <span className="hidden md:inline">Clear</span>
+                    Clear
                   </Button>
                 )}
               </div>
