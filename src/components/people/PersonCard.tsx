@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { Pencil, Trash2 } from 'lucide-react';
 import type { HTMLAttributes } from 'react';
+import { memo } from 'react';
 import type { Person } from '../../types';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
@@ -13,7 +14,7 @@ interface PersonCardProps extends HTMLAttributes<HTMLDivElement> {
   onDelete?: (person: Person) => void;
 }
 
-export function PersonCard({
+export const PersonCard = memo(function PersonCard({
   person,
   onEdit,
   onDelete,
@@ -65,4 +66,4 @@ export function PersonCard({
       )}
     </div>
   );
-}
+});

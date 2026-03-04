@@ -3,15 +3,14 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { Plus } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Assignment, Group, Person, Slot } from '../../types';
 import { OrbatSlot } from './OrbatSlot';
 
 interface OrbatGroupProps {
   group: Group;
-  assignments: Assignment[];
-  people: Person[];
-  orbatId: string;
+  assignmentsBySlotId: Map<string, Assignment>;
+  personById: Map<string, Person>;
   onAddSlot?: (groupId: string, roleLabel: string) => void;
   onRemoveSlot?: (groupId: string, slotId: string) => void;
   onReorderSlots?: (groupId: string, slots: Slot[]) => void;
@@ -20,21 +19,22 @@ interface OrbatGroupProps {
     slotId: string,
     updates: Partial<Omit<Slot, 'id'>>,
   ) => void;
+  onUnassign?: (slotId: string) => void;
   equipmentSuggestions?: string[];
   showEquipment?: boolean;
   onTapAssign?: (slotId: string) => void;
   highlightSlotId?: string | null;
 }
 
-export function OrbatGroup({
+export const OrbatGroup = memo(function OrbatGroup({
   group,
-  assignments,
-  people,
-  orbatId,
+  assignmentsBySlotId,
+  personById,
   onAddSlot,
   onRemoveSlot,
   onReorderSlots: _onReorderSlots,
   onUpdateSlot,
+  onUnassign,
   equipmentSuggestions,
   showEquipment,
   onTapAssign,
@@ -44,9 +44,10 @@ export function OrbatGroup({
   const [newRoleLabel, setNewRoleLabel] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const filledCount = group.slots.filter((slot) =>
-    assignments.some((a) => a.slotId === slot.id),
-  ).length;
+  const filledCount = useMemo(
+    () => group.slots.filter((slot) => assignmentsBySlotId.has(slot.id)).length,
+    [group.slots, assignmentsBySlotId],
+  );
 
   useEffect(() => {
     if (addingSlot) inputRef.current?.focus();
@@ -69,13 +70,19 @@ export function OrbatGroup({
     }
   }
 
-  function handleRemoveSlot(slotId: string) {
-    onRemoveSlot?.(group.id, slotId);
-  }
+  const handleRemoveSlot = useCallback(
+    (slotId: string) => {
+      onRemoveSlot?.(group.id, slotId);
+    },
+    [onRemoveSlot, group.id],
+  );
 
-  function handleUpdateEquipment(slotId: string, equipment: string[]) {
-    onUpdateSlot?.(group.id, slotId, { equipment });
-  }
+  const handleUpdateEquipment = useCallback(
+    (slotId: string, equipment: string[]) => {
+      onUpdateSlot?.(group.id, slotId, { equipment });
+    },
+    [onUpdateSlot, group.id],
+  );
 
   return (
     <div className="flex flex-col gap-2">
@@ -97,9 +104,9 @@ export function OrbatGroup({
             strategy={verticalListSortingStrategy}
           >
             {group.slots.map((slot) => {
-              const assignment = assignments.find((a) => a.slotId === slot.id);
+              const assignment = assignmentsBySlotId.get(slot.id);
               const person = assignment
-                ? people.find((p) => p.id === assignment.personId)
+                ? personById.get(assignment.personId)
                 : undefined;
 
               return (
@@ -108,11 +115,11 @@ export function OrbatGroup({
                   slot={slot}
                   assignment={assignment}
                   person={person}
-                  orbatId={orbatId}
                   onRemoveSlot={onRemoveSlot ? handleRemoveSlot : undefined}
                   onUpdateEquipment={
                     onUpdateSlot ? handleUpdateEquipment : undefined
                   }
+                  onUnassign={onUnassign}
                   equipmentSuggestions={equipmentSuggestions}
                   showEquipment={showEquipment}
                   onTapAssign={onTapAssign}
@@ -156,4 +163,4 @@ export function OrbatGroup({
       )}
     </div>
   );
-}
+});

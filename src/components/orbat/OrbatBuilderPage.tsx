@@ -44,7 +44,7 @@ import { RosterSidebar } from './RosterSidebar';
 // Re-measure droppable rects frequently so collision detection stays
 // accurate when the page or a nested container has been scrolled.
 const measuringConfig = {
-  droppable: { strategy: MeasuringStrategy.Always },
+  droppable: { strategy: MeasuringStrategy.WhileDragging },
 };
 
 interface OrbatBuilderPageProps {
@@ -119,102 +119,33 @@ export function OrbatBuilderPage({
     return () => window.removeEventListener('pointermove', onPointerMove);
   }, [activePerson]);
 
-  // ---- Drag handlers -------------------------------------------------------
+  // ---- Derived data (memoized) ----------------------------------------------
 
-  function handleDragStart(event: DragStartEvent) {
-    const personId = event.active.data.current?.personId;
-    const person = people.find((p) => p.id === personId);
-    setActivePerson(person ?? null);
-  }
+  const templateGroups = template?.groups;
+  const assignments = orbat?.assignments;
+  const assignmentsBySlotId = useMemo(
+    () => new Map(assignments ? assignments.map((a) => [a.slotId, a]) : []),
+    [assignments],
+  );
 
-  function handleDragEnd(event: DragEndEvent) {
-    setActivePerson(null);
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
+  const personById = useMemo(
+    () => new Map(people.map((p) => [p.id, p])),
+    [people],
+  );
 
-    // ---- Slot reorder drag (grip handle) ----
-    if (active.data.current?.type === 'slot-reorder') {
-      const activeSlotId = active.data.current.slotId as string;
-      const overSlotId = over.data.current?.slotId as string | undefined;
-      if (!overSlotId || !template) return;
-
-      // Find the group containing this slot
-      const group = template.groups.find((g) =>
-        g.slots.some((s) => s.id === activeSlotId),
-      );
-      if (!group) return;
-
-      const oldIndex = group.slots.findIndex((s) => s.id === activeSlotId);
-      const newIndex = group.slots.findIndex((s) => s.id === overSlotId);
-      if (oldIndex === -1 || newIndex === -1) return;
-
-      handleReorderSlots(group.id, arrayMove(group.slots, oldIndex, newIndex));
-      return;
-    }
-
-    // ---- Person drag (roster or slot-to-slot) ----
-    const personId = active.data.current?.personId as string | undefined;
-    const sourceSlotId = active.data.current?.sourceSlotId as
-      | string
-      | undefined;
-    const targetSlotId = over.data.current?.slotId as string | undefined;
-
-    if (!targetSlotId || !personId) return;
-
-    // Dragged from a slot (re-arranging within the ORBAT)
-    if (sourceSlotId) {
-      if (sourceSlotId === targetSlotId) return; // dropped on same slot
-      // Check if target slot has someone assigned
-      const targetAssignment = orbat?.assignments.find(
-        (a) => a.slotId === targetSlotId,
-      );
-      if (targetAssignment) {
-        swapSlotAssignments(orbatId, sourceSlotId, targetSlotId);
-      } else {
-        movePersonToSlot(orbatId, sourceSlotId, targetSlotId);
-      }
-    } else {
-      // Dragged from roster sidebar
-      assignPersonToSlot(orbatId, targetSlotId, personId);
-    }
-  }
-
-  // ---- Name editing --------------------------------------------------------
-
-  function handleNameCommit() {
-    const trimmed = nameValue.trim();
-    if (trimmed && trimmed !== orbat?.name) {
-      updateOrbat(orbatId, { name: trimmed });
-    } else if (!trimmed) {
-      // Revert to existing name if field is cleared
-      setNameValue(orbat?.name ?? '');
-    }
-    setEditingName(false);
-  }
-
-  function handleNameKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter') handleNameCommit();
-    if (e.key === 'Escape') {
-      setNameValue(orbat?.name ?? '');
-      setEditingName(false);
-    }
-  }
-
-  // ---- Clipboard copy handlers --------------------------------------------
-
-  async function handleCopyDiscord() {
-    if (!orbat || !template) return;
-    const text = formatOrbatForDiscord(orbat, template, people);
-    const ok = await copyToClipboard(text);
-    if (ok) toast.success('Copied for Discord');
-  }
-
-  async function handleCopyTeamspeak() {
-    if (!orbat || !template) return;
-    const text = formatOrbatForTeamspeak(orbat, template, people);
-    const ok = await copyToClipboard(text);
-    if (ok) toast.success('Copied for TeamSpeak');
-  }
+  const equipmentSuggestions = useMemo(
+    () =>
+      templateGroups
+        ? Array.from(
+            new Set(
+              templateGroups.flatMap((g) =>
+                g.slots.flatMap((s) => s.equipment ?? []),
+              ),
+            ),
+          )
+        : [],
+    [templateGroups],
+  );
 
   // ---- Slot management (auto-fork + mutate) --------------------------------
 
@@ -253,6 +184,120 @@ export function OrbatBuilderPage({
     [orbatId, ensureOwnTemplate, updateSlot],
   );
 
+  const handleUnassign = useCallback(
+    (slotId: string) => {
+      unassignSlot(orbatId, slotId);
+    },
+    [orbatId, unassignSlot],
+  );
+
+  // ---- Drag handlers -------------------------------------------------------
+
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const personId = event.active.data.current?.personId;
+      const person = personById.get(personId);
+      setActivePerson(person ?? null);
+    },
+    [personById],
+  );
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      setActivePerson(null);
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+
+      // ---- Slot reorder drag (grip handle) ----
+      if (active.data.current?.type === 'slot-reorder') {
+        const activeSlotId = active.data.current.slotId as string;
+        const overSlotId = over.data.current?.slotId as string | undefined;
+        if (!overSlotId || !template) return;
+
+        const group = template.groups.find((g) =>
+          g.slots.some((s) => s.id === activeSlotId),
+        );
+        if (!group) return;
+
+        const oldIndex = group.slots.findIndex((s) => s.id === activeSlotId);
+        const newIndex = group.slots.findIndex((s) => s.id === overSlotId);
+        if (oldIndex === -1 || newIndex === -1) return;
+
+        handleReorderSlots(
+          group.id,
+          arrayMove(group.slots, oldIndex, newIndex),
+        );
+        return;
+      }
+
+      // ---- Person drag (roster or slot-to-slot) ----
+      const personId = active.data.current?.personId as string | undefined;
+      const sourceSlotId = active.data.current?.sourceSlotId as
+        | string
+        | undefined;
+      const targetSlotId = over.data.current?.slotId as string | undefined;
+
+      if (!targetSlotId || !personId) return;
+
+      if (sourceSlotId) {
+        if (sourceSlotId === targetSlotId) return;
+        const targetAssignment = assignmentsBySlotId.get(targetSlotId);
+        if (targetAssignment) {
+          swapSlotAssignments(orbatId, sourceSlotId, targetSlotId);
+        } else {
+          movePersonToSlot(orbatId, sourceSlotId, targetSlotId);
+        }
+      } else {
+        assignPersonToSlot(orbatId, targetSlotId, personId);
+      }
+    },
+    [
+      template,
+      handleReorderSlots,
+      assignmentsBySlotId,
+      orbatId,
+      swapSlotAssignments,
+      movePersonToSlot,
+      assignPersonToSlot,
+    ],
+  );
+
+  // ---- Name editing --------------------------------------------------------
+
+  function handleNameCommit() {
+    const trimmed = nameValue.trim();
+    if (trimmed && trimmed !== orbat?.name) {
+      updateOrbat(orbatId, { name: trimmed });
+    } else if (!trimmed) {
+      setNameValue(orbat?.name ?? '');
+    }
+    setEditingName(false);
+  }
+
+  function handleNameKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') handleNameCommit();
+    if (e.key === 'Escape') {
+      setNameValue(orbat?.name ?? '');
+      setEditingName(false);
+    }
+  }
+
+  // ---- Clipboard copy handlers --------------------------------------------
+
+  async function handleCopyDiscord() {
+    if (!orbat || !template) return;
+    const text = formatOrbatForDiscord(orbat, template, people);
+    const ok = await copyToClipboard(text);
+    if (ok) toast.success('Copied for Discord');
+  }
+
+  async function handleCopyTeamspeak() {
+    if (!orbat || !template) return;
+    const text = formatOrbatForTeamspeak(orbat, template, people);
+    const ok = await copyToClipboard(text);
+    if (ok) toast.success('Copied for TeamSpeak');
+  }
+
   // ---- Tap-to-assign (mobile) -----------------------------------------------
 
   const handleTapAssign = useCallback((slotId: string) => {
@@ -278,21 +323,6 @@ export function OrbatBuilderPage({
     }
     return undefined;
   }, [tapTargetSlotId, template]);
-
-  const templateGroups = template?.groups;
-  const equipmentSuggestions = useMemo(
-    () =>
-      templateGroups
-        ? Array.from(
-            new Set(
-              templateGroups.flatMap((g) =>
-                g.slots.flatMap((s) => s.equipment ?? []),
-              ),
-            ),
-          )
-        : [],
-    [templateGroups],
-  );
 
   // ---- Guard: ORBAT not found ---------------------------------------------
 
@@ -489,13 +519,13 @@ export function OrbatBuilderPage({
                     <OrbatGroup
                       key={group.id}
                       group={group}
-                      assignments={orbat.assignments}
-                      people={people}
-                      orbatId={orbatId}
+                      assignmentsBySlotId={assignmentsBySlotId}
+                      personById={personById}
                       onAddSlot={handleAddSlot}
                       onRemoveSlot={handleRemoveSlot}
                       onReorderSlots={handleReorderSlots}
                       onUpdateSlot={handleUpdateSlot}
+                      onUnassign={handleUnassign}
                       equipmentSuggestions={equipmentSuggestions}
                       showEquipment={showEquipment}
                       onTapAssign={isMobile ? handleTapAssign : undefined}

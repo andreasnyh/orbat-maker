@@ -1,7 +1,7 @@
 import { useDraggable } from '@dnd-kit/core';
 import clsx from 'clsx';
 import { Search, X } from 'lucide-react';
-import { useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { usePeopleState } from '../../context/AppStateContext';
 import type { Assignment, Person } from '../../types';
 import { Badge } from '../common/Badge';
@@ -22,7 +22,7 @@ interface RosterSidebarProps {
 }
 
 // Thin wrapper that makes a single PersonCard draggable
-function DraggablePersonCard({
+const DraggablePersonCard = memo(function DraggablePersonCard({
   person,
   isAssigned,
 }: {
@@ -34,29 +34,50 @@ function DraggablePersonCard({
     data: { type: 'person', personId: person.id },
   });
 
+  // Listeners + attributes are on the wrapper so that PersonCard receives
+  // stable props and its memo can skip re-renders during drag.
   return (
     <div
       ref={setNodeRef}
-      className={clsx('relative', isDragging && 'opacity-40')}
+      className={clsx(
+        'relative cursor-grab active:cursor-grabbing',
+        isDragging && 'opacity-40',
+      )}
+      {...attributes}
+      {...listeners}
     >
+      <DraggablePersonContent person={person} isAssigned={isAssigned} />
+    </div>
+  );
+});
+
+// Memoized inner content — avoids re-creating JSX on every dnd context update.
+// Only re-renders when person data or assignment status changes.
+const DraggablePersonContent = memo(function DraggablePersonContent({
+  person,
+  isAssigned,
+}: {
+  person: Person;
+  isAssigned: boolean;
+}) {
+  return (
+    <>
       <PersonCard
         person={person}
         className={clsx(
-          'cursor-grab active:cursor-grabbing select-none transition-all duration-150',
+          'select-none transition-all duration-150 pointer-events-none',
           'hover:-translate-y-px hover:shadow-lg hover:shadow-black/25 hover:border-green-400/30',
           isAssigned && 'opacity-50',
         )}
-        {...attributes}
-        {...listeners}
       />
       {isAssigned && (
         <div className="absolute top-2 right-2 pointer-events-none">
           <Badge variant="default">Assigned</Badge>
         </div>
       )}
-    </div>
+    </>
   );
-}
+});
 
 // Compact tappable row for mobile tap-to-assign flow
 function TappablePersonRow({
@@ -108,7 +129,10 @@ export function RosterSidebar({
   const [search, setSearch] = useState('');
   const [hideAssigned, setHideAssigned] = useState(defaultHideAssigned);
 
-  const assignedPersonIds = new Set(assignments.map((a) => a.personId));
+  const assignedPersonIds = useMemo(
+    () => new Set(assignments.map((a) => a.personId)),
+    [assignments],
+  );
 
   const filtered = people.filter((p) => {
     if (hideAssigned && assignedPersonIds.has(p.id)) return false;
