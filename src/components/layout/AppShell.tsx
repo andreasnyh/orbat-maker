@@ -12,13 +12,13 @@ interface AppShellProps {
 export function AppShell({ currentPage, onNavigate, children }: AppShellProps) {
   return (
     <div className="min-h-screen bg-[#0f0f23] bg-grid-pattern text-gray-200">
-      {/* Desktop top navigation — hidden on mobile */}
-      <div className="hidden md:block">
+      {/* Desktop top navigation — hidden on mobile, fixed */}
+      <div className="hidden md:block fixed top-0 left-0 right-0 z-40">
         <Navbar currentPage={currentPage} onNavigate={onNavigate} />
       </div>
 
-      {/* Main content — adds bottom padding on mobile to clear the fixed MobileNav */}
-      <main className="max-w-6xl mx-auto px-4 py-6 pb-24 md:pb-6">
+      {/* Main content — adds bottom padding on mobile to clear the fixed MobileNav, top padding on desktop for fixed Navbar */}
+      <main className="max-w-6xl mx-auto px-4 py-6 pb-24 md:pb-6 md:pt-20">
         {children}
       </main>
 
