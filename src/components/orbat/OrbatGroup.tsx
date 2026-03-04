@@ -1,3 +1,4 @@
+import { useDroppable } from '@dnd-kit/core';
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -40,6 +41,11 @@ export const OrbatGroup = memo(function OrbatGroup({
   onTapAssign,
   highlightSlotId,
 }: OrbatGroupProps) {
+  const { setNodeRef: setDroppableRef } = useDroppable({
+    id: `group-${group.id}`,
+    data: { type: 'slot-reorder', groupId: group.id },
+  });
+
   const [addingSlot, setAddingSlot] = useState(false);
   const [newRoleLabel, setNewRoleLabel] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -97,7 +103,7 @@ export const OrbatGroup = memo(function OrbatGroup({
       </div>
 
       {/* Slots — SortableContext uses the outer DndContext from OrbatBuilderPage */}
-      <div className="flex flex-col gap-1.5">
+      <div ref={setDroppableRef} className="flex flex-col gap-1.5">
         {group.slots.length > 0 ? (
           <SortableContext
             items={group.slots.map((s) => `sort-${s.id}`)}
@@ -113,6 +119,7 @@ export const OrbatGroup = memo(function OrbatGroup({
                 <OrbatSlot
                   key={slot.id}
                   slot={slot}
+                  groupId={group.id}
                   assignment={assignment}
                   person={person}
                   onRemoveSlot={onRemoveSlot ? handleRemoveSlot : undefined}

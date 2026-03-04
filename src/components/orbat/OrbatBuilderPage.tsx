@@ -62,6 +62,7 @@ export function OrbatBuilderPage({
     addSlotToGroup,
     removeSlotFromGroup,
     reorderSlotsInGroup,
+    moveSlotBetweenGroups,
     updateSlot,
   } = useTemplatesState();
   const {
@@ -176,6 +177,20 @@ export function OrbatBuilderPage({
     [orbatId, ensureOwnTemplate, reorderSlotsInGroup],
   );
 
+  const handleMoveSlotBetweenGroups = useCallback(
+    (
+      fromGroupId: string,
+      toGroupId: string,
+      slotId: string,
+      targetIndex: number,
+    ) => {
+      const tid = ensureOwnTemplate(orbatId);
+      if (tid)
+        moveSlotBetweenGroups(tid, fromGroupId, toGroupId, slotId, targetIndex);
+    },
+    [orbatId, ensureOwnTemplate, moveSlotBetweenGroups],
+  );
+
   const handleUpdateSlot = useCallback(
     (groupId: string, slotId: string, updates: Partial<Omit<Slot, 'id'>>) => {
       const tid = ensureOwnTemplate(orbatId);
@@ -210,23 +225,40 @@ export function OrbatBuilderPage({
 
       // ---- Slot reorder drag (grip handle) ----
       if (active.data.current?.type === 'slot-reorder') {
+        if (!template) return;
         const activeSlotId = active.data.current.slotId as string;
+        const activeGroupId = active.data.current.groupId as string;
+        const overGroupId = over.data.current?.groupId as string | undefined;
         const overSlotId = over.data.current?.slotId as string | undefined;
-        if (!overSlotId || !template) return;
 
-        const group = template.groups.find((g) =>
-          g.slots.some((s) => s.id === activeSlotId),
-        );
-        if (!group) return;
+        if (!overGroupId) return;
 
-        const oldIndex = group.slots.findIndex((s) => s.id === activeSlotId);
-        const newIndex = group.slots.findIndex((s) => s.id === overSlotId);
-        if (oldIndex === -1 || newIndex === -1) return;
-
-        handleReorderSlots(
-          group.id,
-          arrayMove(group.slots, oldIndex, newIndex),
-        );
+        if (activeGroupId === overGroupId) {
+          // Same group — reorder
+          if (!overSlotId) return;
+          const group = template.groups.find((g) => g.id === activeGroupId);
+          if (!group) return;
+          const oldIndex = group.slots.findIndex((s) => s.id === activeSlotId);
+          const newIndex = group.slots.findIndex((s) => s.id === overSlotId);
+          if (oldIndex === -1 || newIndex === -1) return;
+          handleReorderSlots(
+            group.id,
+            arrayMove(group.slots, oldIndex, newIndex),
+          );
+        } else {
+          // Different group — move between groups
+          const toGroup = template.groups.find((g) => g.id === overGroupId);
+          if (!toGroup) return;
+          const targetIndex = overSlotId
+            ? toGroup.slots.findIndex((s) => s.id === overSlotId)
+            : toGroup.slots.length;
+          handleMoveSlotBetweenGroups(
+            activeGroupId,
+            overGroupId,
+            activeSlotId,
+            targetIndex === -1 ? toGroup.slots.length : targetIndex,
+          );
+        }
         return;
       }
 
@@ -254,6 +286,7 @@ export function OrbatBuilderPage({
     [
       template,
       handleReorderSlots,
+      handleMoveSlotBetweenGroups,
       assignmentsBySlotId,
       orbatId,
       swapSlotAssignments,

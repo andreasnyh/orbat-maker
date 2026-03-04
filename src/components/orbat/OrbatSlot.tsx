@@ -10,6 +10,7 @@ import { EquipmentPills } from '../common/EquipmentPills';
 
 interface OrbatSlotProps {
   slot: Slot;
+  groupId: string;
   assignment: Assignment | undefined;
   person: Person | undefined;
   onRemoveSlot?: (slotId: string) => void;
@@ -27,7 +28,7 @@ interface OrbatSlotProps {
 // rendering to the memoized OrbatSlotContent below.
 // ---------------------------------------------------------------------------
 export const OrbatSlot = memo(function OrbatSlot(props: OrbatSlotProps) {
-  const { slot, assignment } = props;
+  const { slot, groupId, assignment } = props;
 
   const {
     attributes: sortableAttrs,
@@ -39,7 +40,7 @@ export const OrbatSlot = memo(function OrbatSlot(props: OrbatSlotProps) {
     isOver,
   } = useSortable({
     id: `sort-${slot.id}`,
-    data: { type: 'slot-reorder', slotId: slot.id },
+    data: { type: 'slot-reorder', slotId: slot.id, groupId },
   });
 
   const {
@@ -68,6 +69,7 @@ export const OrbatSlot = memo(function OrbatSlot(props: OrbatSlotProps) {
     <div ref={setSortableRef} style={sortableStyle}>
       <OrbatSlotContent
         slot={props.slot}
+        groupId={props.groupId}
         assignment={props.assignment}
         person={props.person}
         onRemoveSlot={props.onRemoveSlot}
@@ -411,6 +413,7 @@ const OrbatSlotContent = memo(
   },
   (prev, next) =>
     prev.slot === next.slot &&
+    prev.groupId === next.groupId &&
     prev.assignment === next.assignment &&
     prev.person === next.person &&
     prev.isDragging === next.isDragging &&

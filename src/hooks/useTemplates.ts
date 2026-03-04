@@ -191,6 +191,41 @@ export function useTemplates() {
     [setTemplates],
   );
 
+  const moveSlotBetweenGroups = useCallback(
+    (
+      templateId: string,
+      fromGroupId: string,
+      toGroupId: string,
+      slotId: string,
+      targetIndex: number,
+    ) => {
+      setTemplates((prev) =>
+        prev.map((t) => {
+          if (t.id !== templateId) return t;
+          const fromGroup = t.groups.find((g) => g.id === fromGroupId);
+          if (!fromGroup) return t;
+          const slot = fromGroup.slots.find((s) => s.id === slotId);
+          if (!slot) return t;
+          return {
+            ...t,
+            groups: t.groups.map((g) => {
+              if (g.id === fromGroupId) {
+                return { ...g, slots: g.slots.filter((s) => s.id !== slotId) };
+              }
+              if (g.id === toGroupId) {
+                const newSlots = [...g.slots];
+                newSlots.splice(targetIndex, 0, slot);
+                return { ...g, slots: newSlots };
+              }
+              return g;
+            }),
+          };
+        }),
+      );
+    },
+    [setTemplates],
+  );
+
   return {
     templates,
     addTemplate,
@@ -201,6 +236,7 @@ export function useTemplates() {
     addSlotToGroup,
     removeSlotFromGroup,
     reorderSlotsInGroup,
+    moveSlotBetweenGroups,
     updateSlot,
     setTemplates,
   };
