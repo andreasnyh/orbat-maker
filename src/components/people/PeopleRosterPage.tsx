@@ -1,4 +1,4 @@
-import { UserPlus, Users } from 'lucide-react';
+import { UserPlus, Users, UsersRound } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { usePeopleState } from '../../context/AppStateContext';
 import type { Person } from '../../types';
@@ -6,6 +6,7 @@ import { Button } from '../common/Button';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { Modal } from '../common/Modal';
 import { TextInput } from '../common/TextInput';
+import { BulkAddForm } from './BulkAddForm';
 import { PersonForm } from './PersonForm';
 import { PersonList } from './PersonList';
 
@@ -14,6 +15,7 @@ export function PeopleRosterPage() {
 
   const [search, setSearch] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isBulkAddOpen, setIsBulkAddOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Person | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Person | null>(null);
 
@@ -26,6 +28,13 @@ export function PeopleRosterPage() {
   const handleAdd = (name: string, rank?: string) => {
     addPerson(name, rank);
     setIsAddModalOpen(false);
+  };
+
+  const handleBulkAdd = (entries: { name: string; rank?: string }[]) => {
+    for (const entry of entries) {
+      addPerson(entry.name, entry.rank);
+    }
+    setIsBulkAddOpen(false);
   };
 
   const handleEditOpen = (person: Person) => {
@@ -51,7 +60,11 @@ export function PeopleRosterPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Page header */}
-      <div className="flex items-center justify-end gap-4 flex-wrap">
+      <div className="flex items-center justify-end gap-3 flex-wrap">
+        <Button variant="secondary" onClick={() => setIsBulkAddOpen(true)}>
+          <UsersRound size={16} />
+          Bulk Add
+        </Button>
         <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
           <UserPlus size={16} />
           Add Person
@@ -128,6 +141,19 @@ export function PeopleRosterPage() {
             onCancel={() => setEditTarget(null)}
           />
         )}
+      </Modal>
+
+      {/* Bulk add modal */}
+      <Modal
+        open={isBulkAddOpen}
+        onClose={() => setIsBulkAddOpen(false)}
+        title="Bulk Add People"
+      >
+        <BulkAddForm
+          onSubmit={handleBulkAdd}
+          onCancel={() => setIsBulkAddOpen(false)}
+          existingRanks={people.map((p) => p.rank).filter(Boolean) as string[]}
+        />
       </Modal>
 
       {/* Delete confirmation */}
