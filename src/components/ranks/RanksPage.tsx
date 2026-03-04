@@ -1,4 +1,4 @@
-import { Medal, Pencil, Plus, Trash2, UsersRound } from 'lucide-react';
+import { ChevronsUp, Pencil, Plus, Trash2, UsersRound } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useRanksState } from '../../context/AppStateContext';
 import type { Rank } from '../../types';
@@ -104,7 +104,7 @@ export function RanksPage() {
       {/* Content */}
       {ranks.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-          <Medal size={48} className="text-gray-600" />
+          <ChevronsUp size={48} className="text-gray-600" />
           <div className="flex flex-col gap-1">
             <p className="text-gray-300 font-medium">No ranks defined</p>
             <p className="text-gray-500 text-sm max-w-xs">
