@@ -73,12 +73,12 @@ export function SlotEditor({
   }
 
   return (
-    <div className="px-2 py-1.5 rounded hover:bg-white/5 group">
+    <div className="group/row px-2 py-1.5 rounded hover:bg-white/5 transition-colors">
       <div className="flex items-center gap-2">
         {/* Drag handle */}
         <button
           type="button"
-          className="text-gray-600 hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
+          className="text-gray-700 group-hover/row:text-gray-500 hover:!text-gray-300 cursor-grab active:cursor-grabbing shrink-0 transition-colors"
           aria-label={`Reorder ${slot.roleLabel}`}
           {...dragHandleProps}
         >

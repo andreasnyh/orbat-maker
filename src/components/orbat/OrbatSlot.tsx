@@ -125,67 +125,67 @@ export function OrbatSlot({
   return (
     <div ref={setSortableRef} style={sortableStyle}>
       <div
-        ref={setDragRef}
         className={clsx(
-          'flex items-center gap-2 px-2 py-2.5 rounded-md border transition-all',
+          'group/slot flex items-center gap-2 px-2 py-2.5 rounded-md border transition-all duration-150',
           isDragging
             ? 'opacity-40'
             : isOver
               ? 'border-green-400 border-dashed bg-green-400/5'
               : assignment
-                ? 'border-[#2a2a4a] bg-[#16213e]'
-                : 'border-[#2a2a4a] border-dashed bg-[#0f0f23]/50',
-          assignment && !isDragging && 'cursor-grab active:cursor-grabbing',
+                ? 'border-[#2a2a4a] bg-[#16213e] hover:border-[#3a3a5a] hover:bg-[#1a2744]'
+                : 'border-[#2a2a4a] border-dashed bg-[#0f0f23]/50 hover:border-[#3a3a5a] hover:bg-[#0f0f23]/80',
         )}
-        {...dragAttrs}
-        {...dragListeners}
       >
-        {/* Grip handle for reordering */}
-        <button
-          type="button"
-          className="text-gray-700 hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
-          aria-label={`Reorder ${slot.roleLabel}`}
+        {/* Slot reorder zone: grip + role label */}
+        <div
+          className="flex items-center gap-2 shrink-0 cursor-grab active:cursor-grabbing rounded-sm transition-colors -ml-0.5 pl-0.5 pr-1 -my-0.5 py-0.5"
+          title="Drag to reorder slot"
           {...sortableAttrs}
           {...sortableListeners}
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            sortableListeners?.onPointerDown?.(e as unknown as PointerEvent);
-          }}
         >
-          <GripVertical size={14} />
-        </button>
-
-        {/* Role label */}
-        <span
-          className="font-data text-sm text-gray-500 w-44 shrink-0 truncate"
-          title={slot.roleLabel}
-        >
-          {slot.roleLabel}
-        </span>
+          <GripVertical
+            size={14}
+            className="text-gray-700 group-hover/slot:text-gray-500 shrink-0 transition-colors"
+          />
+          <span
+            className="font-data text-sm text-gray-500 w-44 shrink-0 truncate"
+            title={slot.roleLabel}
+          >
+            {slot.roleLabel}
+          </span>
+        </div>
 
         {/* Divider */}
         <span className="text-gray-700 shrink-0">—</span>
 
-        {/* Assigned person or empty indicator */}
+        {/* Person drag zone */}
         <span
+          ref={setDragRef}
           className={clsx(
-            'flex-1 truncate',
+            'flex-1 min-w-0 flex items-center gap-1.5 rounded-sm px-1.5 -mx-0.5 -my-0.5 py-0.5 transition-colors',
             person
-              ? 'font-display text-lg text-gray-200 font-medium'
+              ? 'font-display text-lg text-gray-200 font-medium cursor-grab active:cursor-grabbing hover:bg-white/5'
               : 'text-sm text-gray-600 italic font-data',
           )}
+          title={person ? 'Drag to reassign' : undefined}
+          {...dragAttrs}
+          {...dragListeners}
         >
           {person ? (
             <>
+              <GripVertical size={14} className="text-gray-700 shrink-0" />
               {person.rank && (
-                <span className="text-green-400 text-xs font-normal font-data mr-1">
+                <span className="text-green-400 text-sm font-normal font-data">
                   {person.rank}
                 </span>
               )}
-              {person.name}
+              <span className="truncate pb-px">{person.name}</span>
             </>
           ) : (
-            '[EMPTY]'
+            <>
+              <span className="w-3.5 shrink-0" />
+              [EMPTY]
+            </>
           )}
         </span>
 

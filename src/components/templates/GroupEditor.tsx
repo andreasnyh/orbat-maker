@@ -139,7 +139,7 @@ export function GroupEditor({
           {/* Drag handle for the group */}
           <button
             type="button"
-            className="text-gray-600 hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
+            className="text-gray-700 hover:text-gray-300 cursor-grab active:cursor-grabbing shrink-0 transition-colors"
             aria-label={`Reorder ${group.name}`}
             {...dragHandleProps}
           >

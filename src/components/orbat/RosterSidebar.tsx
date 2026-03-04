@@ -36,7 +36,8 @@ function DraggablePersonCard({
       <PersonCard
         person={person}
         className={clsx(
-          'cursor-grab active:cursor-grabbing select-none',
+          'cursor-grab active:cursor-grabbing select-none transition-all duration-150',
+          'hover:-translate-y-px hover:shadow-lg hover:shadow-black/25 hover:border-green-400/30',
           isAssigned && 'opacity-50',
         )}
         {...attributes}
