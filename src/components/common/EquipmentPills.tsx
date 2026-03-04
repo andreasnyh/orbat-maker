@@ -43,14 +43,14 @@ export function EquipmentPills({
 
   const pillClass =
     size === 'sm'
-      ? 'inline-flex items-center gap-0.5 bg-amber-400/15 text-amber-300 text-[10px] font-mono rounded-full px-1.5 py-px'
-      : 'inline-flex items-center gap-0.5 bg-amber-400/15 text-amber-300 text-[10px] font-mono rounded-full px-2 py-0.5';
+      ? 'inline-flex items-center gap-0.5 bg-amber-400/15 text-amber-300 text-[10px] font-mono rounded-full px-1.5 py-[3px]'
+      : 'inline-flex items-center gap-0.5 bg-amber-400/15 text-amber-300 text-[10px] font-mono rounded-full px-2 py-[3px]';
 
   return (
     <>
       {equipment.map((tag) => (
         <span key={tag} className={pillClass}>
-          {tag}
+          <span className="translate-y-px">{tag}</span>
           {onRemove && (
             <button
               type="button"

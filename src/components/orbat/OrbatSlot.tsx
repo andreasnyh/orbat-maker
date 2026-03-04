@@ -18,6 +18,8 @@ interface OrbatSlotProps {
   onUpdateEquipment?: (slotId: string, equipment: string[]) => void;
   equipmentSuggestions?: string[];
   showEquipment?: boolean;
+  onTapAssign?: (slotId: string) => void;
+  isHighlighted?: boolean;
 }
 
 export function OrbatSlot({
@@ -29,6 +31,8 @@ export function OrbatSlot({
   onUpdateEquipment,
   equipmentSuggestions,
   showEquipment,
+  onTapAssign,
+  isHighlighted,
 }: OrbatSlotProps) {
   const { unassignSlot } = useOrbatsState();
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -122,18 +126,124 @@ export function OrbatSlot({
     transition,
   };
 
+  // ---- Shared sub-elements used in both layouts ----
+
+  const equipmentSection = showEquipment && (
+    <div className="flex items-center gap-1 shrink-0 relative">
+      <EquipmentPills
+        equipment={slot.equipment ?? []}
+        onRemove={onUpdateEquipment ? handleRemoveEquipment : undefined}
+      />
+      {onUpdateEquipment && (
+        <>
+          <button
+            type="button"
+            className="text-amber-400/50 hover:text-amber-300 transition-colors p-2 md:p-0.5 rounded"
+            aria-label="Add equipment"
+            title="Add equipment"
+            onClick={(e) => {
+              e.stopPropagation();
+              setEquipPopoverOpen((v) => !v);
+            }}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <Plus size={12} className="md:size-3 size-5" />
+          </button>
+          {equipPopoverOpen && (
+            <div
+              ref={popoverRef}
+              className="absolute right-0 top-full mt-1 z-50 bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl p-2 min-w-[200px]"
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              {/* Suggestion chips */}
+              {equipmentSuggestions && equipmentSuggestions.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-2 max-h-40 overflow-y-auto">
+                  {equipmentSuggestions
+                    .filter((s) => !(slot.equipment ?? []).includes(s))
+                    .map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        className="bg-amber-400/10 text-amber-300/80 hover:bg-amber-400/25 text-[10px] font-mono rounded-full px-2 py-0.5 transition-colors"
+                        onClick={() => handleAddEquipment(s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                </div>
+              )}
+              {/* Custom tag input */}
+              <input
+                ref={tagInputRef}
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleAddEquipment(newTag);
+                    setNewTag('');
+                  }
+                  if (e.key === 'Escape') {
+                    setEquipPopoverOpen(false);
+                    setNewTag('');
+                  }
+                }}
+                placeholder="New tag…"
+                aria-label="New equipment tag"
+                className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded px-2 py-1 text-[11px] text-gray-200 placeholder-gray-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-400/25 font-mono"
+              />
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+
+  const unassignButton = assignment && (
+    <button
+      type="button"
+      onClick={handleUnassign}
+      onPointerDown={(e) => e.stopPropagation()}
+      className="shrink-0 text-gray-600 hover:text-red-400 transition-colors p-2 md:p-0.5 rounded"
+      aria-label={`Remove ${person?.name ?? 'person'} from ${slot.roleLabel}`}
+      title="Remove assignment"
+    >
+      <X size={14} className="md:size-3.5 size-5" />
+    </button>
+  );
+
+  const removeSlotButton = onRemoveSlot && (
+    <button
+      type="button"
+      onClick={handleRemoveSlot}
+      onPointerDown={(e) => e.stopPropagation()}
+      className="shrink-0 text-gray-700 hover:text-red-400 transition-colors p-2 md:p-0.5 rounded"
+      aria-label={`Delete ${slot.roleLabel} slot`}
+      title="Delete slot"
+    >
+      <Trash2 size={13} className="md:size-3.5 size-5" />
+    </button>
+  );
+
+  const outerClasses = clsx(
+    'group/slot rounded-md border transition-all duration-150',
+    isDragging
+      ? 'opacity-40'
+      : isHighlighted
+        ? 'border-green-400 ring-2 ring-green-400 bg-green-400/5'
+        : isOver
+          ? 'border-green-400 border-dashed bg-green-400/5'
+          : assignment
+            ? 'border-[#2a2a4a] bg-[#16213e] hover:border-[#3a3a5a] hover:bg-[#1a2744]'
+            : 'border-[#2a2a4a] border-dashed bg-[#0f0f23]/50 hover:border-[#3a3a5a] hover:bg-[#0f0f23]/80',
+  );
+
   return (
     <div ref={setSortableRef} style={sortableStyle}>
+      {/* ---- Desktop layout (horizontal row, unchanged) ---- */}
       <div
         className={clsx(
-          'group/slot flex items-center gap-2 px-2 py-2.5 rounded-md border transition-all duration-150',
-          isDragging
-            ? 'opacity-40'
-            : isOver
-              ? 'border-green-400 border-dashed bg-green-400/5'
-              : assignment
-                ? 'border-[#2a2a4a] bg-[#16213e] hover:border-[#3a3a5a] hover:bg-[#1a2744]'
-                : 'border-[#2a2a4a] border-dashed bg-[#0f0f23]/50 hover:border-[#3a3a5a] hover:bg-[#0f0f23]/80',
+          outerClasses,
+          'hidden md:flex items-center gap-2 px-2 py-2.5',
         )}
       >
         {/* Slot reorder zone: grip + role label */}
@@ -189,105 +299,58 @@ export function OrbatSlot({
           )}
         </span>
 
-        {/* Equipment pills */}
-        {showEquipment && (
-          <div className="flex items-center gap-1 shrink-0 relative">
-            <EquipmentPills
-              equipment={slot.equipment ?? []}
-              onRemove={onUpdateEquipment ? handleRemoveEquipment : undefined}
-            />
-            {onUpdateEquipment && (
-              <>
-                <button
-                  type="button"
-                  className="text-amber-400/50 hover:text-amber-300 transition-colors p-0.5 rounded"
-                  aria-label="Add equipment"
-                  title="Add equipment"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setEquipPopoverOpen((v) => !v);
-                  }}
-                  onPointerDown={(e) => e.stopPropagation()}
-                >
-                  <Plus size={12} />
-                </button>
-                {equipPopoverOpen && (
-                  <div
-                    ref={popoverRef}
-                    className="absolute right-0 top-full mt-1 z-50 bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl p-2 min-w-[200px]"
-                    onPointerDown={(e) => e.stopPropagation()}
-                  >
-                    {/* Suggestion chips */}
-                    {equipmentSuggestions &&
-                      equipmentSuggestions.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-2 max-h-40 overflow-y-auto">
-                          {equipmentSuggestions
-                            .filter((s) => !(slot.equipment ?? []).includes(s))
-                            .map((s) => (
-                              <button
-                                key={s}
-                                type="button"
-                                className="bg-amber-400/10 text-amber-300/80 hover:bg-amber-400/25 text-[10px] font-mono rounded-full px-2 py-0.5 transition-colors"
-                                onClick={() => handleAddEquipment(s)}
-                              >
-                                {s}
-                              </button>
-                            ))}
-                        </div>
-                      )}
-                    {/* Custom tag input */}
-                    <input
-                      ref={tagInputRef}
-                      value={newTag}
-                      onChange={(e) => setNewTag(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          handleAddEquipment(newTag);
-                          setNewTag('');
-                        }
-                        if (e.key === 'Escape') {
-                          setEquipPopoverOpen(false);
-                          setNewTag('');
-                        }
-                      }}
-                      placeholder="New tag…"
-                      aria-label="New equipment tag"
-                      className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded px-2 py-1 text-[11px] text-gray-200 placeholder-gray-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-400/25 font-mono"
-                    />
-                  </div>
-                )}
-              </>
-            )}
+        {equipmentSection}
+        {unassignButton}
+        {removeSlotButton}
+      </div>
+
+      {/* ---- Mobile layout (stacked) ---- */}
+      <div
+        className={clsx(
+          outerClasses,
+          'flex md:hidden flex-col gap-1 px-2.5 py-2',
+        )}
+      >
+        {/* Row 1: role label + equipment + action buttons */}
+        <div className="flex items-center gap-2 min-w-0">
+          <span
+            className="font-data text-sm text-gray-500 truncate shrink min-w-0"
+            title={slot.roleLabel}
+          >
+            {slot.roleLabel}
+          </span>
+          <div className="ml-auto flex items-center gap-1 shrink-0">
+            {equipmentSection}
+            {unassignButton}
+            {removeSlotButton}
           </div>
-        )}
+        </div>
 
-        {/* Unassign button */}
-        {assignment && (
-          <button
-            type="button"
-            onClick={handleUnassign}
-            onPointerDown={(e) => e.stopPropagation()}
-            className="shrink-0 text-gray-600 hover:text-red-400 transition-colors p-0.5 rounded"
-            aria-label={`Remove ${person?.name ?? 'person'} from ${slot.roleLabel}`}
-            title="Remove assignment"
-          >
-            <X size={14} />
-          </button>
-        )}
-
-        {/* Remove slot button */}
-        {onRemoveSlot && (
-          <button
-            type="button"
-            onClick={handleRemoveSlot}
-            onPointerDown={(e) => e.stopPropagation()}
-            className="shrink-0 text-gray-700 hover:text-red-400 transition-colors p-0.5 rounded"
-            aria-label={`Delete ${slot.roleLabel} slot`}
-            title="Delete slot"
-          >
-            <Trash2 size={13} />
-          </button>
-        )}
+        {/* Row 2: person name or tap-to-assign prompt */}
+        <button
+          type="button"
+          className={clsx(
+            'rounded px-2 py-1.5 -mx-0.5 transition-colors w-full text-left',
+            onTapAssign && 'active:bg-white/5',
+            person
+              ? 'font-display text-base text-gray-200 font-medium'
+              : 'border border-dashed border-[#2a2a4a] text-sm text-gray-600 italic font-data',
+          )}
+          onClick={onTapAssign ? () => onTapAssign(slot.id) : undefined}
+        >
+          {person ? (
+            <span className="flex items-center gap-1.5">
+              {person.rank && (
+                <span className="text-green-400 text-sm font-normal font-data">
+                  {person.rank}
+                </span>
+              )}
+              <span className="truncate">{person.name}</span>
+            </span>
+          ) : (
+            <span>Tap to assign</span>
+          )}
+        </button>
       </div>
 
       <ConfirmDialog

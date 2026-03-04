@@ -18,7 +18,6 @@ import {
   Package,
   Pencil,
   RotateCcw,
-  Users,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -27,6 +26,7 @@ import {
   usePeopleState,
   useTemplatesState,
 } from '../../context/AppStateContext';
+import { useIsMobile } from '../../hooks/useIsMobile';
 import { useToast } from '../../hooks/useToast';
 import {
   copyToClipboard,
@@ -81,6 +81,8 @@ export function OrbatBuilderPage({
     ? templates.find((t) => t.id === orbat.templateId)
     : undefined;
 
+  const isMobile = useIsMobile();
+
   // ---- Local state ----------------------------------------------------------
   const [activePerson, setActivePerson] = useState<Person | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -89,6 +91,7 @@ export function OrbatBuilderPage({
   const [showRoster, setShowRoster] = useState(false);
   const [showEquipment, setShowEquipment] = useState(true);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [tapTargetSlotId, setTapTargetSlotId] = useState<string | null>(null);
 
   // ---- DnD sensors ---------------------------------------------------------
   const sensors = useSensors(
@@ -250,6 +253,32 @@ export function OrbatBuilderPage({
     [orbatId, ensureOwnTemplate, updateSlot],
   );
 
+  // ---- Tap-to-assign (mobile) -----------------------------------------------
+
+  const handleTapAssign = useCallback((slotId: string) => {
+    setTapTargetSlotId(slotId);
+    setShowRoster(true);
+  }, []);
+
+  const handlePersonTap = useCallback(
+    (personId: string) => {
+      if (!tapTargetSlotId) return;
+      assignPersonToSlot(orbatId, tapTargetSlotId, personId);
+      setTapTargetSlotId(null);
+      setShowRoster(false);
+    },
+    [tapTargetSlotId, orbatId, assignPersonToSlot],
+  );
+
+  const tapTargetSlot = useMemo(() => {
+    if (!tapTargetSlotId || !template) return undefined;
+    for (const g of template.groups) {
+      const s = g.slots.find((s) => s.id === tapTargetSlotId);
+      if (s) return s;
+    }
+    return undefined;
+  }, [tapTargetSlotId, template]);
+
   const templateGroups = template?.groups;
   const equipmentSuggestions = useMemo(
     () =>
@@ -283,242 +312,247 @@ export function OrbatBuilderPage({
   // ---- Render -------------------------------------------------------------
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={pointerWithin}
-      measuring={measuringConfig}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="flex flex-col gap-4 h-full">
-        {/* Top bar */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onNavigate('orbats')}
-            className="shrink-0"
-          >
-            <ArrowLeft size={14} />
-            ORBATs
-          </Button>
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={pointerWithin}
+        measuring={measuringConfig}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="flex flex-col gap-4 h-full">
+          {/* Top bar */}
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onNavigate('orbats')}
+              className="shrink-0"
+            >
+              <ArrowLeft size={14} />
+              <span className="hidden sm:inline">ORBATs</span>
+            </Button>
 
-          {/* Editable ORBAT name */}
-          <div className="flex-1 min-w-0">
-            {editingName ? (
-              <TextInput
-                value={nameValue}
-                onChange={(e) => setNameValue(e.target.value)}
-                onBlur={handleNameCommit}
-                onKeyDown={handleNameKeyDown}
-                autoFocus
-                className="text-xl font-bold"
-              />
-            ) : (
-              <button
-                type="button"
-                className="font-display text-xl font-bold text-gray-100 uppercase tracking-wide truncate cursor-pointer hover:text-green-400 transition-colors inline-flex items-center gap-2 group/name"
-                onClick={() => {
-                  setNameValue(orbat.name);
-                  setEditingName(true);
-                }}
-                title="Click to rename"
-              >
-                <span className="truncate">{orbat.name}</span>
-                <Pencil
-                  size={14}
-                  className="shrink-0 text-gray-600 group-hover/name:text-green-400 transition-colors"
+            {/* Editable ORBAT name */}
+            <div className="flex-1 min-w-0">
+              {editingName ? (
+                <TextInput
+                  value={nameValue}
+                  onChange={(e) => setNameValue(e.target.value)}
+                  onBlur={handleNameCommit}
+                  onKeyDown={handleNameKeyDown}
+                  autoFocus
+                  className="text-xl font-bold"
                 />
-              </button>
+              ) : (
+                <button
+                  type="button"
+                  className="font-display text-xl font-bold text-gray-100 uppercase tracking-wide truncate cursor-pointer hover:text-green-400 transition-colors inline-flex items-center gap-2 group/name"
+                  onClick={() => {
+                    setNameValue(orbat.name);
+                    setEditingName(true);
+                  }}
+                  title="Click to rename"
+                >
+                  <span className="truncate">{orbat.name}</span>
+                  <Pencil
+                    size={14}
+                    className="shrink-0 text-gray-600 group-hover/name:text-green-400 transition-colors"
+                  />
+                </button>
+              )}
+            </div>
+
+            {/* Copy & reset buttons — only shown when a template is available */}
+            {template && (
+              <div className="shrink-0 flex items-center gap-2">
+                <Button
+                  variant={showEquipment ? 'primary' : 'secondary'}
+                  size="sm"
+                  onClick={() => setShowEquipment((v) => !v)}
+                  title={showEquipment ? 'Hide equipment' : 'Show equipment'}
+                >
+                  <Package size={14} />
+                  <span className="hidden md:inline">Equip</span>
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleCopyDiscord}
+                  title="Copy formatted ORBAT for Discord"
+                >
+                  <Clipboard size={14} />
+                  <span className="hidden md:inline">Discord</span>
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleCopyTeamspeak}
+                  title="Copy formatted ORBAT for TeamSpeak"
+                >
+                  <Clipboard size={14} />
+                  <span className="hidden md:inline">TeamSpeak</span>
+                </Button>
+                {orbat.assignments.length > 0 && (
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => setConfirmClear(true)}
+                    title="Clear all assignments"
+                  >
+                    <RotateCcw size={14} />
+                    <span className="hidden md:inline">Clear</span>
+                  </Button>
+                )}
+              </div>
             )}
           </div>
 
-          {/* Copy & reset buttons — only shown when a template is available */}
-          {template && (
-            <div className="shrink-0 flex items-center gap-2">
-              <Button
-                variant={showEquipment ? 'primary' : 'secondary'}
-                size="sm"
-                onClick={() => setShowEquipment((v) => !v)}
-                title={showEquipment ? 'Hide equipment' : 'Show equipment'}
-              >
-                <Package size={14} />
-                Equip
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleCopyDiscord}
-                title="Copy formatted ORBAT for Discord"
-              >
-                <Clipboard size={14} />
-                Discord
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleCopyTeamspeak}
-                title="Copy formatted ORBAT for TeamSpeak"
-              >
-                <Clipboard size={14} />
-                TeamSpeak
-              </Button>
-              {orbat.assignments.length > 0 && (
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => setConfirmClear(true)}
-                  title="Clear all assignments"
-                >
-                  <RotateCcw size={14} />
-                  Clear
-                </Button>
+          {/* Template & date meta */}
+          {(template || orbat.date) && (
+            <div className="text-xs text-gray-500 hidden sm:flex gap-2">
+              {template && <span>{template.name}</span>}
+              {template && orbat.date && <span>·</span>}
+              {orbat.date && <span>{orbat.date}</span>}
+            </div>
+          )}
+
+          {/* Missing template warning */}
+          {!template && (
+            <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-3 text-yellow-300 text-sm flex items-center gap-2">
+              <AlertTriangle size={16} className="shrink-0" />
+              The template for this ORBAT no longer exists. You can still view
+              assignments but cannot add new slots.
+            </div>
+          )}
+
+          {/* Main split layout */}
+          <div className="flex gap-6 min-h-0 flex-1">
+            {/* Left: Roster sidebar — desktop only */}
+            <div className="hidden md:block">
+              <RosterSidebar
+                assignments={orbat.assignments}
+                className="w-80 shrink-0"
+              />
+            </div>
+
+            {/* Right: ORBAT slot grid */}
+            <div className="flex-1 overflow-y-auto">
+              {template ? (
+                <div className="flex flex-col gap-6">
+                  {template.groups.map((group) => (
+                    <OrbatGroup
+                      key={group.id}
+                      group={group}
+                      assignments={orbat.assignments}
+                      people={people}
+                      orbatId={orbatId}
+                      onAddSlot={handleAddSlot}
+                      onRemoveSlot={handleRemoveSlot}
+                      onReorderSlots={handleReorderSlots}
+                      onUpdateSlot={handleUpdateSlot}
+                      equipmentSuggestions={equipmentSuggestions}
+                      showEquipment={showEquipment}
+                      onTapAssign={isMobile ? handleTapAssign : undefined}
+                      highlightSlotId={tapTargetSlotId}
+                    />
+                  ))}
+                  {template.groups.length === 0 && (
+                    <div className="text-center py-16 text-gray-600 text-sm italic">
+                      This template has no groups. Edit the template to add
+                      groups and slots.
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-16 text-gray-600 text-sm italic">
+                  Template unavailable — cannot display slots.
+                </div>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Floating drag overlay — positioned directly at pointer to avoid
+          scroll-offset issues with DragOverlay's built-in positioning */}
+        <DragOverlay dropAnimation={null} />
+        <div
+          ref={overlayRef}
+          className="pointer-events-none"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            zIndex: 9999,
+            display: 'none',
+          }}
+        >
+          {activePerson && (
+            <PersonCard
+              person={activePerson}
+              className="rotate-2 shadow-2xl shadow-black/50 cursor-grabbing opacity-95"
+            />
           )}
         </div>
 
-        {/* Template & date meta */}
-        {(template || orbat.date) && (
-          <div className="text-xs text-gray-500 hidden sm:flex gap-2">
-            {template && <span>{template.name}</span>}
-            {template && orbat.date && <span>·</span>}
-            {orbat.date && <span>{orbat.date}</span>}
-          </div>
-        )}
+        <ConfirmDialog
+          open={confirmClear}
+          title="Clear all assignments?"
+          message="This will unassign every person from this ORBAT. The ORBAT structure and roster are kept."
+          confirmLabel="Clear"
+          onConfirm={() => clearAssignments(orbatId)}
+          onClose={() => setConfirmClear(false)}
+        />
+      </DndContext>
 
-        {/* Missing template warning */}
-        {!template && (
-          <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-3 text-yellow-300 text-sm flex items-center gap-2">
-            <AlertTriangle size={16} className="shrink-0" />
-            The template for this ORBAT no longer exists. You can still view
-            assignments but cannot add new slots.
-          </div>
-        )}
-
-        {/* Main split layout */}
-        <div className="flex gap-6 min-h-0 flex-1">
-          {/* Left: Roster sidebar — desktop only */}
-          <div className="hidden md:block">
-            <RosterSidebar
-              assignments={orbat.assignments}
-              className="w-80 shrink-0"
-            />
-          </div>
-
-          {/* Right: ORBAT slot grid */}
-          <div className="flex-1 overflow-y-auto">
-            {template ? (
-              <div className="flex flex-col gap-6">
-                {template.groups.map((group) => (
-                  <OrbatGroup
-                    key={group.id}
-                    group={group}
-                    assignments={orbat.assignments}
-                    people={people}
-                    orbatId={orbatId}
-                    onAddSlot={handleAddSlot}
-                    onRemoveSlot={handleRemoveSlot}
-                    onReorderSlots={handleReorderSlots}
-                    onUpdateSlot={handleUpdateSlot}
-                    equipmentSuggestions={equipmentSuggestions}
-                    showEquipment={showEquipment}
-                  />
-                ))}
-                {template.groups.length === 0 && (
-                  <div className="text-center py-16 text-gray-600 text-sm italic">
-                    This template has no groups. Edit the template to add groups
-                    and slots.
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-16 text-gray-600 text-sm italic">
-                Template unavailable — cannot display slots.
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Floating drag overlay — positioned directly at pointer to avoid
-          scroll-offset issues with DragOverlay's built-in positioning */}
-      <DragOverlay dropAnimation={null} />
-      <div
-        ref={overlayRef}
-        className="pointer-events-none"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          zIndex: 9999,
-          display: 'none',
-        }}
-      >
-        {activePerson && (
-          <PersonCard
-            person={activePerson}
-            className="rotate-2 shadow-2xl shadow-black/50 cursor-grabbing opacity-95"
-          />
-        )}
-      </div>
-
-      {/* ---- Mobile roster bottom-sheet ---- */}
-
-      {/* FAB: Show Roster button — mobile only */}
-      <button
-        type="button"
-        onClick={() => setShowRoster(true)}
-        className="fixed bottom-20 right-4 z-40 md:hidden flex items-center gap-2 bg-green-600 hover:bg-green-500 active:bg-green-700 text-white rounded-full px-4 py-3 shadow-lg shadow-black/40 transition-colors min-h-11"
-        aria-label="Show roster"
-      >
-        <Users size={18} />
-        <span className="text-sm font-medium">Roster</span>
-      </button>
+      {/* ---- Mobile roster bottom-sheet (outside DndContext so touch scroll works) ---- */}
 
       {/* Semi-transparent backdrop */}
       {showRoster && (
         <div
           className="fixed inset-0 z-40 bg-black/60 md:hidden"
-          onClick={() => setShowRoster(false)}
+          onClick={() => {
+            setShowRoster(false);
+            setTapTargetSlotId(null);
+          }}
           aria-hidden="true"
         />
       )}
 
-      {/* Bottom sheet panel */}
+      {/* Bottom sheet panel — sits above the 4rem MobileNav */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#1a1a2e] border-t border-[#2a2a4a] rounded-t-xl shadow-2xl transition-transform duration-300 ${
+        className={`fixed left-0 right-0 z-50 md:hidden bg-[#1a1a2e] border-t border-[#2a2a4a] rounded-t-xl shadow-2xl transition-transform duration-300 flex flex-col overflow-hidden p-4 ${
           showRoster ? 'translate-y-0' : 'translate-y-full'
         }`}
         style={{
-          maxHeight: '70dvh',
-          paddingBottom: 'env(safe-area-inset-bottom)',
+          bottom: '4rem',
+          maxHeight: 'calc(70dvh - 4rem)',
           overscrollBehavior: 'contain',
         }}
         aria-hidden={!showRoster}
       >
-        <div className="flex flex-col p-4" style={{ maxHeight: '70dvh' }}>
-          {/* Drag handle indicator */}
-          <div className="flex justify-center mb-3 shrink-0">
-            <div className="w-10 h-1 rounded-full bg-[#2a2a4a]" />
-          </div>
-
-          <RosterSidebar
-            assignments={orbat.assignments}
-            onClose={() => setShowRoster(false)}
-            className="flex-1 min-h-0 overflow-hidden"
-          />
+        {/* Drag handle indicator */}
+        <div className="flex justify-center mb-3 shrink-0">
+          <div className="w-10 h-1 rounded-full bg-[#2a2a4a]" />
         </div>
-      </div>
 
-      <ConfirmDialog
-        open={confirmClear}
-        title="Clear all assignments?"
-        message="This will unassign every person from this ORBAT. The ORBAT structure and roster are kept."
-        confirmLabel="Clear"
-        onConfirm={() => clearAssignments(orbatId)}
-        onClose={() => setConfirmClear(false)}
-      />
-    </DndContext>
+        {/* Tap-assign banner */}
+        {tapTargetSlot && (
+          <div className="bg-green-400/10 border border-green-400/30 rounded-lg px-3 py-2 mb-3 shrink-0">
+            <span className="text-sm text-green-300">
+              Assigning to: <strong>{tapTargetSlot.roleLabel}</strong>
+            </span>
+          </div>
+        )}
+
+        <RosterSidebar
+          assignments={orbat.assignments}
+          onPersonTap={tapTargetSlotId ? handlePersonTap : undefined}
+          defaultHideAssigned
+          hideSearch
+          className="flex-1 min-h-0 overflow-hidden"
+        />
+      </div>
+    </>
   );
 }

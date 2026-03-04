@@ -22,6 +22,8 @@ interface OrbatGroupProps {
   ) => void;
   equipmentSuggestions?: string[];
   showEquipment?: boolean;
+  onTapAssign?: (slotId: string) => void;
+  highlightSlotId?: string | null;
 }
 
 export function OrbatGroup({
@@ -35,6 +37,8 @@ export function OrbatGroup({
   onUpdateSlot,
   equipmentSuggestions,
   showEquipment,
+  onTapAssign,
+  highlightSlotId,
 }: OrbatGroupProps) {
   const [addingSlot, setAddingSlot] = useState(false);
   const [newRoleLabel, setNewRoleLabel] = useState('');
@@ -111,6 +115,8 @@ export function OrbatGroup({
                   }
                   equipmentSuggestions={equipmentSuggestions}
                   showEquipment={showEquipment}
+                  onTapAssign={onTapAssign}
+                  isHighlighted={highlightSlotId === slot.id}
                 />
               );
             })}
