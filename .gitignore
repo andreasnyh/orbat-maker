@@ -36,3 +36,10 @@ Thumbs.db
 
 # Test coverage
 coverage/
+
+# Claude Code - ignore local/sensitive, allow shared skills
+**/.claude/settings.local.json
+**/.claude/last-review.json
+# Keep commands and hooks (shared with team)
+!**/.claude/commands/
+!**/.claude/hooks/
