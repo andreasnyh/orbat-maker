@@ -38,7 +38,6 @@ export interface ORBAT {
   id: string;
   name: string;
   templateId: string;
-  date?: string;
   assignments: Assignment[];
 }
 

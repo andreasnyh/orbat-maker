@@ -28,8 +28,6 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
   const [showNewModal, setShowNewModal] = useState(false);
   const [newName, setNewName] = useState('');
   const [newTemplateId, setNewTemplateId] = useState<string>('');
-  const [newDate, setNewDate] = useState('');
-
   // ---- Delete confirmation state -------------------------------------------
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
@@ -48,7 +46,6 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
     setShowNewModal(false);
     setNewName('');
     setNewTemplateId('');
-    setNewDate('');
   }
 
   function handleCreateOrbat() {
@@ -56,7 +53,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
     if (!trimmedName || !newTemplateId) return;
     const template = templateMap.get(newTemplateId);
     if (!template) return;
-    const created = createOrbat(trimmedName, template, newDate || undefined);
+    const created = createOrbat(trimmedName, template);
     handleCloseNewModal();
     onNavigate('orbat-builder', created.id);
   }
@@ -88,18 +85,6 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
     }
     return map;
   }, [orbats, templateMap]);
-
-  function formatDate(dateStr?: string): string {
-    if (!dateStr) return '';
-    // Parse the YYYY-MM-DD string in local time to avoid timezone offset issues
-    const [year, month, day] = dateStr.split('-').map(Number);
-    const d = new Date(year, month - 1, day);
-    return d.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  }
 
   const canCreate = newName.trim().length > 0 && newTemplateId.length > 0;
 
@@ -166,7 +151,6 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                       </span>
                     )}
                   </span>
-                  {orbat.date && <span>{formatDate(orbat.date)}</span>}
                 </div>
 
                 {/* Assignment progress */}
@@ -285,13 +269,6 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
               />
             </div>
           </div>
-
-          <TextInput
-            label="Date (optional)"
-            type="date"
-            value={newDate}
-            onChange={(e) => setNewDate(e.target.value)}
-          />
 
           <div className="flex justify-end gap-3 pt-1">
             <Button variant="secondary" onClick={handleCloseNewModal}>

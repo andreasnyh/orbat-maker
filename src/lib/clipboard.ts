@@ -24,9 +24,12 @@ export function formatOrbatForTeamspeak(
 ): string {
   const personMap = buildPersonMap(people);
   const lines: string[] = [];
-  const header = orbat.date
-    ? `=== ${orbat.name} (${orbat.date}) ===`
-    : `=== ${orbat.name} ===`;
+  const today = new Date().toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+  const header = `=== ${orbat.name} (${today}) ===`;
   lines.push(header);
 
   for (const group of template.groups) {
@@ -65,9 +68,12 @@ export function formatOrbatForDiscord(
 ): string {
   const personMap = buildPersonMap(people);
   const lines: string[] = [];
-  const header = orbat.date
-    ? `**=== ${orbat.name} (${orbat.date}) ===**`
-    : `**=== ${orbat.name} ===**`;
+  const today = new Date().toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+  const header = `**=== ${orbat.name} (${today}) ===**`;
   lines.push(header);
 
   for (const group of template.groups) {

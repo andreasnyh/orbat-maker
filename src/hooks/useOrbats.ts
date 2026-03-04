@@ -9,12 +9,11 @@ export function useOrbats() {
   const [orbats, setOrbats] = useLocalStorage<ORBAT[]>(STORAGE_KEY, []);
 
   const createOrbat = useCallback(
-    (name: string, template: Template, date?: string) => {
+    (name: string, template: Template) => {
       const orbat: ORBAT = {
         id: generateId(),
         name,
         templateId: template.id,
-        date,
         assignments: [],
       };
       setOrbats((prev) => [...prev, orbat]);

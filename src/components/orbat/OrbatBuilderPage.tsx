@@ -455,12 +455,10 @@ export function OrbatBuilderPage({
             )}
           </div>
 
-          {/* Template & date meta */}
-          {(template || orbat.date) && (
-            <div className="text-xs text-gray-500 hidden sm:flex gap-2">
-              {template && <span>{template.name}</span>}
-              {template && orbat.date && <span>·</span>}
-              {orbat.date && <span>{orbat.date}</span>}
+          {/* Template meta */}
+          {template && (
+            <div className="text-xs text-gray-500 hidden sm:flex items-center gap-2">
+              <span>{template.name}</span>
             </div>
           )}
 
