@@ -29,6 +29,11 @@ const OrbatBuilderPage = lazy(() =>
     default: m.OrbatBuilderPage,
   })),
 );
+const RanksPage = lazy(() =>
+  import('./components/ranks/RanksPage').then((m) => ({
+    default: m.RanksPage,
+  })),
+);
 const AboutPage = lazy(() =>
   import('./components/about/AboutPage').then((m) => ({
     default: m.AboutPage,
@@ -56,6 +61,8 @@ function App() {
     switch (currentPage) {
       case 'people':
         return <PeopleRosterPage />;
+      case 'ranks':
+        return <RanksPage />;
       case 'templates':
         return <TemplateListPage onNavigate={navigate} />;
       case 'template-editor':

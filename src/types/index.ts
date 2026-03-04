@@ -1,3 +1,8 @@
+export interface Rank {
+  id: string;
+  name: string;
+}
+
 export interface Person {
   id: string;
   name: string;
@@ -43,10 +48,12 @@ export interface ExportBundle {
   people?: Person[];
   templates?: Template[];
   orbats?: ORBAT[];
+  ranks?: Rank[];
 }
 
 export type Page =
   | 'people'
+  | 'ranks'
   | 'templates'
   | 'template-editor'
   | 'orbats'

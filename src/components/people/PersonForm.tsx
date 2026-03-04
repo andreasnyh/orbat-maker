@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { useRanksState } from '../../context/AppStateContext';
 import { Button } from '../common/Button';
 import { TextInput } from '../common/TextInput';
+
+const CUSTOM_VALUE = '__custom__';
 
 interface PersonFormProps {
   onSubmit: (name: string, rank?: string) => void;
@@ -15,21 +18,45 @@ export function PersonForm({
   initialName = '',
   initialRank = '',
 }: PersonFormProps) {
+  const { ranks, addRank } = useRanksState();
   const [name, setName] = useState(initialName);
-  const [rank, setRank] = useState(initialRank);
   const nameRef = useRef<HTMLInputElement>(null);
 
   const isEditMode = initialName !== '';
+
+  // Determine initial select value
+  const initialIsDefinedRank =
+    initialRank && ranks.some((r) => r.name === initialRank);
+  const [selectValue, setSelectValue] = useState(
+    initialRank ? (initialIsDefinedRank ? initialRank : CUSTOM_VALUE) : '',
+  );
+  const [customRank, setCustomRank] = useState(
+    initialRank && !initialIsDefinedRank ? initialRank : '',
+  );
+  const [saveCustomRank, setSaveCustomRank] = useState(true);
 
   useEffect(() => {
     nameRef.current?.focus();
   }, []);
 
+  const resolvedRank =
+    selectValue === CUSTOM_VALUE
+      ? customRank.trim() || undefined
+      : selectValue || undefined;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedName = name.trim();
     if (!trimmedName) return;
-    onSubmit(trimmedName, rank.trim() || undefined);
+    if (
+      selectValue === CUSTOM_VALUE &&
+      resolvedRank &&
+      saveCustomRank &&
+      !ranks.some((r) => r.name === resolvedRank)
+    ) {
+      addRank(resolvedRank);
+    }
+    onSubmit(trimmedName, resolvedRank);
   };
 
   return (
@@ -43,13 +70,51 @@ export function PersonForm({
         required
         autoComplete="off"
       />
-      <TextInput
-        label="Rank (optional)"
-        placeholder="e.g. SGT, CPT, LTC"
-        value={rank}
-        onChange={(e) => setRank(e.target.value)}
-        autoComplete="off"
-      />
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="person-rank" className="text-sm text-gray-400">
+          Rank (optional)
+        </label>
+        <select
+          id="person-rank"
+          value={selectValue}
+          onChange={(e) => {
+            setSelectValue(e.target.value);
+            if (e.target.value !== CUSTOM_VALUE) setCustomRank('');
+          }}
+          className="bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2 text-gray-200 text-sm focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25"
+        >
+          <option value="">(None)</option>
+          {ranks.map((r) => (
+            <option key={r.id} value={r.name}>
+              {r.name}
+            </option>
+          ))}
+          <option value={CUSTOM_VALUE}>(Custom...)</option>
+        </select>
+      </div>
+
+      {selectValue === CUSTOM_VALUE && (
+        <>
+          <TextInput
+            label="Custom rank"
+            placeholder="e.g. SGT, CPT, LTC"
+            value={customRank}
+            onChange={(e) => setCustomRank(e.target.value)}
+            autoComplete="off"
+          />
+          <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={saveCustomRank}
+              onChange={(e) => setSaveCustomRank(e.target.checked)}
+              className="accent-green-500"
+            />
+            Save to ranks list
+          </label>
+        </>
+      )}
+
       <div className="flex justify-end gap-3 pt-1">
         <Button type="button" variant="secondary" onClick={onCancel}>
           Cancel

@@ -2,6 +2,7 @@ import { ChevronDown, Download, Upload } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import {
   usePeopleState,
+  useRanksState,
   useTemplatesState,
 } from '../../context/AppStateContext';
 import {
@@ -13,6 +14,7 @@ import { ImportDialog } from './ImportDialog';
 
 export function ExportMenu() {
   const { people } = usePeopleState();
+  const { ranks } = useRanksState();
   const { templates } = useTemplatesState();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -50,7 +52,7 @@ export function ExportMenu() {
         break;
       case 'all':
         downloadJson(
-          createExportBundle({ people, templates }),
+          createExportBundle({ people, ranks, templates }),
           generateFilename('all'),
         );
         break;

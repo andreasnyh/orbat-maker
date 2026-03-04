@@ -8,12 +8,14 @@ import {
 } from 'react';
 import { useOrbats } from '../hooks/useOrbats';
 import { usePeople } from '../hooks/usePeople';
+import { useRanks } from '../hooks/useRanks';
 import { useTemplates } from '../hooks/useTemplates';
 import { initStorage } from '../lib/storage';
 
 // ---- Individual context types ------------------------------------------------
 
 type PeopleState = ReturnType<typeof usePeople>;
+type RanksState = ReturnType<typeof useRanks>;
 type TemplatesState = ReturnType<typeof useTemplates>;
 type OrbatsState = ReturnType<typeof useOrbats>;
 interface CrossCuttingState {
@@ -23,6 +25,7 @@ interface CrossCuttingState {
 // ---- Contexts ----------------------------------------------------------------
 
 const PeopleContext = createContext<PeopleState | null>(null);
+const RanksContext = createContext<RanksState | null>(null);
 const TemplatesContext = createContext<TemplatesState | null>(null);
 const OrbatsContext = createContext<OrbatsState | null>(null);
 const CrossCuttingContext = createContext<CrossCuttingState | null>(null);
@@ -35,6 +38,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const people = usePeople();
+  const ranks = useRanks();
   const templates = useTemplates();
   const orbats = useOrbats();
 
@@ -74,13 +78,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   return (
     <PeopleContext.Provider value={people}>
-      <TemplatesContext.Provider value={templates}>
-        <OrbatsContext.Provider value={orbats}>
-          <CrossCuttingContext.Provider value={crossCuttingValue}>
-            {children}
-          </CrossCuttingContext.Provider>
-        </OrbatsContext.Provider>
-      </TemplatesContext.Provider>
+      <RanksContext.Provider value={ranks}>
+        <TemplatesContext.Provider value={templates}>
+          <OrbatsContext.Provider value={orbats}>
+            <CrossCuttingContext.Provider value={crossCuttingValue}>
+              {children}
+            </CrossCuttingContext.Provider>
+          </OrbatsContext.Provider>
+        </TemplatesContext.Provider>
+      </RanksContext.Provider>
     </PeopleContext.Provider>
   );
 }
@@ -91,6 +97,13 @@ export function usePeopleState(): PeopleState {
   const ctx = useContext(PeopleContext);
   if (!ctx)
     throw new Error('usePeopleState must be used within AppStateProvider');
+  return ctx;
+}
+
+export function useRanksState(): RanksState {
+  const ctx = useContext(RanksContext);
+  if (!ctx)
+    throw new Error('useRanksState must be used within AppStateProvider');
   return ctx;
 }
 
@@ -119,13 +132,18 @@ export function useCrossCuttingState(): CrossCuttingState {
 
 // ---- Facade hook (backwards-compatible) --------------------------------------
 
-type AppState = PeopleState & TemplatesState & OrbatsState & CrossCuttingState;
+type AppState = PeopleState &
+  RanksState &
+  TemplatesState &
+  OrbatsState &
+  CrossCuttingState;
 
 /** @deprecated Use the granular hooks (usePeopleState, useTemplatesState, useOrbatsState, useCrossCuttingState) instead. */
 export function useAppState(): AppState {
   const people = usePeopleState();
+  const ranks = useRanksState();
   const templates = useTemplatesState();
   const orbats = useOrbatsState();
   const crossCutting = useCrossCuttingState();
-  return { ...people, ...templates, ...orbats, ...crossCutting };
+  return { ...people, ...ranks, ...templates, ...orbats, ...crossCutting };
 }

@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRanksState } from '../../context/AppStateContext';
 import { Button } from '../common/Button';
 import { TextInput } from '../common/TextInput';
+
+const CUSTOM_VALUE = '__custom__';
 
 interface BulkAddFormProps {
   onSubmit: (entries: { name: string; rank?: string }[]) => void;
   onCancel: () => void;
-  /** Existing ranks from the roster, used for suggestions. */
-  existingRanks?: string[];
 }
 
 function parseNames(text: string): string[] {
@@ -16,12 +17,11 @@ function parseNames(text: string): string[] {
     .filter(Boolean);
 }
 
-export function BulkAddForm({
-  onSubmit,
-  onCancel,
-  existingRanks = [],
-}: BulkAddFormProps) {
-  const [rank, setRank] = useState('');
+export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
+  const { ranks, addRank } = useRanksState();
+  const [selectValue, setSelectValue] = useState('');
+  const [customRank, setCustomRank] = useState('');
+  const [saveCustomRank, setSaveCustomRank] = useState(true);
   const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -30,38 +30,67 @@ export function BulkAddForm({
   }, []);
 
   const names = useMemo(() => parseNames(text), [text]);
-  const trimmedRank = rank.trim() || undefined;
+  const trimmedRank =
+    selectValue === CUSTOM_VALUE
+      ? customRank.trim() || undefined
+      : selectValue || undefined;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (names.length === 0) return;
+    if (
+      selectValue === CUSTOM_VALUE &&
+      trimmedRank &&
+      saveCustomRank &&
+      !ranks.some((r) => r.name === trimmedRank)
+    ) {
+      addRank(trimmedRank);
+    }
     onSubmit(names.map((name) => ({ name, rank: trimmedRank })));
   };
-
-  // Deduplicated, sorted rank suggestions
-  const rankSuggestions = useMemo(() => {
-    const unique = [...new Set(existingRanks.filter(Boolean))];
-    unique.sort((a, b) => a.localeCompare(b));
-    return unique;
-  }, [existingRanks]);
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <TextInput
-          label="Rank (optional — applies to all)"
-          placeholder="e.g. SGT, Sqn Ldr, CPT"
-          value={rank}
-          onChange={(e) => setRank(e.target.value)}
-          autoComplete="off"
-          list="rank-suggestions"
-        />
-        {rankSuggestions.length > 0 && (
-          <datalist id="rank-suggestions">
-            {rankSuggestions.map((r) => (
-              <option key={r} value={r} />
-            ))}
-          </datalist>
+        <label htmlFor="bulk-rank-select" className="text-sm text-gray-400">
+          Rank (optional — applies to all)
+        </label>
+        <select
+          id="bulk-rank-select"
+          value={selectValue}
+          onChange={(e) => {
+            setSelectValue(e.target.value);
+            if (e.target.value !== CUSTOM_VALUE) setCustomRank('');
+          }}
+          className="bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2 text-gray-200 text-sm focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25"
+        >
+          <option value="">(None)</option>
+          {ranks.map((r) => (
+            <option key={r.id} value={r.name}>
+              {r.name}
+            </option>
+          ))}
+          <option value={CUSTOM_VALUE}>(Custom...)</option>
+        </select>
+        {selectValue === CUSTOM_VALUE && (
+          <>
+            <TextInput
+              label="Custom rank"
+              placeholder="e.g. SGT, Sqn Ldr, CPT"
+              value={customRank}
+              onChange={(e) => setCustomRank(e.target.value)}
+              autoComplete="off"
+            />
+            <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={saveCustomRank}
+                onChange={(e) => setSaveCustomRank(e.target.checked)}
+                className="accent-green-500"
+              />
+              Save to ranks list
+            </label>
+          </>
         )}
       </div>
 

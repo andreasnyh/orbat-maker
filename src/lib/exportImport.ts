@@ -1,4 +1,4 @@
-import type { ExportBundle, ORBAT, Person, Template } from '../types';
+import type { ExportBundle, ORBAT, Person, Rank, Template } from '../types';
 
 export interface Conflict<T> {
   incoming: T;
@@ -39,6 +39,7 @@ export function createExportBundle(options: {
   people?: Person[];
   templates?: Template[];
   orbats?: ORBAT[];
+  ranks?: Rank[];
 }): ExportBundle {
   return {
     version: CURRENT_VERSION,
@@ -86,6 +87,7 @@ export function parseImportFile(text: string): {
 export function describeBundle(bundle: ExportBundle): string {
   const parts: string[] = [];
   if (bundle.people?.length) parts.push(`${bundle.people.length} people`);
+  if (bundle.ranks?.length) parts.push(`${bundle.ranks.length} ranks`);
   if (bundle.templates?.length)
     parts.push(`${bundle.templates.length} templates`);
   return parts.length ? parts.join(', ') : 'Empty file';

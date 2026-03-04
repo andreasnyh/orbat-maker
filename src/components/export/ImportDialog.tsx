@@ -2,6 +2,7 @@ import { AlertTriangle, CheckCircle, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
 import {
   usePeopleState,
+  useRanksState,
   useTemplatesState,
 } from '../../context/AppStateContext';
 import {
@@ -10,7 +11,7 @@ import {
   detectNameConflicts,
   parseImportFile,
 } from '../../lib/exportImport';
-import type { ExportBundle, Person, Template } from '../../types';
+import type { ExportBundle, Person, Rank, Template } from '../../types';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
 
@@ -27,6 +28,7 @@ type ImportState =
       bundle: ExportBundle;
       filename: string;
       peopleConflicts: Conflict<Person>[];
+      rankConflicts: Conflict<Rank>[];
       templateConflicts: Conflict<Template>[];
     }
   | { phase: 'error'; message: string }
@@ -93,6 +95,7 @@ function ConflictSection<T extends { id: string; name: string }>({
 
 export function ImportDialog({ open, onClose }: ImportDialogProps) {
   const { people, setPeople } = usePeopleState();
+  const { ranks, setRanks } = useRanksState();
   const { templates, setTemplates } = useTemplatesState();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<ImportState>({ phase: 'idle' });
@@ -125,6 +128,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
     bundle: ExportBundle,
     skippedPeopleIds: Set<string>,
     skippedTemplateIds: Set<string>,
+    skippedRankIds: Set<string>,
   ) {
     if (bundle.people?.length) {
       const existingIds = new Set(people.map((p) => p.id));
@@ -133,6 +137,16 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
       );
       if (newPeople.length > 0) {
         setPeople((prev) => [...prev, ...newPeople]);
+      }
+    }
+
+    if (bundle.ranks?.length) {
+      const existingIds = new Set(ranks.map((r) => r.id));
+      const newRanks = bundle.ranks.filter(
+        (r) => !existingIds.has(r.id) && !skippedRankIds.has(r.id),
+      );
+      if (newRanks.length > 0) {
+        setRanks((prev) => [...prev, ...newRanks]);
       }
     }
 
@@ -156,30 +170,43 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
     const peopleConflicts = bundle.people?.length
       ? detectNameConflicts(bundle.people, people)
       : [];
+    const rankConflicts = bundle.ranks?.length
+      ? detectNameConflicts(bundle.ranks, ranks)
+      : [];
     const templateConflicts = bundle.templates?.length
       ? detectNameConflicts(bundle.templates, templates)
       : [];
 
-    if (peopleConflicts.length > 0 || templateConflicts.length > 0) {
+    if (
+      peopleConflicts.length > 0 ||
+      rankConflicts.length > 0 ||
+      templateConflicts.length > 0
+    ) {
       setState({
         phase: 'conflicts',
         bundle,
         filename,
         peopleConflicts,
+        rankConflicts,
         templateConflicts,
       });
       return;
     }
 
-    performImport(bundle, new Set(), new Set());
+    performImport(bundle, new Set(), new Set(), new Set());
   }
 
   function handleConfirmedImport() {
     if (state.phase !== 'conflicts') return;
-    const { bundle, peopleConflicts, templateConflicts } = state;
+    const { bundle, peopleConflicts, rankConflicts, templateConflicts } = state;
 
     const skippedPeopleIds = new Set(
       peopleConflicts
+        .filter((c) => c.resolution === 'skip')
+        .map((c) => c.incoming.id),
+    );
+    const skippedRankIds = new Set(
+      rankConflicts
         .filter((c) => c.resolution === 'skip')
         .map((c) => c.incoming.id),
     );
@@ -189,7 +216,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         .map((c) => c.incoming.id),
     );
 
-    performImport(bundle, skippedPeopleIds, skippedTemplateIds);
+    performImport(bundle, skippedPeopleIds, skippedTemplateIds, skippedRankIds);
   }
 
   function handleClose() {
@@ -204,7 +231,9 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
 
   const totalConflicts =
     state.phase === 'conflicts'
-      ? state.peopleConflicts.length + state.templateConflicts.length
+      ? state.peopleConflicts.length +
+        state.rankConflicts.length +
+        state.templateConflicts.length
       : 0;
 
   return (
@@ -312,6 +341,18 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
                     const updated = [...prev.peopleConflicts];
                     updated[i] = { ...updated[i], resolution };
                     return { ...prev, peopleConflicts: updated };
+                  })
+                }
+              />
+              <ConflictSection
+                title="Ranks"
+                conflicts={state.rankConflicts}
+                onToggle={(i, resolution) =>
+                  setState((prev) => {
+                    if (prev.phase !== 'conflicts') return prev;
+                    const updated = [...prev.rankConflicts];
+                    updated[i] = { ...updated[i], resolution };
+                    return { ...prev, rankConflicts: updated };
                   })
                 }
               />

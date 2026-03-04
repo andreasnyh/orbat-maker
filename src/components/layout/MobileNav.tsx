@@ -1,4 +1,4 @@
-import { Info, LayoutTemplate, Shield, Users } from 'lucide-react';
+import { ChevronsUp, Info, LayoutTemplate, Shield, Users } from 'lucide-react';
 import type { Page } from '../../types';
 
 interface MobileNavProps {
@@ -6,9 +6,15 @@ interface MobileNavProps {
   onNavigate: (page: Page) => void;
 }
 
-const navItems: { page: Page; label: string; icon: typeof Users }[] = [
+const navItems: {
+  page: Page;
+  label: string;
+  icon: typeof Users;
+  iconSize?: number;
+}[] = [
   { page: 'orbats', label: 'ORBATs', icon: Shield },
   { page: 'people', label: 'People', icon: Users },
+  { page: 'ranks', label: 'Ranks', icon: ChevronsUp, iconSize: 24 },
   { page: 'templates', label: 'Templates', icon: LayoutTemplate },
   { page: 'about', label: 'About', icon: Info },
 ];
@@ -25,7 +31,7 @@ export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex items-stretch h-16">
-        {navItems.map(({ page, label, icon: Icon }) => {
+        {navItems.map(({ page, label, icon: Icon, iconSize }) => {
           const active = isActive(page);
           return (
             <button
@@ -38,7 +44,7 @@ export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {
                   : 'text-gray-500 hover:text-gray-300 active:text-gray-200'
               }`}
             >
-              <Icon size={20} />
+              <Icon size={iconSize ?? 20} />
               <span className="font-display text-[10px] font-semibold tracking-wide uppercase">
                 {label}
               </span>

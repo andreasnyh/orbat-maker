@@ -152,7 +152,6 @@ export function PeopleRosterPage() {
         <BulkAddForm
           onSubmit={handleBulkAdd}
           onCancel={() => setIsBulkAddOpen(false)}
-          existingRanks={people.map((p) => p.rank).filter(Boolean) as string[]}
         />
       </Modal>
 

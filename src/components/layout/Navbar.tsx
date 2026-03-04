@@ -1,4 +1,4 @@
-import { Info, LayoutTemplate, Shield, Users } from 'lucide-react';
+import { ChevronsUp, Info, LayoutTemplate, Shield, Users } from 'lucide-react';
 import type { Page } from '../../types';
 import { ExportMenu } from '../export/ExportMenu';
 
@@ -7,9 +7,15 @@ interface NavbarProps {
   onNavigate: (page: Page) => void;
 }
 
-const navItems: { page: Page; label: string; icon: typeof Users }[] = [
+const navItems: {
+  page: Page;
+  label: string;
+  icon: typeof Users;
+  iconSize?: number;
+}[] = [
   { page: 'orbats', label: 'ORBATs', icon: Shield },
   { page: 'people', label: 'People', icon: Users },
+  { page: 'ranks', label: 'Ranks', icon: ChevronsUp, iconSize: 22 },
   { page: 'templates', label: 'Templates', icon: LayoutTemplate },
 ];
 
@@ -51,7 +57,7 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
             </text>
           </svg>
           <div className="flex gap-1">
-            {navItems.map(({ page, label, icon: Icon }) => (
+            {navItems.map(({ page, label, icon: Icon, iconSize }) => (
               <div key={page} className="relative">
                 <button
                   type="button"
@@ -62,7 +68,7 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
                       : 'text-gray-400 hover:text-green-400/70'
                   }`}
                 >
-                  <Icon size={18} />
+                  <Icon size={iconSize ?? 18} />
                   {label}
                 </button>
                 {activePage(page) && (
