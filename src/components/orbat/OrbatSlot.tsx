@@ -85,21 +85,10 @@ export function OrbatSlot({
     setConfirmRemove(true);
   }
 
-  // Click-outside to close equipment popover
-  useEffect(() => {
-    if (!equipPopoverOpen) return;
-    function onClickOutside(e: MouseEvent) {
-      if (
-        popoverRef.current &&
-        !popoverRef.current.contains(e.target as Node)
-      ) {
-        setEquipPopoverOpen(false);
-        setNewTag('');
-      }
-    }
-    document.addEventListener('pointerdown', onClickOutside);
-    return () => document.removeEventListener('pointerdown', onClickOutside);
-  }, [equipPopoverOpen]);
+  function closeEquipPopover() {
+    setEquipPopoverOpen(false);
+    setNewTag('');
+  }
 
   // Auto-focus tag input when popover opens
   useEffect(() => {
@@ -150,48 +139,54 @@ export function OrbatSlot({
             <Plus size={12} className="md:size-3 size-5" />
           </button>
           {equipPopoverOpen && (
-            <div
-              ref={popoverRef}
-              className="absolute right-0 top-full mt-1 z-50 bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl p-2 min-w-[200px]"
-              onPointerDown={(e) => e.stopPropagation()}
-            >
-              {/* Suggestion chips */}
-              {equipmentSuggestions && equipmentSuggestions.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-2 max-h-40 overflow-y-auto">
-                  {equipmentSuggestions
-                    .filter((s) => !(slot.equipment ?? []).includes(s))
-                    .map((s) => (
-                      <button
-                        key={s}
-                        type="button"
-                        className="bg-amber-400/10 text-amber-300/80 hover:bg-amber-400/25 text-[10px] font-mono rounded-full px-2 py-0.5 transition-colors"
-                        onClick={() => handleAddEquipment(s)}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                </div>
-              )}
-              {/* Custom tag input */}
-              <input
-                ref={tagInputRef}
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleAddEquipment(newTag);
-                    setNewTag('');
-                  }
-                  if (e.key === 'Escape') {
-                    setEquipPopoverOpen(false);
-                    setNewTag('');
-                  }
-                }}
-                placeholder="New tag…"
-                aria-label="New equipment tag"
-                className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded px-2 py-1 text-[11px] text-gray-200 placeholder-gray-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-400/25 font-mono"
+            <>
+              {/* Invisible backdrop to swallow clicks outside the popover */}
+              <div
+                className="fixed inset-0 z-40"
+                onClick={closeEquipPopover}
+                onPointerDown={(e) => e.stopPropagation()}
+                aria-hidden="true"
               />
-            </div>
+              <div
+                ref={popoverRef}
+                className="absolute right-0 top-full mt-1 z-50 bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl p-2 min-w-[200px]"
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                {/* Suggestion chips */}
+                {equipmentSuggestions && equipmentSuggestions.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2 max-h-40 overflow-y-auto">
+                    {equipmentSuggestions
+                      .filter((s) => !(slot.equipment ?? []).includes(s))
+                      .map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          className="bg-amber-400/10 text-amber-300/80 hover:bg-amber-400/25 text-[10px] font-mono rounded-full px-2 py-0.5 transition-colors"
+                          onClick={() => handleAddEquipment(s)}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                  </div>
+                )}
+                {/* Custom tag input */}
+                <input
+                  ref={tagInputRef}
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAddEquipment(newTag);
+                      setNewTag('');
+                    }
+                    if (e.key === 'Escape') closeEquipPopover();
+                  }}
+                  placeholder="New tag…"
+                  aria-label="New equipment tag"
+                  className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded px-2 py-1 text-[11px] text-gray-200 placeholder-gray-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-400/25 font-mono"
+                />
+              </div>
+            </>
           )}
         </>
       )}
