@@ -97,7 +97,7 @@ export const OrbatGroup = memo(function OrbatGroup({
         className="flex items-center justify-between py-2 px-2 border-b border-[#2a2a4a] border-l-2 rounded-sm"
         style={{
           borderLeftColor: group.color ?? 'rgb(34 197 94 / 0.5)',
-          backgroundImage: `linear-gradient(to right, ${group.color ? `${group.color}0d` : 'rgb(34 197 94 / 0.05)'}, transparent)`,
+          backgroundImage: `linear-gradient(to right, ${group.color ? `${group.color}40` : 'rgb(34 197 94 / 0.25)'}, transparent)`,
         }}
       >
         <h3 className="font-display text-sm font-bold text-gray-300 uppercase tracking-widest">
