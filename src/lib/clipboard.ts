@@ -37,9 +37,7 @@ export function formatOrbatForTeamspeak(
 
     lines.push('');
     lines.push(`--- ${group.name} ---`);
-    const hasEquipment = assignedSlots.some(
-      (s) => s.equipment && s.equipment.length > 0,
-    );
+    const hasEquipment = assignedSlots.some((s) => s.equipment?.length);
     let table = '[table]';
     for (const slot of assignedSlots) {
       const assignment = orbat.assignments.find((a) => a.slotId === slot.id);

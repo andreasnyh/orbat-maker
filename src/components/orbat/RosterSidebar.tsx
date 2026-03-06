@@ -136,22 +136,26 @@ export function RosterSidebar({
     [assignments],
   );
 
-  const filtered = people
-    .filter((p) => {
-      if (hideAssigned && assignedPersonIds.has(p.id)) return false;
-      if (!search.trim()) return true;
-      const q = search.toLowerCase();
-      return (
-        p.name.toLowerCase().includes(q) ||
-        (p.rank?.toLowerCase().includes(q) ?? false)
-      );
-    })
-    .sort((a, b) => {
-      const aAssigned = assignedPersonIds.has(a.id) ? 1 : 0;
-      const bAssigned = assignedPersonIds.has(b.id) ? 1 : 0;
-      if (aAssigned !== bAssigned) return aAssigned - bAssigned;
-      return a.name.localeCompare(b.name);
-    });
+  const filtered = useMemo(
+    () =>
+      people
+        .filter((p) => {
+          if (hideAssigned && assignedPersonIds.has(p.id)) return false;
+          if (!search.trim()) return true;
+          const q = search.toLowerCase();
+          return (
+            p.name.toLowerCase().includes(q) ||
+            (p.rank?.toLowerCase().includes(q) ?? false)
+          );
+        })
+        .sort((a, b) => {
+          const aAssigned = assignedPersonIds.has(a.id) ? 1 : 0;
+          const bAssigned = assignedPersonIds.has(b.id) ? 1 : 0;
+          if (aAssigned !== bAssigned) return aAssigned - bAssigned;
+          return a.name.localeCompare(b.name);
+        }),
+    [people, assignedPersonIds, hideAssigned, search],
+  );
 
   const assignedCount = assignedPersonIds.size;
 
