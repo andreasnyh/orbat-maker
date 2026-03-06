@@ -5,7 +5,6 @@ import { memo, useMemo, useState } from 'react';
 import { usePeopleState } from '../../context/AppStateContext';
 import type { Assignment, Person } from '../../types';
 import { Badge } from '../common/Badge';
-import { PersonCard } from '../people/PersonCard';
 
 interface RosterSidebarProps {
   assignments: Assignment[];
@@ -21,7 +20,7 @@ interface RosterSidebarProps {
   hideSearch?: boolean;
 }
 
-// Thin wrapper that makes a single PersonCard draggable
+// Thin wrapper that makes a single roster card draggable
 const DraggablePersonCard = memo(function DraggablePersonCard({
   person,
   isAssigned,
@@ -34,7 +33,7 @@ const DraggablePersonCard = memo(function DraggablePersonCard({
     data: { type: 'person', personId: person.id },
   });
 
-  // Listeners + attributes are on the wrapper so that PersonCard receives
+  // Listeners + attributes are on the wrapper so that inner content receives
   // stable props and its memo can skip re-renders during drag.
   return (
     <div
@@ -61,21 +60,24 @@ const DraggablePersonContent = memo(function DraggablePersonContent({
   isAssigned: boolean;
 }) {
   return (
-    <>
-      <PersonCard
-        person={person}
-        className={clsx(
-          'select-none transition-all duration-150 pointer-events-none',
-          'hover:-translate-y-px hover:shadow-lg hover:shadow-black/25 hover:border-green-400/30',
-          isAssigned && 'opacity-50',
-        )}
-      />
-      {isAssigned && (
-        <div className="absolute top-2 right-2 pointer-events-none">
-          <Badge variant="default">Assigned</Badge>
-        </div>
+    <div
+      className={clsx(
+        'card px-3 py-2 select-none transition-all duration-150 pointer-events-none',
+        'flex items-center gap-2',
+        'hover:-translate-y-px hover:shadow-lg hover:shadow-black/25 hover:border-green-400/30',
+        isAssigned && 'opacity-50',
       )}
-    </>
+    >
+      {person.rank && <Badge variant="green">{person.rank}</Badge>}
+      <span className="font-display text-gray-200 font-semibold truncate">
+        {person.name}
+      </span>
+      {isAssigned && (
+        <span className="ml-auto shrink-0">
+          <Badge variant="default">Assigned</Badge>
+        </span>
+      )}
+    </div>
   );
 });
 
@@ -134,15 +136,21 @@ export function RosterSidebar({
     [assignments],
   );
 
-  const filtered = people.filter((p) => {
-    if (hideAssigned && assignedPersonIds.has(p.id)) return false;
-    if (!search.trim()) return true;
-    const q = search.toLowerCase();
-    return (
-      p.name.toLowerCase().includes(q) ||
-      (p.rank?.toLowerCase().includes(q) ?? false)
-    );
-  });
+  const filtered = people
+    .filter((p) => {
+      if (hideAssigned && assignedPersonIds.has(p.id)) return false;
+      if (!search.trim()) return true;
+      const q = search.toLowerCase();
+      return (
+        p.name.toLowerCase().includes(q) ||
+        (p.rank?.toLowerCase().includes(q) ?? false)
+      );
+    })
+    .sort((a, b) => {
+      const aAssigned = assignedPersonIds.has(a.id) ? 1 : 0;
+      const bAssigned = assignedPersonIds.has(b.id) ? 1 : 0;
+      return aAssigned - bAssigned;
+    });
 
   const assignedCount = assignedPersonIds.size;
 

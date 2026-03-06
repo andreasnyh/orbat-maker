@@ -34,10 +34,10 @@ import {
   formatOrbatForTeamspeak,
 } from '../../lib/clipboard';
 import type { Page, Person, Slot } from '../../types';
+import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { TextInput } from '../common/TextInput';
-import { PersonCard } from '../people/PersonCard';
 import { OrbatGroup } from './OrbatGroup';
 import { RosterSidebar } from './RosterSidebar';
 
@@ -596,10 +596,14 @@ export function OrbatBuilderPage({
           }}
         >
           {activePerson && (
-            <PersonCard
-              person={activePerson}
-              className="rotate-2 shadow-2xl shadow-black/50 cursor-grabbing opacity-95"
-            />
+            <div className="card px-3 py-2 flex items-center gap-2 rotate-2 shadow-2xl shadow-black/50 cursor-grabbing opacity-95">
+              {activePerson.rank && (
+                <Badge variant="green">{activePerson.rank}</Badge>
+              )}
+              <span className="font-display text-gray-200 font-semibold truncate">
+                {activePerson.name}
+              </span>
+            </div>
           )}
         </div>
 
