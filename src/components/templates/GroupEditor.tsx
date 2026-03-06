@@ -6,8 +6,8 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Plus, Trash2 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { GripVertical, Palette, Plus, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { generateId } from '../../lib/ids';
 import type { Group, Slot } from '../../types';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -61,6 +61,18 @@ function SortableSlot({ slot, onUpdate, onDelete }: SortableSlotProps) {
 
 // ---- GroupEditor -------------------------------------------------------------
 
+const GROUP_COLORS = [
+  { value: undefined, label: 'Default' },
+  { value: '#22c55e', label: 'Green' },
+  { value: '#3b82f6', label: 'Blue' },
+  { value: '#ef4444', label: 'Red' },
+  { value: '#f59e0b', label: 'Amber' },
+  { value: '#a855f7', label: 'Purple' },
+  { value: '#06b6d4', label: 'Cyan' },
+  { value: '#f97316', label: 'Orange' },
+  { value: '#ec4899', label: 'Pink' },
+] as const;
+
 export function GroupEditor({
   group,
   onUpdate,
@@ -70,7 +82,26 @@ export function GroupEditor({
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(group.name);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showColors, setShowColors] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
+
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (
+      colorPickerRef.current &&
+      !colorPickerRef.current.contains(e.target as Node)
+    ) {
+      setShowColors(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showColors) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () =>
+        document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showColors, handleClickOutside]);
 
   useEffect(() => {
     if (editingName) {
@@ -135,7 +166,10 @@ export function GroupEditor({
     <>
       <div className="bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg overflow-hidden">
         {/* Group header */}
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-[#2a2a4a] bg-[#15152a]">
+        <div
+          className="flex items-center gap-2 px-3 py-2 border-b border-[#2a2a4a] bg-[#15152a] border-l-2"
+          style={{ borderLeftColor: group.color ?? 'transparent' }}
+        >
           {/* Drag handle for the group */}
           <button
             type="button"
@@ -174,6 +208,53 @@ export function GroupEditor({
           <span className="shrink-0 text-xs text-gray-500 font-data">
             {group.slots.length} {group.slots.length === 1 ? 'slot' : 'slots'}
           </span>
+
+          {/* Color picker toggle */}
+          <div ref={colorPickerRef} className="relative shrink-0">
+            <button
+              onClick={() => setShowColors((v) => !v)}
+              className="flex items-center gap-1 text-gray-600 hover:text-gray-300 transition-colors"
+              aria-label="Set group color"
+              title="Set group color"
+              type="button"
+            >
+              {group.color ? (
+                <span
+                  className="block w-3.5 h-3.5 rounded-full border border-white/20"
+                  style={{ backgroundColor: group.color }}
+                />
+              ) : (
+                <Palette size={14} />
+              )}
+            </button>
+
+            {showColors && (
+              <div className="absolute right-0 top-full mt-1 z-20 bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg p-2 shadow-xl">
+                <div className="flex gap-1.5">
+                  {GROUP_COLORS.map((c) => (
+                    <button
+                      key={c.label}
+                      type="button"
+                      onClick={() => {
+                        onUpdate({ ...group, color: c.value });
+                        setShowColors(false);
+                      }}
+                      className={`w-5 h-5 rounded-full border-2 transition-transform hover:scale-125 ${
+                        group.color === c.value
+                          ? 'border-white scale-110'
+                          : 'border-transparent'
+                      }`}
+                      style={{
+                        backgroundColor: c.value ?? '#4b5563',
+                      }}
+                      title={c.label}
+                      aria-label={`Color: ${c.label}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Delete group button */}
           <button

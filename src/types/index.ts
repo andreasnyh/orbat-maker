@@ -18,6 +18,7 @@ export interface Slot {
 export interface Group {
   id: string;
   name: string;
+  color?: string;
   slots: Slot[];
 }
 
