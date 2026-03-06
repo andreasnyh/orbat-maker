@@ -149,7 +149,8 @@ export function RosterSidebar({
     .sort((a, b) => {
       const aAssigned = assignedPersonIds.has(a.id) ? 1 : 0;
       const bAssigned = assignedPersonIds.has(b.id) ? 1 : 0;
-      return aAssigned - bAssigned;
+      if (aAssigned !== bAssigned) return aAssigned - bAssigned;
+      return a.name.localeCompare(b.name);
     });
 
   const assignedCount = assignedPersonIds.size;
