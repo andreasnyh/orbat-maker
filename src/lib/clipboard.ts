@@ -13,10 +13,6 @@ function getPersonDisplay(
   return person.rank ? `${person.rank} ${person.name}` : person.name;
 }
 
-function padRight(str: string, len: number): string {
-  return str + ' '.repeat(Math.max(0, len - str.length));
-}
-
 export function formatOrbatForTeamspeak(
   orbat: ORBAT,
   template: Template,
@@ -41,21 +37,23 @@ export function formatOrbatForTeamspeak(
 
     lines.push('');
     lines.push(`--- ${group.name} ---`);
-
-    // Find max role label length for alignment padding
-    const maxLen = Math.max(...assignedSlots.map((s) => s.roleLabel.length));
-
+    const hasEquipment = assignedSlots.some(
+      (s) => s.equipment && s.equipment.length > 0,
+    );
+    let table = '[table]';
     for (const slot of assignedSlots) {
       const assignment = orbat.assignments.find((a) => a.slotId === slot.id);
       if (!assignment) continue;
       const personDisplay = getPersonDisplay(assignment.personId, personMap);
-      const equipStr = slot.equipment?.length
-        ? ` — ${slot.equipment.join(', ')}`
-        : '';
-      lines.push(
-        `  ${padRight(`${slot.roleLabel}:`, maxLen + 1)}  ${personDisplay}${equipStr}`,
-      );
+      table += `[tr][td]${slot.roleLabel}[/td][td]${personDisplay}[/td]`;
+      if (hasEquipment) {
+        const equip = slot.equipment?.length ? slot.equipment.join(', ') : '';
+        table += `[td]${equip}[/td]`;
+      }
+      table += '[/tr]';
     }
+    table += '[/table]';
+    lines.push(table);
   }
 
   return lines.join('\n');
