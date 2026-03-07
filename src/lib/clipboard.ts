@@ -27,7 +27,7 @@ export function formatOrbatForTeamspeak(
     day: 'numeric',
   });
   const header = `=== ${orbat.name} (${today}) ===`;
-  lines.push(header);
+  lines.push('', header);
 
   for (const group of template.groups) {
     const assignedSlots = group.slots.filter((s) =>
