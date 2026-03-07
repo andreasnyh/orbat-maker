@@ -8,71 +8,49 @@ interface ModalProps {
   children: ReactNode;
 }
 
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
-
 export function Modal({ open, onClose, title, children }: ModalProps) {
-  const dialogRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
-  // Escape key to close
   useEffect(() => {
-    if (open) {
-      const onKey = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') onClose();
-      };
-      document.addEventListener('keydown', onKey);
-      return () => document.removeEventListener('keydown', onKey);
-    }
-  }, [open, onClose]);
+    const dialog = dialogRef.current;
+    if (!dialog) return;
 
-  // Focus trap
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key !== 'Tab' || !dialogRef.current) return;
-    const focusable =
-      dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (e.shiftKey) {
-      if (document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      }
-    } else {
-      if (document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-  }, []);
-
-  // Auto-focus first focusable element on open
-  useEffect(() => {
-    if (open && dialogRef.current) {
-      const first =
-        dialogRef.current.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
-      first?.focus();
+    if (open && !dialog.open) {
+      dialog.showModal();
+    } else if (!open && dialog.open) {
+      dialog.close();
     }
   }, [open]);
 
-  if (!open) return null;
+  // Close on backdrop click
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLDialogElement>) => {
+      if (e.target === dialogRef.current) {
+        onClose();
+      }
+    },
+    [onClose],
+  );
+
+  // Native <dialog> fires "cancel" on Escape
+  const handleCancel = useCallback(
+    (e: React.SyntheticEvent) => {
+      e.preventDefault();
+      onClose();
+    },
+    [onClose],
+  );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: modal backdrop dismiss */}
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: Escape key handled via document listener */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
-        onClick={onClose}
-      />
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title"
-        className="relative bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto overscroll-contain animate-scale-in"
-        onKeyDown={handleKeyDown}
-      >
+    // biome-ignore lint/a11y/useKeyWithClickEvents: native <dialog> handles Escape via onCancel
+    <dialog
+      ref={dialogRef}
+      onClick={handleClick}
+      onCancel={handleCancel}
+      aria-labelledby="modal-title"
+      className="backdrop:bg-black/60 backdrop:backdrop-blur-sm bg-transparent p-0 max-w-lg w-full m-auto outline-none animate-scale-in backdrop:animate-fade-in"
+    >
+      <div className="bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl max-h-[85vh] overflow-y-auto overscroll-contain mx-4">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#2a2a4a]">
           <h2
             id="modal-title"
@@ -91,6 +69,6 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         </div>
         <div className="px-5 py-4">{children}</div>
       </div>
-    </div>
+    </dialog>
   );
 }
