@@ -383,7 +383,7 @@ export function OrbatBuilderPage({
 
   // ---- Render -------------------------------------------------------------
 
-  const actionButtons = (
+  const copyButtons = (
     <>
       <Button
         variant="secondary"
@@ -413,18 +413,19 @@ export function OrbatBuilderPage({
         )}
         TeamSpeak
       </Button>
-      {orbat.assignments.length > 0 && (
-        <Button
-          variant="danger"
-          size="sm"
-          onClick={() => setConfirmClear(true)}
-          title="Clear all assignments"
-        >
-          <RotateCcw size={14} />
-          Clear
-        </Button>
-      )}
     </>
+  );
+
+  const clearButton = orbat.assignments.length > 0 && (
+    <Button
+      variant="danger"
+      size="sm"
+      onClick={() => setConfirmClear(true)}
+      title="Clear all assignments"
+    >
+      <RotateCcw size={14} />
+      Clear
+    </Button>
   );
 
   return (
@@ -481,33 +482,37 @@ export function OrbatBuilderPage({
                 )}
               </div>
 
-              {/* Copy & reset buttons — inline on desktop */}
+              {/* Toggle, copy & clear — inline on desktop */}
               {template && (
                 <div className="shrink-0 hidden md:flex items-stretch gap-4 divide-x divide-[#2a2a4a]">
-                  <div className="flex items-center pr-4">
+                  <div className="flex items-center gap-4 pr-4">
                     <Toggle
                       checked={showEquipment}
                       onChange={setShowEquipment}
                       label="Show equipment"
                       size="md"
                     />
+                    {clearButton}
                   </div>
-                  <div className="flex items-center gap-2">{actionButtons}</div>
+                  <div className="flex items-center gap-2">{copyButtons}</div>
                 </div>
               )}
             </div>
 
             {/* Row 2: Action buttons on mobile */}
             {template && (
-              <div className="flex md:hidden flex-col-reverse gap-6">
-                <Toggle
-                  checked={showEquipment}
-                  onChange={setShowEquipment}
-                  label="Show equipment"
-                  size="md"
-                />
+              <div className="flex md:hidden flex-col-reverse gap-4">
+                <div className="flex items-center justify-between">
+                  <Toggle
+                    checked={showEquipment}
+                    onChange={setShowEquipment}
+                    label="Show equipment"
+                    size="md"
+                  />
+                  {clearButton}
+                </div>
                 <div className="flex items-center gap-2 *:flex-1">
-                  {actionButtons}
+                  {copyButtons}
                 </div>
               </div>
             )}
