@@ -14,7 +14,6 @@ interface OrbatGroupProps {
   personById: Map<string, Person>;
   onAddSlot?: (groupId: string, roleLabel: string) => void;
   onRemoveSlot?: (groupId: string, slotId: string) => void;
-  onReorderSlots?: (groupId: string, slots: Slot[]) => void;
   onUpdateSlot?: (
     groupId: string,
     slotId: string,
@@ -33,7 +32,6 @@ export const OrbatGroup = memo(function OrbatGroup({
   personById,
   onAddSlot,
   onRemoveSlot,
-  onReorderSlots: _onReorderSlots,
   onUpdateSlot,
   onUnassign,
   equipmentSuggestions,

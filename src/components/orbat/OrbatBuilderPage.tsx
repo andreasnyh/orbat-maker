@@ -556,7 +556,6 @@ export function OrbatBuilderPage({
                       personById={personById}
                       onAddSlot={handleAddSlot}
                       onRemoveSlot={handleRemoveSlot}
-                      onReorderSlots={handleReorderSlots}
                       onUpdateSlot={handleUpdateSlot}
                       onUnassign={handleUnassign}
                       equipmentSuggestions={equipmentSuggestions}
