@@ -71,11 +71,12 @@ export function ExportMenu() {
             aria-haspopup="menu"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-gray-400 hover:text-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:text-green-400"
           >
-            <Download size={16} />
+            <Download size={16} aria-hidden="true" />
             Export
             <ChevronDown
               size={14}
               className={`transition-transform duration-150 ${dropdownOpen ? 'rotate-180' : ''}`}
+              aria-hidden="true"
             />
           </button>
 
@@ -108,7 +109,7 @@ export function ExportMenu() {
           onClick={() => setImportOpen(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-gray-400 hover:text-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:text-green-400"
         >
-          <Upload size={16} />
+          <Upload size={16} aria-hidden="true" />
           Import
         </button>
       </div>

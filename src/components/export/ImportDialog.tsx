@@ -245,6 +245,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
           type="file"
           accept=".json"
           className="hidden"
+          aria-label="Select JSON file to import"
           onChange={handleFileChange}
         />
 
@@ -258,7 +259,11 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
 
             {state.phase === 'error' && (
               <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded-md p-3 text-red-400 text-sm">
-                <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                <AlertTriangle
+                  size={16}
+                  className="shrink-0 mt-0.5"
+                  aria-hidden="true"
+                />
                 <span>{state.message}</span>
               </div>
             )}
@@ -318,7 +323,11 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         {state.phase === 'conflicts' && (
           <>
             <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-md p-3 text-amber-300 text-sm">
-              <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+              <AlertTriangle
+                size={16}
+                className="shrink-0 mt-0.5"
+                aria-hidden="true"
+              />
               <span>
                 {totalConflicts} name{' '}
                 {totalConflicts === 1 ? 'conflict' : 'conflicts'} found

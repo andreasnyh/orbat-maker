@@ -70,13 +70,13 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
               {r.name}
             </option>
           ))}
-          <option value={CUSTOM_VALUE}>(Custom...)</option>
+          <option value={CUSTOM_VALUE}>(Custom…)</option>
         </select>
         {selectValue === CUSTOM_VALUE && (
           <>
             <TextInput
               label="Custom rank"
-              placeholder="e.g. SGT, Sqn Ldr, CPT"
+              placeholder="e.g. SGT, Sqn Ldr, CPT…"
               value={customRank}
               onChange={(e) => setCustomRank(e.target.value)}
               autoComplete="off"

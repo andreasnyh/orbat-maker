@@ -90,7 +90,7 @@ export function PersonForm({
               {r.name}
             </option>
           ))}
-          <option value={CUSTOM_VALUE}>(Custom...)</option>
+          <option value={CUSTOM_VALUE}>(Custom…)</option>
         </select>
       </div>
 
@@ -98,7 +98,7 @@ export function PersonForm({
         <>
           <TextInput
             label="Custom rank"
-            placeholder="e.g. SGT, CPT, LTC"
+            placeholder="e.g. SGT, CPT, LTC…"
             value={customRank}
             onChange={(e) => setCustomRank(e.target.value)}
             autoComplete="off"

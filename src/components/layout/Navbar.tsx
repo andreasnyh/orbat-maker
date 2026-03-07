@@ -68,7 +68,7 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
                       : 'text-gray-400 hover:text-green-400/70'
                   }`}
                 >
-                  <Icon size={iconSize ?? 18} />
+                  <Icon size={iconSize ?? 18} aria-hidden="true" />
                   {label}
                 </button>
                 {activePage(page) && (

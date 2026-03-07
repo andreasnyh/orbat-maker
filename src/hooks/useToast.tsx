@@ -92,9 +92,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             }`}
           >
             {toast.variant === 'error' ? (
-              <AlertTriangle size={16} className="text-red-400 shrink-0" />
+              <AlertTriangle
+                size={16}
+                className="text-red-400 shrink-0"
+                aria-hidden="true"
+              />
             ) : (
-              <Check size={16} className="text-green-400 shrink-0" />
+              <Check
+                size={16}
+                className="text-green-400 shrink-0"
+                aria-hidden="true"
+              />
             )}
             {toast.message}
           </div>

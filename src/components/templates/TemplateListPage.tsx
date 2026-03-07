@@ -136,6 +136,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
                   size="sm"
                   onClick={() => handleDuplicate(template.id)}
                   title="Duplicate template"
+                  aria-label="Duplicate template"
                 >
                   <Copy size={13} />
                 </Button>
@@ -147,6 +148,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
                       setDeleteTarget({ id: template.id, name: template.name })
                     }
                     title="Delete template"
+                    aria-label="Delete template"
                   >
                     <Trash2 size={13} />
                   </Button>

@@ -195,6 +195,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                       setDeleteTarget({ id: orbat.id, name: orbat.name })
                     }
                     title="Delete ORBAT"
+                    aria-label="Delete ORBAT"
                   >
                     <Trash2 size={13} />
                   </Button>
@@ -266,6 +267,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
               <ChevronDown
                 size={16}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+                aria-hidden="true"
               />
             </div>
           </div>

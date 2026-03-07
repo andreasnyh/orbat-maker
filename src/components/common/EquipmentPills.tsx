@@ -88,6 +88,7 @@ export function EquipmentPills({
             onPointerDown={(e) => e.stopPropagation()}
             className="inline-flex items-center gap-0.5 text-[10px] text-amber-400/50 hover:text-amber-400 transition-colors"
             title="Add equipment tag"
+            aria-label="Add equipment tag"
           >
             <Plus size={10} />
           </button>

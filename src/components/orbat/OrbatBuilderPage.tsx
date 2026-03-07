@@ -477,6 +477,7 @@ export function OrbatBuilderPage({
                     <Pencil
                       size={14}
                       className="shrink-0 text-gray-600 group-hover/name:text-green-400 transition-colors"
+                      aria-hidden="true"
                     />
                   </button>
                 )}
@@ -528,7 +529,11 @@ export function OrbatBuilderPage({
           {/* Missing template warning */}
           {!template && (
             <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-3 text-yellow-300 text-sm flex items-center gap-2">
-              <AlertTriangle size={16} className="shrink-0" />
+              <AlertTriangle
+                size={16}
+                className="shrink-0"
+                aria-hidden="true"
+              />
               The template for this ORBAT no longer exists. You can still view
               assignments but cannot add new slots.
             </div>

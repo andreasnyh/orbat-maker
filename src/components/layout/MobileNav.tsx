@@ -44,7 +44,7 @@ export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {
                   : 'text-gray-500 hover:text-gray-300 active:text-gray-200'
               }`}
             >
-              <Icon size={iconSize ?? 20} />
+              <Icon size={iconSize ?? 20} aria-hidden="true" />
               <span className="font-display text-[10px] font-semibold tracking-wide uppercase">
                 {label}
               </span>
