@@ -38,20 +38,18 @@ export function formatOrbatForTeamspeak(
     lines.push('');
     lines.push(`--- ${group.name} ---`);
     const hasEquipment = assignedSlots.some((s) => s.equipment?.length);
-    let table = '[table]';
+    const maxRole = Math.max(...assignedSlots.map((s) => s.roleLabel.length));
     for (const slot of assignedSlots) {
       const assignment = orbat.assignments.find((a) => a.slotId === slot.id);
       if (!assignment) continue;
       const personDisplay = getPersonDisplay(assignment.personId, personMap);
-      table += `[tr][td]${slot.roleLabel}[/td][td]${personDisplay}[/td]`;
-      if (hasEquipment) {
-        const equip = slot.equipment?.length ? slot.equipment.join(', ') : '';
-        table += `[td]${equip}[/td]`;
-      }
-      table += '[/tr]';
+      const role = slot.roleLabel.padEnd(maxRole);
+      const equipStr =
+        hasEquipment && slot.equipment?.length
+          ? ` — ${slot.equipment.join(', ')}`
+          : '';
+      lines.push(`  ${role}  ${personDisplay}${equipStr}`);
     }
-    table += '[/table]';
-    lines.push(table);
   }
 
   return lines.join('\n');
