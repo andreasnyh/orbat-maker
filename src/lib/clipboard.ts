@@ -69,6 +69,7 @@ export function formatOrbatForDiscord(
   });
   const header = `**=== ${orbat.name} (${today}) ===**`;
   lines.push(header);
+  lines.push('```');
 
   for (const group of template.groups) {
     const assignedSlots = group.slots.filter((s) =>
@@ -78,19 +79,21 @@ export function formatOrbatForDiscord(
     if (assignedSlots.length === 0) continue;
 
     lines.push('');
-    lines.push(`**--- ${group.name} ---**`);
-
+    lines.push(`--- ${group.name} ---`);
+    const maxRole = Math.max(...assignedSlots.map((s) => s.roleLabel.length));
     for (const slot of assignedSlots) {
       const assignment = orbat.assignments.find((a) => a.slotId === slot.id);
       if (!assignment) continue;
       const personDisplay = getPersonDisplay(assignment.personId, personMap);
+      const role = slot.roleLabel.padEnd(maxRole);
       const equipStr = slot.equipment?.length
         ? ` — ${slot.equipment.join(', ')}`
         : '';
-      lines.push(`\`${slot.roleLabel}\`  ${personDisplay}${equipStr}`);
+      lines.push(`  ${role}  ${personDisplay}${equipStr}`);
     }
   }
 
+  lines.push('```');
   return lines.join('\n');
 }
 
