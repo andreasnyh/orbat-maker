@@ -99,6 +99,11 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
   const { templates, setTemplates } = useTemplatesState();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<ImportState>({ phase: 'idle' });
+  const [selectedSections, setSelectedSections] = useState({
+    people: true,
+    ranks: true,
+    templates: true,
+  });
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -115,6 +120,11 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
       if (error) {
         setState({ phase: 'error', message: error });
       } else {
+        setSelectedSections({
+          people: (bundle.people?.length ?? 0) > 0,
+          ranks: (bundle.ranks?.length ?? 0) > 0,
+          templates: (bundle.templates?.length ?? 0) > 0,
+        });
         setState({ phase: 'preview', bundle, filename: file.name });
       }
     };
@@ -165,7 +175,16 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
 
   function handleImport() {
     if (state.phase !== 'preview') return;
-    const { bundle, filename } = state;
+    const { bundle: fullBundle, filename } = state;
+
+    // Filter bundle to only selected sections
+    const bundle: ExportBundle = {
+      version: fullBundle.version,
+      exportedAt: fullBundle.exportedAt,
+      ...(selectedSections.people && { people: fullBundle.people }),
+      ...(selectedSections.ranks && { ranks: fullBundle.ranks }),
+      ...(selectedSections.templates && { templates: fullBundle.templates }),
+    };
 
     const peopleConflicts = bundle.people?.length
       ? detectNameConflicts(bundle.people, people)
@@ -302,6 +321,46 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
               )}
             </div>
 
+            {/* Section picker — only show when multiple sections exist */}
+            {[
+              state.bundle.people?.length && 'people',
+              state.bundle.ranks?.length && 'ranks',
+              state.bundle.templates?.length && 'templates',
+            ].filter(Boolean).length > 1 && (
+              <fieldset className="flex flex-col gap-1.5">
+                <legend className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                  Import sections
+                </legend>
+                {(
+                  [
+                    ['people', 'Personnel', state.bundle.people?.length],
+                    ['ranks', 'Ranks', state.bundle.ranks?.length],
+                    ['templates', 'Templates', state.bundle.templates?.length],
+                  ] as const
+                )
+                  .filter(([, , count]) => count)
+                  .map(([key, label, count]) => (
+                    <label
+                      key={key}
+                      className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer select-none"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedSections[key]}
+                        onChange={(e) =>
+                          setSelectedSections((prev) => ({
+                            ...prev,
+                            [key]: e.target.checked,
+                          }))
+                        }
+                        className="accent-green-500"
+                      />
+                      {label} <span className="text-gray-500">({count})</span>
+                    </label>
+                  ))}
+              </fieldset>
+            )}
+
             <p className="text-xs text-gray-400">
               Import mode: <span className="text-gray-300">Merge</span> —
               records whose IDs already exist in the app will be skipped.
@@ -311,7 +370,16 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
               <Button variant="ghost" size="sm" onClick={handlePickFile}>
                 Choose different file
               </Button>
-              <Button variant="primary" size="sm" onClick={handleImport}>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleImport}
+                disabled={
+                  !selectedSections.people &&
+                  !selectedSections.ranks &&
+                  !selectedSections.templates
+                }
+              >
                 <Upload size={14} />
                 Import
               </Button>
