@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react';
+import { AlertTriangle, Check } from 'lucide-react';
 import {
   createContext,
   type ReactNode,
@@ -12,11 +12,13 @@ import {
 interface Toast {
   id: number;
   message: string;
+  variant: 'success' | 'error';
   exiting?: boolean;
 }
 
 interface ToastContextValue {
   success: (message: string) => void;
+  error: (message: string) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -41,9 +43,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const success = useCallback((message: string) => {
+  const show = useCallback((message: string, variant: Toast['variant']) => {
     const id = nextId.current++;
-    setToasts((prev) => [...prev.slice(-1), { id, message }]);
+    setToasts((prev) => [...prev.slice(-1), { id, message, variant }]);
 
     // Start exit animation after 1.7s, remove after 2s
     const t1 = setTimeout(() => {
@@ -61,8 +63,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     timeoutIds.current.add(t2);
   }, []);
 
+  const success = useCallback(
+    (message: string) => show(message, 'success'),
+    [show],
+  );
+  const error = useCallback(
+    (message: string) => show(message, 'error'),
+    [show],
+  );
+
   return (
-    <ToastContext.Provider value={{ success }}>
+    <ToastContext.Provider value={{ success, error }}>
       {children}
       {/* Toast container */}
       <div
@@ -72,11 +83,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto flex items-center gap-2 bg-[#1a1a2e] border border-green-500/30 rounded-lg px-4 py-2.5 shadow-lg shadow-black/30 text-sm text-gray-200 ${
+            className={`pointer-events-auto flex items-center gap-2 bg-[#1a1a2e] border ${
+              toast.variant === 'error'
+                ? 'border-red-500/30'
+                : 'border-green-500/30'
+            } rounded-lg px-4 py-2.5 shadow-lg shadow-black/30 text-sm text-gray-200 ${
               toast.exiting ? 'animate-fade-out-down' : 'animate-fade-in-up'
             }`}
           >
-            <Check size={16} className="text-green-400 shrink-0" />
+            {toast.variant === 'error' ? (
+              <AlertTriangle size={16} className="text-red-400 shrink-0" />
+            ) : (
+              <Check size={16} className="text-green-400 shrink-0" />
+            )}
             {toast.message}
           </div>
         ))}

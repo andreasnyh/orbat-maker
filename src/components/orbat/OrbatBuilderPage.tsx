@@ -14,6 +14,7 @@ import { arrayMove } from '@dnd-kit/sortable';
 import {
   AlertTriangle,
   ArrowLeft,
+  Check,
   Clipboard,
   Package,
   Pencil,
@@ -93,6 +94,10 @@ export function OrbatBuilderPage({
   const [showEquipment, setShowEquipment] = useState(true);
   const [confirmClear, setConfirmClear] = useState(false);
   const [tapTargetSlotId, setTapTargetSlotId] = useState<string | null>(null);
+  const [copiedTarget, setCopiedTarget] = useState<
+    'discord' | 'teamspeak' | null
+  >(null);
+  const copiedTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // ---- DnD sensors ---------------------------------------------------------
   const sensors = useSensors(
@@ -317,18 +322,22 @@ export function OrbatBuilderPage({
 
   // ---- Clipboard copy handlers --------------------------------------------
 
-  async function handleCopyDiscord() {
-    if (!orbat || !template) return;
-    const text = formatOrbatForDiscord(orbat, template, people);
+  async function handleCopy(target: 'discord' | 'teamspeak') {
+    if (!orbat || !template || copiedTarget) return;
+    const text =
+      target === 'discord'
+        ? formatOrbatForDiscord(orbat, template, people)
+        : formatOrbatForTeamspeak(orbat, template, people);
+    const label = target === 'discord' ? 'Discord' : 'TeamSpeak';
     const ok = await copyToClipboard(text);
-    if (ok) toast.success('Copied for Discord');
-  }
-
-  async function handleCopyTeamspeak() {
-    if (!orbat || !template) return;
-    const text = formatOrbatForTeamspeak(orbat, template, people);
-    const ok = await copyToClipboard(text);
-    if (ok) toast.success('Copied for TeamSpeak');
+    if (ok) {
+      toast.success(`Copied for ${label}`);
+      clearTimeout(copiedTimerRef.current);
+      setCopiedTarget(target);
+      copiedTimerRef.current = setTimeout(() => setCopiedTarget(null), 1500);
+    } else {
+      toast.error(`Failed to copy — clipboard not available`);
+    }
   }
 
   // ---- Tap-to-assign (mobile) -----------------------------------------------
@@ -443,19 +452,29 @@ export function OrbatBuilderPage({
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={handleCopyDiscord}
+                    onClick={() => handleCopy('discord')}
+                    disabled={copiedTarget != null}
                     title="Copy formatted ORBAT for Discord"
                   >
-                    <Clipboard size={14} />
+                    {copiedTarget === 'discord' ? (
+                      <Check size={14} className="text-green-400" />
+                    ) : (
+                      <Clipboard size={14} />
+                    )}
                     Discord
                   </Button>
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={handleCopyTeamspeak}
+                    onClick={() => handleCopy('teamspeak')}
+                    disabled={copiedTarget != null}
                     title="Copy formatted ORBAT for TeamSpeak"
                   >
-                    <Clipboard size={14} />
+                    {copiedTarget === 'teamspeak' ? (
+                      <Check size={14} className="text-green-400" />
+                    ) : (
+                      <Clipboard size={14} />
+                    )}
                     TeamSpeak
                   </Button>
                   {orbat.assignments.length > 0 && (
@@ -488,19 +507,29 @@ export function OrbatBuilderPage({
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={handleCopyDiscord}
+                  onClick={() => handleCopy('discord')}
+                  disabled={copiedTarget != null}
                   title="Copy formatted ORBAT for Discord"
                 >
-                  <Clipboard size={14} />
+                  {copiedTarget === 'discord' ? (
+                    <Check size={14} className="text-green-400" />
+                  ) : (
+                    <Clipboard size={14} />
+                  )}
                   Discord
                 </Button>
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={handleCopyTeamspeak}
+                  onClick={() => handleCopy('teamspeak')}
+                  disabled={copiedTarget != null}
                   title="Copy formatted ORBAT for TeamSpeak"
                 >
-                  <Clipboard size={14} />
+                  {copiedTarget === 'teamspeak' ? (
+                    <Check size={14} className="text-green-400" />
+                  ) : (
+                    <Clipboard size={14} />
+                  )}
                   TeamSpeak
                 </Button>
                 {orbat.assignments.length > 0 && (
