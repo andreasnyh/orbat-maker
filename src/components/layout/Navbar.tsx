@@ -1,4 +1,4 @@
-import { ChevronsUp, Info, LayoutTemplate, Shield, Users } from 'lucide-react';
+import { ChevronsUp, Info, LayoutTemplate, Network, Users } from 'lucide-react';
 import type { Page } from '../../types';
 import { ExportMenu } from '../export/ExportMenu';
 
@@ -13,7 +13,7 @@ const navItems: {
   icon: typeof Users;
   iconSize?: number;
 }[] = [
-  { page: 'orbats', label: 'ORBATs', icon: Shield },
+  { page: 'orbats', label: 'ORBATs', icon: Network },
   { page: 'people', label: 'Personnel', icon: Users },
   { page: 'ranks', label: 'Ranks', icon: ChevronsUp, iconSize: 22 },
   { page: 'templates', label: 'Templates', icon: LayoutTemplate },
@@ -33,25 +33,25 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
             xmlns="http://www.w3.org/2000/svg"
             width="32"
             height="32"
-            viewBox="24 16 144 164"
+            viewBox="0 0 24 24"
             className="shrink-0"
             aria-label="Orbat Maker"
           >
             <path
-              d="M32 40 L96 24 L160 40 L160 96 C160 138 96 172 96 172 C96 172 32 138 32 96 Z"
+              d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
               fill="none"
               stroke="#4ade80"
-              strokeWidth="8"
+              strokeWidth="1.5"
             />
             <text
-              x="96"
-              y="118"
+              x="12"
+              y="15"
               fontFamily="'Barlow Condensed',sans-serif"
-              fontSize="60"
+              fontSize="8.5"
               fontWeight="700"
               fill="#4ade80"
               textAnchor="middle"
-              letterSpacing="-2"
+              letterSpacing="-0.3"
             >
               OM
             </text>

@@ -1,4 +1,4 @@
-import { ChevronsUp, Info, LayoutTemplate, Shield, Users } from 'lucide-react';
+import { ChevronsUp, Info, LayoutTemplate, Network, Users } from 'lucide-react';
 import type { Page } from '../../types';
 
 interface MobileNavProps {
@@ -12,7 +12,7 @@ const navItems: {
   icon: typeof Users;
   iconSize?: number;
 }[] = [
-  { page: 'orbats', label: 'ORBATs', icon: Shield },
+  { page: 'orbats', label: 'ORBATs', icon: Network },
   { page: 'people', label: 'Personnel', icon: Users },
   { page: 'ranks', label: 'Ranks', icon: ChevronsUp, iconSize: 24 },
   { page: 'templates', label: 'Templates', icon: LayoutTemplate },
