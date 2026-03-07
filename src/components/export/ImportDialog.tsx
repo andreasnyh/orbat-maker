@@ -342,7 +342,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
 
             <div className="flex flex-col gap-3 max-h-64 overflow-y-auto">
               <ConflictSection
-                title="People"
+                title="Personnel"
                 conflicts={state.peopleConflicts}
                 onToggle={(i, resolution) =>
                   setState((prev) => {

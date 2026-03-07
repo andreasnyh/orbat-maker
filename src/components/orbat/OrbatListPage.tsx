@@ -210,7 +210,8 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
           <ClipboardList size={48} className="text-gray-700" />
           <p className="text-gray-400 text-lg font-medium">No ORBATs yet</p>
           <p className="text-gray-400 text-sm max-w-xs">
-            Create an ORBAT to start assigning people to roles from a template.
+            Create an ORBAT to start assigning personnel to roles from a
+            template.
           </p>
           {templates.length > 0 && (
             <Button variant="primary" size="md" onClick={handleOpenNewModal}>

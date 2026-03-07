@@ -86,7 +86,7 @@ export function ExportMenu() {
               className="absolute right-0 top-full mt-1 w-44 bg-[#1a1a2e] border border-[#2a2a4a] rounded-md shadow-xl z-50 py-1"
             >
               <DropdownItem
-                label="Export People"
+                label="Export Personnel"
                 onClick={() => handleExport('people')}
               />
               <DropdownItem

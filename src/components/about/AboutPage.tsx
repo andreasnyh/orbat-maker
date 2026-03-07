@@ -7,8 +7,8 @@ export function AboutPage() {
         </h1>
         <p className="text-gray-400">
           A tool for building and managing Order of Battle charts. Create
-          templates, manage personnel rosters, and assign people to roles with
-          an intuitive drag-and-drop interface.
+          templates, manage personnel rosters, and assign personnel to roles
+          with an intuitive drag-and-drop interface.
         </p>
       </div>
 
@@ -23,7 +23,7 @@ export function AboutPage() {
           </li>
           <li className="flex items-start gap-2">
             <span className="text-green-400 mt-0.5">&#x2022;</span>
-            Maintain a people roster with ranks
+            Maintain a personnel roster with ranks
           </li>
           <li className="flex items-start gap-2">
             <span className="text-green-400 mt-0.5">&#x2022;</span>

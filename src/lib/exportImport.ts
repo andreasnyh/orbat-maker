@@ -63,7 +63,8 @@ export function downloadJson(bundle: ExportBundle, filename: string): void {
 
 export function generateFilename(type: 'people' | 'templates' | 'all'): string {
   const date = new Date().toISOString().split('T')[0];
-  return `orbat-maker-${type}-${date}.json`;
+  const label = type === 'people' ? 'personnel' : type;
+  return `orbat-maker-${label}-${date}.json`;
 }
 
 export function parseImportFile(text: string): {
@@ -86,7 +87,7 @@ export function parseImportFile(text: string): {
 
 export function describeBundle(bundle: ExportBundle): string {
   const parts: string[] = [];
-  if (bundle.people?.length) parts.push(`${bundle.people.length} people`);
+  if (bundle.people?.length) parts.push(`${bundle.people.length} personnel`);
   if (bundle.ranks?.length) parts.push(`${bundle.ranks.length} ranks`);
   if (bundle.templates?.length)
     parts.push(`${bundle.templates.length} templates`);

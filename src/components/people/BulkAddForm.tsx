@@ -119,7 +119,7 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
               Preview
             </span>
             <span className="text-xs text-green-400 tabular-nums">
-              {names.length} {names.length === 1 ? 'person' : 'people'}
+              {names.length} {names.length === 1 ? 'person' : 'personnel'}
             </span>
           </div>
           <ul className="divide-y divide-[#2a2a4a]/50">
@@ -146,7 +146,7 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
           Cancel
         </Button>
         <Button type="submit" variant="primary" disabled={names.length === 0}>
-          Add {names.length || ''} {names.length === 1 ? 'Person' : 'People'}
+          Add {names.length || ''} {names.length === 1 ? 'Person' : 'Personnel'}
         </Button>
       </div>
     </form>

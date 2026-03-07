@@ -196,8 +196,8 @@ export function RosterSidebar({
             />
             <input
               type="text"
-              placeholder="Search people…"
-              aria-label="Search people"
+              placeholder="Search personnel…"
+              aria-label="Search personnel"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded-md pl-8 pr-3 py-2 text-gray-200 text-sm
@@ -223,7 +223,7 @@ export function RosterSidebar({
         {filtered.length === 0 ? (
           <p className="text-xs text-gray-400 italic text-center py-8">
             {people.length === 0
-              ? 'No people in roster. Add people first.'
+              ? 'No personnel in roster. Add personnel first.'
               : 'No matches found.'}
           </p>
         ) : (

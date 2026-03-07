@@ -108,7 +108,8 @@ export function RanksPage() {
           <div className="flex flex-col gap-1">
             <p className="text-gray-300 font-medium">No ranks defined</p>
             <p className="text-gray-400 text-sm max-w-xs">
-              Define your unit's ranks once and select them when adding people.
+              Define your unit's ranks once and select them when adding
+              personnel.
             </p>
           </div>
           <Button variant="primary" onClick={() => setIsAddOpen(true)}>

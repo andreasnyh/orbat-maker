@@ -77,7 +77,7 @@ export function PeopleRosterPage() {
           placeholder="Search by name…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          aria-label="Search people"
+          aria-label="Search personnel"
         />
       )}
 
@@ -87,7 +87,7 @@ export function PeopleRosterPage() {
         <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
           <Users size={48} className="text-gray-600" />
           <div className="flex flex-col gap-1">
-            <p className="text-gray-300 font-medium">No people yet</p>
+            <p className="text-gray-300 font-medium">No personnel yet</p>
             <p className="text-gray-400 text-sm max-w-xs">
               Add your first person to the roster and they will be available to
               assign to ORBAT slots.
@@ -147,7 +147,7 @@ export function PeopleRosterPage() {
       <Modal
         open={isBulkAddOpen}
         onClose={() => setIsBulkAddOpen(false)}
-        title="Bulk Add People"
+        title="Bulk Add Personnel"
       >
         <BulkAddForm
           onSubmit={handleBulkAdd}
