@@ -17,6 +17,7 @@ export function formatOrbatForTeamspeak(
   orbat: ORBAT,
   template: Template,
   people: Person[],
+  includeEquipment = true,
 ): string {
   const personMap = buildPersonMap(people);
   const lines: string[] = [];
@@ -37,7 +38,8 @@ export function formatOrbatForTeamspeak(
 
     lines.push('');
     lines.push(`--- ${group.name} ---`);
-    const hasEquipment = assignedSlots.some((s) => s.equipment?.length);
+    const hasEquipment =
+      includeEquipment && assignedSlots.some((s) => s.equipment?.length);
     const maxRole = Math.max(...assignedSlots.map((s) => s.roleLabel.length));
     for (const slot of assignedSlots) {
       const assignment = orbat.assignments.find((a) => a.slotId === slot.id);
@@ -59,6 +61,7 @@ export function formatOrbatForDiscord(
   orbat: ORBAT,
   template: Template,
   people: Person[],
+  includeEquipment = true,
 ): string {
   const personMap = buildPersonMap(people);
   const lines: string[] = [];
@@ -86,9 +89,10 @@ export function formatOrbatForDiscord(
       if (!assignment) continue;
       const personDisplay = getPersonDisplay(assignment.personId, personMap);
       const role = slot.roleLabel.padEnd(maxRole);
-      const equipStr = slot.equipment?.length
-        ? ` — ${slot.equipment.join(', ')}`
-        : '';
+      const equipStr =
+        includeEquipment && slot.equipment?.length
+          ? ` — ${slot.equipment.join(', ')}`
+          : '';
       lines.push(`  ${role}  ${personDisplay}${equipStr}`);
     }
   }

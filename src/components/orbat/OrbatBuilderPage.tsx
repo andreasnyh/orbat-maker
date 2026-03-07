@@ -326,8 +326,8 @@ export function OrbatBuilderPage({
     if (!orbat || !template || copiedTarget) return;
     const text =
       target === 'discord'
-        ? formatOrbatForDiscord(orbat, template, people)
-        : formatOrbatForTeamspeak(orbat, template, people);
+        ? formatOrbatForDiscord(orbat, template, people, showEquipment)
+        : formatOrbatForTeamspeak(orbat, template, people, showEquipment);
     const label = target === 'discord' ? 'Discord' : 'TeamSpeak';
     const ok = await copyToClipboard(text);
     if (ok) {
