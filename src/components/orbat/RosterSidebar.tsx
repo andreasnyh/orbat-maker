@@ -5,6 +5,7 @@ import { memo, useMemo, useState } from 'react';
 import { usePeopleState } from '../../context/AppStateContext';
 import type { Assignment, Person } from '../../types';
 import { Badge } from '../common/Badge';
+import { Toggle } from '../common/Toggle';
 
 interface RosterSidebarProps {
   assignments: Assignment[];
@@ -14,8 +15,8 @@ interface RosterSidebarProps {
   className?: string;
   /** When provided, renders tappable cards instead of draggable ones (used in mobile tap-to-assign flow) */
   onPersonTap?: (personId: string) => void;
-  /** Initial value for the "hide assigned" toggle */
-  defaultHideAssigned?: boolean;
+  /** Initial value for the "show assigned" toggle */
+  defaultShowAssigned?: boolean;
   /** Hide the search input (used in compact mobile mode) */
   hideSearch?: boolean;
 }
@@ -124,12 +125,12 @@ export function RosterSidebar({
   onClose,
   className,
   onPersonTap,
-  defaultHideAssigned = false,
+  defaultShowAssigned = false,
   hideSearch = false,
 }: RosterSidebarProps) {
   const { people } = usePeopleState();
   const [search, setSearch] = useState('');
-  const [hideAssigned, setHideAssigned] = useState(defaultHideAssigned);
+  const [showAssigned, setShowAssigned] = useState(defaultShowAssigned);
 
   const assignedPersonIds = useMemo(
     () => new Set(assignments.map((a) => a.personId)),
@@ -140,7 +141,7 @@ export function RosterSidebar({
     () =>
       people
         .filter((p) => {
-          if (hideAssigned && assignedPersonIds.has(p.id)) return false;
+          if (!showAssigned && assignedPersonIds.has(p.id)) return false;
           if (!search.trim()) return true;
           const q = search.toLowerCase();
           return (
@@ -154,7 +155,7 @@ export function RosterSidebar({
           if (aAssigned !== bAssigned) return aAssigned - bAssigned;
           return a.name.localeCompare(b.name);
         }),
-    [people, assignedPersonIds, hideAssigned, search],
+    [people, assignedPersonIds, showAssigned, search],
   );
 
   const assignedCount = assignedPersonIds.size;
@@ -205,34 +206,12 @@ export function RosterSidebar({
         )}
 
         {/* Hide assigned toggle */}
-        <label className="flex items-center gap-2 cursor-pointer select-none group">
-          <input
-            type="checkbox"
-            checked={hideAssigned}
-            onChange={(e) => setHideAssigned(e.target.checked)}
-            className="sr-only peer"
-          />
-          <span
-            aria-hidden="true"
-            className={clsx(
-              'relative w-8 h-4.5 rounded-full transition-colors border shrink-0',
-              'peer-focus-visible:ring-2 peer-focus-visible:ring-green-400/60 peer-focus-visible:ring-offset-1 peer-focus-visible:ring-offset-[#1a1a2e]',
-              hideAssigned
-                ? 'bg-green-600 border-green-500'
-                : 'bg-[#0f0f23] border-[#2a2a4a]',
-            )}
-          >
-            <span
-              className={clsx(
-                'absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform',
-                hideAssigned ? 'translate-x-4' : 'translate-x-0.5',
-              )}
-            />
-          </span>
-          <span className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors">
-            Hide assigned
-          </span>
-        </label>
+        <Toggle
+          checked={showAssigned}
+          onChange={setShowAssigned}
+          label="Show assigned"
+          size="md"
+        />
       </div>
 
       {/* Divider */}

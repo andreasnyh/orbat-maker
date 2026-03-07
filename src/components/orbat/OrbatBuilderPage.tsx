@@ -16,7 +16,6 @@ import {
   ArrowLeft,
   Check,
   Clipboard,
-  Package,
   Pencil,
   RotateCcw,
 } from 'lucide-react';
@@ -39,6 +38,7 @@ import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { TextInput } from '../common/TextInput';
+import { Toggle } from '../common/Toggle';
 import { OrbatGroup } from './OrbatGroup';
 import { RosterSidebar } from './RosterSidebar';
 
@@ -383,6 +383,50 @@ export function OrbatBuilderPage({
 
   // ---- Render -------------------------------------------------------------
 
+  const actionButtons = (
+    <>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => handleCopy('discord')}
+        disabled={copiedTarget != null}
+        title="Copy formatted ORBAT for Discord"
+      >
+        {copiedTarget === 'discord' ? (
+          <Check size={14} className="text-green-400" />
+        ) : (
+          <Clipboard size={14} />
+        )}
+        Discord
+      </Button>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => handleCopy('teamspeak')}
+        disabled={copiedTarget != null}
+        title="Copy formatted ORBAT for TeamSpeak"
+      >
+        {copiedTarget === 'teamspeak' ? (
+          <Check size={14} className="text-green-400" />
+        ) : (
+          <Clipboard size={14} />
+        )}
+        TeamSpeak
+      </Button>
+      {orbat.assignments.length > 0 && (
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={() => setConfirmClear(true)}
+          title="Clear all assignments"
+        >
+          <RotateCcw size={14} />
+          Clear
+        </Button>
+      )}
+    </>
+  );
+
   return (
     <>
       <DndContext
@@ -439,110 +483,32 @@ export function OrbatBuilderPage({
 
               {/* Copy & reset buttons — inline on desktop */}
               {template && (
-                <div className="shrink-0 hidden md:flex items-center gap-2">
-                  <Button
-                    variant={showEquipment ? 'primary' : 'secondary'}
-                    size="sm"
-                    onClick={() => setShowEquipment((v) => !v)}
-                    title={showEquipment ? 'Hide equipment' : 'Show equipment'}
-                  >
-                    <Package size={14} />
-                    Equip
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleCopy('discord')}
-                    disabled={copiedTarget != null}
-                    title="Copy formatted ORBAT for Discord"
-                  >
-                    {copiedTarget === 'discord' ? (
-                      <Check size={14} className="text-green-400" />
-                    ) : (
-                      <Clipboard size={14} />
-                    )}
-                    Discord
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleCopy('teamspeak')}
-                    disabled={copiedTarget != null}
-                    title="Copy formatted ORBAT for TeamSpeak"
-                  >
-                    {copiedTarget === 'teamspeak' ? (
-                      <Check size={14} className="text-green-400" />
-                    ) : (
-                      <Clipboard size={14} />
-                    )}
-                    TeamSpeak
-                  </Button>
-                  {orbat.assignments.length > 0 && (
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => setConfirmClear(true)}
-                      title="Clear all assignments"
-                    >
-                      <RotateCcw size={14} />
-                      Clear
-                    </Button>
-                  )}
+                <div className="shrink-0 hidden md:flex items-stretch gap-4 divide-x divide-[#2a2a4a]">
+                  <div className="flex items-center pr-4">
+                    <Toggle
+                      checked={showEquipment}
+                      onChange={setShowEquipment}
+                      label="Show equipment"
+                      size="md"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">{actionButtons}</div>
                 </div>
               )}
             </div>
 
             {/* Row 2: Action buttons on mobile */}
             {template && (
-              <div className="flex md:hidden items-center gap-2 flex-wrap">
-                <Button
-                  variant={showEquipment ? 'primary' : 'secondary'}
-                  size="sm"
-                  onClick={() => setShowEquipment((v) => !v)}
-                  title={showEquipment ? 'Hide equipment' : 'Show equipment'}
-                >
-                  <Package size={14} />
-                  Equip
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => handleCopy('discord')}
-                  disabled={copiedTarget != null}
-                  title="Copy formatted ORBAT for Discord"
-                >
-                  {copiedTarget === 'discord' ? (
-                    <Check size={14} className="text-green-400" />
-                  ) : (
-                    <Clipboard size={14} />
-                  )}
-                  Discord
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => handleCopy('teamspeak')}
-                  disabled={copiedTarget != null}
-                  title="Copy formatted ORBAT for TeamSpeak"
-                >
-                  {copiedTarget === 'teamspeak' ? (
-                    <Check size={14} className="text-green-400" />
-                  ) : (
-                    <Clipboard size={14} />
-                  )}
-                  TeamSpeak
-                </Button>
-                {orbat.assignments.length > 0 && (
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => setConfirmClear(true)}
-                    title="Clear all assignments"
-                  >
-                    <RotateCcw size={14} />
-                    Clear
-                  </Button>
-                )}
+              <div className="flex md:hidden flex-col-reverse gap-6">
+                <Toggle
+                  checked={showEquipment}
+                  onChange={setShowEquipment}
+                  label="Show equipment"
+                  size="md"
+                />
+                <div className="flex items-center gap-2 *:flex-1">
+                  {actionButtons}
+                </div>
               </div>
             )}
           </div>
@@ -689,7 +655,6 @@ export function OrbatBuilderPage({
         <RosterSidebar
           assignments={orbat.assignments}
           onPersonTap={tapTargetSlotId ? handlePersonTap : undefined}
-          defaultHideAssigned
           hideSearch
           className="flex-1 min-h-0 overflow-hidden"
         />
