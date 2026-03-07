@@ -83,7 +83,7 @@ const DraggablePersonContent = memo(function DraggablePersonContent({
 });
 
 // Compact tappable row for mobile tap-to-assign flow
-function TappablePersonRow({
+const TappablePersonRow = memo(function TappablePersonRow({
   person,
   isAssigned,
   onTap,
@@ -118,7 +118,7 @@ function TappablePersonRow({
       )}
     </button>
   );
-}
+});
 
 export function RosterSidebar({
   assignments,
