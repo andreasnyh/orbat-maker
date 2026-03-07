@@ -205,7 +205,7 @@ export function GroupEditor({
           </div>
 
           {/* Slot count */}
-          <span className="shrink-0 text-xs text-gray-500 font-data">
+          <span className="shrink-0 text-xs text-gray-400 font-data">
             {group.slots.length} {group.slots.length === 1 ? 'slot' : 'slots'}
           </span>
 
@@ -213,7 +213,7 @@ export function GroupEditor({
           <div ref={colorPickerRef} className="relative shrink-0">
             <button
               onClick={() => setShowColors((v) => !v)}
-              className="flex items-center gap-1 text-gray-600 hover:text-gray-300 transition-colors"
+              className="flex items-center gap-1 text-gray-500 hover:text-gray-300 transition-colors"
               aria-label="Set group color"
               title="Set group color"
               type="button"
@@ -259,7 +259,7 @@ export function GroupEditor({
           {/* Delete group button */}
           <button
             onClick={() => setConfirmDelete(true)}
-            className="shrink-0 text-gray-600 hover:text-red-400 transition-colors"
+            className="shrink-0 text-gray-500 hover:text-red-400 transition-colors"
             aria-label={`Delete ${group.name}`}
             title="Delete group"
             type="button"
@@ -290,7 +290,7 @@ export function GroupEditor({
               </SortableContext>
             </DndContext>
           ) : (
-            <p className="text-xs text-gray-600 text-center py-2 italic">
+            <p className="text-xs text-gray-400 text-center py-2 italic">
               No slots — add one below
             </p>
           )}

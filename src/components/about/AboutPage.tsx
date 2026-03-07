@@ -86,7 +86,7 @@ export function AboutPage() {
       </div>
 
       <div className="border-t border-[#2a2a4a] pt-6">
-        <p className="text-gray-500 text-xs text-center">
+        <p className="text-gray-400 text-xs text-center">
           &copy; {new Date().getFullYear()} Andr&eacute;as Ny. Released under
           the MIT License.
         </p>

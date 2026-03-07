@@ -183,7 +183,7 @@ const OrbatSlotContent = memo(
           <>
             <button
               type="button"
-              className="text-amber-400/50 hover:text-amber-300 transition-colors p-2 md:p-1 rounded"
+              className="text-amber-400/70 hover:text-amber-300 transition-colors p-2 md:p-1 rounded"
               aria-label="Add equipment"
               title="Add equipment"
               onClick={(e) => {
@@ -236,7 +236,7 @@ const OrbatSlotContent = memo(
                     }}
                     placeholder="New tag…"
                     aria-label="New equipment tag"
-                    className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded px-2 py-1 text-[11px] text-gray-200 placeholder-gray-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-400/25 font-mono"
+                    className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded px-2 py-1 text-[11px] text-gray-200 placeholder-gray-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-400/25 font-mono"
                   />
                 </div>
               </>
@@ -251,7 +251,7 @@ const OrbatSlotContent = memo(
         type="button"
         onClick={handleUnassign}
         onPointerDown={(e) => e.stopPropagation()}
-        className="shrink-0 text-gray-600 hover:text-red-400 transition-colors p-2 md:p-1 rounded"
+        className="shrink-0 text-gray-500 hover:text-red-400 transition-colors p-2 md:p-1 rounded"
         aria-label={`Remove ${person?.name ?? 'person'} from ${slot.roleLabel}`}
         title="Remove assignment"
       >
@@ -264,7 +264,7 @@ const OrbatSlotContent = memo(
         type="button"
         onClick={handleRemoveSlot}
         onPointerDown={(e) => e.stopPropagation()}
-        className="shrink-0 text-gray-700 hover:text-red-400 transition-colors p-2 md:p-1 rounded"
+        className="shrink-0 text-gray-500 hover:text-red-400 transition-colors p-2 md:p-1 rounded"
         aria-label={`Delete ${slot.roleLabel} slot`}
         title="Delete slot"
       >
@@ -304,10 +304,10 @@ const OrbatSlotContent = memo(
             >
               <GripVertical
                 size={14}
-                className="text-gray-700 group-hover/slot:text-gray-500 shrink-0 transition-colors"
+                className="text-gray-700 group-hover/slot:text-gray-400 shrink-0 transition-colors"
               />
               <span
-                className="font-data text-sm text-gray-500 w-44 shrink-0 truncate"
+                className="font-data text-sm text-gray-400 w-44 shrink-0 truncate"
                 title={slot.roleLabel}
               >
                 {slot.roleLabel}
@@ -323,7 +323,7 @@ const OrbatSlotContent = memo(
                 'flex-1 min-w-0 flex items-center gap-1.5 rounded-sm px-1.5 -mx-0.5 -my-0.5 py-0.5 transition-colors',
                 person
                   ? 'font-display text-lg text-gray-200 font-medium cursor-grab active:cursor-grabbing hover:bg-white/5'
-                  : 'text-sm text-gray-600 italic font-data',
+                  : 'text-sm text-gray-400 italic font-data',
               )}
               title={person ? 'Drag to reassign' : undefined}
               {...dragAttrs}
@@ -360,7 +360,7 @@ const OrbatSlotContent = memo(
           >
             <div className="flex items-center gap-2 min-w-0">
               <span
-                className="font-data text-sm text-gray-500 truncate shrink min-w-0"
+                className="font-data text-sm text-gray-400 truncate shrink min-w-0"
                 title={slot.roleLabel}
               >
                 {slot.roleLabel}
@@ -378,7 +378,7 @@ const OrbatSlotContent = memo(
                 'rounded px-2 py-1.5 -mx-0.5 transition-colors w-full text-left active:bg-white/5',
                 person
                   ? 'font-display text-base text-gray-200 font-medium'
-                  : 'border border-dashed border-[#2a2a4a] text-sm text-gray-600 italic font-data',
+                  : 'border border-dashed border-[#2a2a4a] text-sm text-gray-400 italic font-data',
               )}
               onClick={() => onTapAssign(slot.id)}
             >

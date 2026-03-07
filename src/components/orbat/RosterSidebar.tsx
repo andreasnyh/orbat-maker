@@ -169,7 +169,7 @@ export function RosterSidebar({
             Roster
           </h2>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-600 font-data">
+            <span className="text-xs text-gray-400 font-data">
               {assignedCount}/{people.length} assigned
             </span>
             {/* Close button — only rendered in mobile bottom-sheet mode */}
@@ -177,7 +177,7 @@ export function RosterSidebar({
               <button
                 type="button"
                 onClick={onClose}
-                className="text-gray-500 hover:text-gray-300 transition-colors p-1 -mr-1"
+                className="text-gray-400 hover:text-gray-300 transition-colors p-1 -mr-1"
                 aria-label="Close roster"
               >
                 <X size={18} />
@@ -191,7 +191,7 @@ export function RosterSidebar({
           <div className="relative">
             <Search
               size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
               aria-hidden="true"
             />
             <input
@@ -201,7 +201,7 @@ export function RosterSidebar({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded-md pl-8 pr-3 py-2 text-gray-200 text-sm
-                         placeholder:text-gray-600 focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25"
+                         placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25"
             />
           </div>
         )}
@@ -221,7 +221,7 @@ export function RosterSidebar({
       {/* Person list */}
       <div className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0 pr-1">
         {filtered.length === 0 ? (
-          <p className="text-xs text-gray-600 italic text-center py-8">
+          <p className="text-xs text-gray-400 italic text-center py-8">
             {people.length === 0
               ? 'No people in roster. Add people first.'
               : 'No matches found.'}

@@ -101,7 +101,7 @@ export const OrbatGroup = memo(function OrbatGroup({
         <h3 className="font-display text-sm font-bold text-gray-300 uppercase tracking-widest">
           {group.name}
         </h3>
-        <span className="text-xs text-gray-600 font-data">
+        <span className="text-xs text-gray-400 font-data">
           {filledCount}/{group.slots.length}
         </span>
       </div>
@@ -140,7 +140,7 @@ export const OrbatGroup = memo(function OrbatGroup({
             })}
           </SortableContext>
         ) : (
-          <p className="text-xs text-gray-600 italic px-3 py-2">
+          <p className="text-xs text-gray-400 italic px-3 py-2">
             No slots in this group.
           </p>
         )}
@@ -158,7 +158,7 @@ export const OrbatGroup = memo(function OrbatGroup({
               onKeyDown={handleInputKeyDown}
               placeholder="Role label…"
               aria-label="New slot role label"
-              className="w-full bg-[#0f0f23] border border-green-400/50 rounded px-3 py-1.5 text-xs text-gray-200 placeholder-gray-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/25"
+              className="w-full bg-[#0f0f23] border border-green-400/50 rounded px-3 py-1.5 text-xs text-gray-200 placeholder-gray-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/25"
             />
           ) : (
             <button

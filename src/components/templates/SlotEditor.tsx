@@ -78,7 +78,7 @@ export function SlotEditor({
         {/* Drag handle */}
         <button
           type="button"
-          className="text-gray-700 group-hover/row:text-gray-500 hover:!text-gray-300 cursor-grab active:cursor-grabbing shrink-0 transition-colors"
+          className="text-gray-700 group-hover/row:text-gray-400 hover:!text-gray-300 cursor-grab active:cursor-grabbing shrink-0 transition-colors"
           aria-label={`Reorder ${slot.roleLabel}`}
           {...dragHandleProps}
         >
@@ -112,7 +112,7 @@ export function SlotEditor({
         {/* Delete button — always visible on hover */}
         <button
           onClick={onDelete}
-          className="shrink-0 text-gray-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+          className="shrink-0 text-gray-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
           aria-label={`Remove ${slot.roleLabel}`}
           title="Remove slot"
           type="button"

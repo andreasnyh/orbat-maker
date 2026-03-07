@@ -107,7 +107,7 @@ export function RanksPage() {
           <ChevronsUp size={48} className="text-gray-600" />
           <div className="flex flex-col gap-1">
             <p className="text-gray-300 font-medium">No ranks defined</p>
-            <p className="text-gray-500 text-sm max-w-xs">
+            <p className="text-gray-400 text-sm max-w-xs">
               Define your unit's ranks once and select them when adding people.
             </p>
           </div>
@@ -130,7 +130,7 @@ export function RanksPage() {
                 <button
                   type="button"
                   onClick={() => setEditTarget(rank)}
-                  className="p-1.5 rounded-md text-gray-500 hover:text-green-400 hover:bg-white/5 transition-colors"
+                  className="p-1.5 rounded-md text-gray-400 hover:text-green-400 hover:bg-white/5 transition-colors"
                   aria-label={`Edit ${rank.name}`}
                 >
                   <Pencil size={14} />
@@ -138,7 +138,7 @@ export function RanksPage() {
                 <button
                   type="button"
                   onClick={() => setDeleteTarget(rank)}
-                  className="p-1.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-white/5 transition-colors"
+                  className="p-1.5 rounded-md text-gray-400 hover:text-red-400 hover:bg-white/5 transition-colors"
                   aria-label={`Delete ${rank.name}`}
                 >
                   <Trash2 size={14} />

@@ -476,7 +476,7 @@ export function OrbatBuilderPage({
                     <span className="truncate">{orbat.name}</span>
                     <Pencil
                       size={14}
-                      className="shrink-0 text-gray-600 group-hover/name:text-green-400 transition-colors"
+                      className="shrink-0 text-gray-500 group-hover/name:text-green-400 transition-colors"
                       aria-hidden="true"
                     />
                   </button>
@@ -521,7 +521,7 @@ export function OrbatBuilderPage({
 
           {/* Template meta */}
           {template && (
-            <div className="text-xs text-gray-500 hidden sm:flex items-center gap-2">
+            <div className="text-xs text-gray-400 hidden sm:flex items-center gap-2">
               <span>{template.name}</span>
             </div>
           )}
@@ -570,14 +570,14 @@ export function OrbatBuilderPage({
                     />
                   ))}
                   {template.groups.length === 0 && (
-                    <div className="text-center py-16 text-gray-600 text-sm italic">
+                    <div className="text-center py-16 text-gray-400 text-sm italic">
                       This template has no groups. Edit the template to add
                       groups and slots.
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="text-center py-16 text-gray-600 text-sm italic">
+                <div className="text-center py-16 text-gray-400 text-sm italic">
                   Template unavailable — cannot display slots.
                 </div>
               )}

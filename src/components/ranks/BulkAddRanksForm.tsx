@@ -41,7 +41,7 @@ export function BulkAddRanksForm({
         <textarea
           ref={textareaRef}
           id="bulk-ranks-input"
-          className="bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2 text-gray-200 text-sm placeholder:text-gray-600 focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25 resize-none font-mono leading-relaxed"
+          className="bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2 text-gray-200 text-sm placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25 resize-none font-mono leading-relaxed"
           rows={8}
           placeholder={`Pvt.\nCpl.\nSgt.\nLt.\nCapt.\n…`}
           value={text}

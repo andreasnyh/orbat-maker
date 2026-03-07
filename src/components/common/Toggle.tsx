@@ -54,7 +54,7 @@ export function Toggle({
       </span>
       <span
         className={clsx(
-          'text-gray-500 group-hover:text-gray-400 transition-colors',
+          'text-gray-400 group-hover:text-gray-300 transition-colors',
           size === 'sm' ? 'text-[11px]' : 'text-xs',
         )}
       >

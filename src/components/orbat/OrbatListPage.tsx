@@ -141,7 +141,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                 </div>
 
                 {/* Meta */}
-                <div className="flex flex-col gap-1 text-xs text-gray-500">
+                <div className="flex flex-col gap-1 text-xs text-gray-400">
                   <span className="text-gray-400 truncate">
                     {template ? (
                       template.name
@@ -156,7 +156,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                 {/* Assignment progress */}
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-500">Assignments</span>
+                    <span className="text-gray-400">Assignments</span>
                     <span
                       className={`font-data ${
                         filled === total && total > 0
@@ -208,8 +208,8 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
         /* Empty state */
         <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
           <ClipboardList size={48} className="text-gray-700" />
-          <p className="text-gray-500 text-lg font-medium">No ORBATs yet</p>
-          <p className="text-gray-600 text-sm max-w-xs">
+          <p className="text-gray-400 text-lg font-medium">No ORBATs yet</p>
+          <p className="text-gray-400 text-sm max-w-xs">
             Create an ORBAT to start assigning people to roles from a template.
           </p>
           {templates.length > 0 && (

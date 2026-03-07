@@ -59,7 +59,7 @@ function ConflictSection<T extends { id: string; name: string }>({
             <span className="text-sm text-gray-200 truncate">
               {conflict.incoming.name}
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-gray-400">
               Matches existing: {conflict.existingMatch.name}
             </span>
           </div>
@@ -70,7 +70,7 @@ function ConflictSection<T extends { id: string; name: string }>({
               className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
                 conflict.resolution === 'skip'
                   ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                  : 'bg-[#1a1a2e] text-gray-500 border border-[#2a2a4a] hover:text-gray-300'
+                  : 'bg-[#1a1a2e] text-gray-400 border border-[#2a2a4a] hover:text-gray-300'
               }`}
             >
               Skip
@@ -81,7 +81,7 @@ function ConflictSection<T extends { id: string; name: string }>({
               className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
                 conflict.resolution === 'add'
                   ? 'bg-green-500/20 text-green-300 border border-green-500/40'
-                  : 'bg-[#1a1a2e] text-gray-500 border border-[#2a2a4a] hover:text-gray-300'
+                  : 'bg-[#1a1a2e] text-gray-400 border border-[#2a2a4a] hover:text-gray-300'
               }`}
             >
               Add anyway
@@ -272,7 +272,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
             <button
               type="button"
               onClick={handlePickFile}
-              className="w-full border-2 border-dashed border-[#2a2a4a] hover:border-green-500/50 rounded-lg py-10 flex flex-col items-center gap-3 text-gray-500 hover:text-green-400 transition-colors cursor-pointer"
+              className="w-full border-2 border-dashed border-[#2a2a4a] hover:border-green-500/50 rounded-lg py-10 flex flex-col items-center gap-3 text-gray-400 hover:text-green-400 transition-colors cursor-pointer"
             >
               <Upload size={32} />
               <span className="text-sm font-medium">
@@ -286,7 +286,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         {state.phase === 'preview' && (
           <>
             <div className="bg-[#0f0f23] border border-[#2a2a4a] rounded-md p-4 flex flex-col gap-2">
-              <p className="text-xs text-gray-500 font-mono truncate">
+              <p className="text-xs text-gray-400 font-mono truncate">
                 {state.filename}
               </p>
               <p className="text-sm text-gray-300">
@@ -296,13 +296,13 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
                 </span>
               </p>
               {state.bundle.exportedAt && (
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-400">
                   Exported: {new Date(state.bundle.exportedAt).toLocaleString()}
                 </p>
               )}
             </div>
 
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-400">
               Import mode: <span className="text-gray-300">Merge</span> —
               records whose IDs already exist in the app will be skipped.
             </p>

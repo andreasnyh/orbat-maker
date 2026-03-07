@@ -110,11 +110,11 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
               )}
 
               {/* Stats */}
-              <div className="flex items-center gap-3 text-xs text-gray-500 font-data">
+              <div className="flex items-center gap-3 text-xs text-gray-400 font-data">
                 <span>
                   {groups} {groups === 1 ? 'group' : 'groups'}
                 </span>
-                <span className="text-gray-700">·</span>
+                <span className="text-gray-500">·</span>
                 <span>
                   {slots} {slots === 1 ? 'slot' : 'slots'}
                 </span>

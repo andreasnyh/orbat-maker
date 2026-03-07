@@ -264,7 +264,7 @@ export function TemplateEditorPage({
               type="button"
               onClick={() => setEditingDesc(true)}
               className={`text-sm cursor-text hover:text-gray-300 transition-colors text-left ${
-                template.description ? 'text-gray-400' : 'text-gray-600 italic'
+                template.description ? 'text-gray-400' : 'text-gray-400 italic'
               }`}
               title="Click to edit description"
             >
@@ -278,7 +278,7 @@ export function TemplateEditorPage({
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-display text-sm font-semibold text-gray-400 uppercase tracking-widest">
           Groups
-          <span className="ml-2 text-gray-600 normal-case font-normal font-data">
+          <span className="ml-2 text-gray-400 normal-case font-normal font-data">
             ({template.groups.length})
           </span>
         </h2>
@@ -309,8 +309,8 @@ export function TemplateEditorPage({
         </DndContext>
       ) : (
         <div className="bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg py-10 text-center mb-3">
-          <p className="text-gray-500 text-sm mb-1">No groups yet</p>
-          <p className="text-gray-600 text-xs">
+          <p className="text-gray-400 text-sm mb-1">No groups yet</p>
+          <p className="text-gray-400 text-xs">
             Add a group to start building your template
           </p>
         </div>
