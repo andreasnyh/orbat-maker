@@ -42,33 +42,34 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const templates = useTemplates();
   const orbats = useOrbats();
 
+  const { orbats: orbatList, updateOrbat } = orbats;
+  const { templates: templateList, forkTemplate } = templates;
+
   const ensureOwnTemplate = useCallback(
     (orbatId: string): string | null => {
-      const orbat = orbats.orbats.find((o) => o.id === orbatId);
+      const orbat = orbatList.find((o) => o.id === orbatId);
       if (!orbat) return null;
 
-      const template = templates.templates.find(
-        (t) => t.id === orbat.templateId,
-      );
+      const template = templateList.find((t) => t.id === orbat.templateId);
       if (!template) return null;
 
       // Fork if shared by other ORBATs or if it's a default template
-      const isShared = orbats.orbats.some(
+      const isShared = orbatList.some(
         (o) => o.id !== orbatId && o.templateId === orbat.templateId,
       );
       if (!isShared && !template.isDefault) return orbat.templateId;
 
       // Fork: preserve group/slot IDs so existing assignments stay valid
-      const forked = templates.forkTemplate(
+      const forked = forkTemplate(
         template.id,
         `${template.name} (${orbat.name})`,
       );
       if (!forked) return null;
 
-      orbats.updateOrbat(orbatId, { templateId: forked.id });
+      updateOrbat(orbatId, { templateId: forked.id });
       return forked.id;
     },
-    [orbats, templates],
+    [orbatList, templateList, forkTemplate, updateOrbat],
   );
 
   const crossCuttingValue = useMemo(
@@ -128,22 +129,4 @@ export function useCrossCuttingState(): CrossCuttingState {
       'useCrossCuttingState must be used within AppStateProvider',
     );
   return ctx;
-}
-
-// ---- Facade hook (backwards-compatible) --------------------------------------
-
-type AppState = PeopleState &
-  RanksState &
-  TemplatesState &
-  OrbatsState &
-  CrossCuttingState;
-
-/** @deprecated Use the granular hooks (usePeopleState, useTemplatesState, useOrbatsState, useCrossCuttingState) instead. */
-export function useAppState(): AppState {
-  const people = usePeopleState();
-  const ranks = useRanksState();
-  const templates = useTemplatesState();
-  const orbats = useOrbatsState();
-  const crossCutting = useCrossCuttingState();
-  return { ...people, ...ranks, ...templates, ...orbats, ...crossCutting };
 }
