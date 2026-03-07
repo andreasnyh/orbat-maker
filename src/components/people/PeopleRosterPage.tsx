@@ -67,7 +67,7 @@ export function PeopleRosterPage() {
         </Button>
         <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
           <UserPlus size={16} />
-          Add Person
+          Add Personnel
         </Button>
       </div>
 
@@ -89,13 +89,13 @@ export function PeopleRosterPage() {
           <div className="flex flex-col gap-1">
             <p className="text-gray-300 font-medium">No personnel yet</p>
             <p className="text-gray-400 text-sm max-w-xs">
-              Add your first person to the roster and they will be available to
-              assign to ORBAT slots.
+              Add personnel to the roster and they will be available to assign
+              to ORBAT slots.
             </p>
           </div>
           <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
             <UserPlus size={16} />
-            Add First Person
+            Add First Personnel
           </Button>
         </div>
       ) : filteredPeople.length === 0 ? (
@@ -118,7 +118,7 @@ export function PeopleRosterPage() {
       <Modal
         open={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        title="Add Person"
+        title="Add Personnel"
       >
         <PersonForm
           onSubmit={handleAdd}
@@ -130,7 +130,7 @@ export function PeopleRosterPage() {
       <Modal
         open={editTarget !== null}
         onClose={() => setEditTarget(null)}
-        title="Edit Person"
+        title="Edit Personnel"
       >
         {editTarget && (
           <PersonForm
@@ -160,13 +160,13 @@ export function PeopleRosterPage() {
         open={deleteTarget !== null}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Person"
+        title="Delete Personnel"
         message={
           deleteTarget
-            ? `Are you sure you want to delete ${deleteTarget.rank ? `${deleteTarget.rank} ` : ''}${deleteTarget.name}? This cannot be undone.`
+            ? `Delete ${deleteTarget.rank ? `${deleteTarget.rank} ` : ''}${deleteTarget.name}?\nThis cannot be undone.`
             : ''
         }
-        confirmLabel="Delete"
+        confirmLabel="Delete Personnel"
         variant="danger"
       />
     </div>

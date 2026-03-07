@@ -195,10 +195,10 @@ export function RanksPage() {
         title="Delete Rank"
         message={
           deleteTarget
-            ? `Are you sure you want to delete "${deleteTarget.name}"? This cannot be undone.`
+            ? `Delete "${deleteTarget.name}"?\nThis cannot be undone.`
             : ''
         }
-        confirmLabel="Delete"
+        confirmLabel="Delete Rank"
         variant="danger"
       />
     </div>

@@ -294,7 +294,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDeleteConfirm}
         title="Delete ORBAT"
-        message={`Delete "${deleteTarget?.name}"? All assignments will be lost. This cannot be undone.`}
+        message={`Delete "${deleteTarget?.name}"? All assignments will be lost.\nThis cannot be undone.`}
         confirmLabel="Delete ORBAT"
       />
     </div>

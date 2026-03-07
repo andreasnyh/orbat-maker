@@ -315,7 +315,7 @@ export function GroupEditor({
         onClose={() => setConfirmDelete(false)}
         onConfirm={onDelete}
         title="Delete Group"
-        message={`Delete "${group.name}" and all its slots? This cannot be undone.`}
+        message={`Delete "${group.name}" and all its slots?\nThis cannot be undone.`}
         confirmLabel="Delete Group"
       />
     </>

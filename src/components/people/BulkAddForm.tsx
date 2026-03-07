@@ -103,7 +103,7 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
           id="bulk-input"
           className="bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2 text-gray-200 text-sm placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25 resize-none font-mono leading-relaxed"
           rows={8}
-          placeholder={`John Smith\nJane Doe\nMike Johnson`}
+          placeholder={`John Smith\nJane Doe\nMike Johnson\n…`}
           value={text}
           onChange={(e) => setText(e.target.value)}
           spellCheck={false}
@@ -119,7 +119,7 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
               Preview
             </span>
             <span className="text-xs text-green-400 tabular-nums">
-              {names.length} {names.length === 1 ? 'person' : 'personnel'}
+              {names.length} personnel
             </span>
           </div>
           <ul className="divide-y divide-[#2a2a4a]/50">
@@ -146,7 +146,7 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
           Cancel
         </Button>
         <Button type="submit" variant="primary" disabled={names.length === 0}>
-          Add {names.length || ''} {names.length === 1 ? 'Person' : 'Personnel'}
+          Add {names.length || ''} Personnel
         </Button>
       </div>
     </form>

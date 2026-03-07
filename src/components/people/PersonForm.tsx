@@ -120,7 +120,7 @@ export function PersonForm({
           Cancel
         </Button>
         <Button type="submit" variant="primary" disabled={!name.trim()}>
-          {isEditMode ? 'Save Changes' : 'Add Person'}
+          {isEditMode ? 'Save Changes' : 'Add Personnel'}
         </Button>
       </div>
     </form>

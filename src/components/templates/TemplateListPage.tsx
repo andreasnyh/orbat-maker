@@ -178,7 +178,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
           />
           <TextInput
             label="Description (optional)"
-            placeholder="Brief description of this template"
+            placeholder="Brief description of this template…"
             value={newDesc}
             onChange={(e) => setNewDesc(e.target.value)}
             onKeyDown={(e) => {
@@ -206,7 +206,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDeleteConfirm}
         title="Delete Template"
-        message={`Delete "${deleteTarget?.name}"? This cannot be undone.`}
+        message={`Delete "${deleteTarget?.name}"?\nThis cannot be undone.`}
         confirmLabel="Delete Template"
       />
     </div>

@@ -47,9 +47,9 @@ function ConflictSection<T extends { id: string; name: string }>({
 
   return (
     <div className="flex flex-col gap-2">
-      <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
         {title}
-      </h4>
+      </h3>
       {conflicts.map((conflict, i) => (
         <div
           key={conflict.incoming.id}

@@ -614,7 +614,7 @@ export function OrbatBuilderPage({
         <ConfirmDialog
           open={confirmClear}
           title="Clear all assignments?"
-          message="This will unassign every person from this ORBAT. The ORBAT structure and roster are kept."
+          message="This will unassign all personnel from this ORBAT.\nThe ORBAT structure and roster are kept."
           confirmLabel="Clear"
           onConfirm={() => clearAssignments(orbatId)}
           onClose={() => setConfirmClear(false)}

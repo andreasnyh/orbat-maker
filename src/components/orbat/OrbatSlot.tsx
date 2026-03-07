@@ -252,7 +252,7 @@ const OrbatSlotContent = memo(
         onClick={handleUnassign}
         onPointerDown={(e) => e.stopPropagation()}
         className="shrink-0 text-gray-500 hover:text-red-400 transition-colors p-2 md:p-1 rounded"
-        aria-label={`Remove ${person?.name ?? 'person'} from ${slot.roleLabel}`}
+        aria-label={`Remove ${person?.name ?? 'personnel'} from ${slot.roleLabel}`}
         title="Remove assignment"
       >
         <X size={14} className="md:size-4 size-5" />
@@ -403,7 +403,7 @@ const OrbatSlotContent = memo(
             open={confirmRemove}
             title={`Delete "${slot.roleLabel}" slot?`}
             message="This will permanently remove the slot from this group."
-            confirmLabel="Delete"
+            confirmLabel="Delete Slot"
             onConfirm={() => onRemoveSlot?.(slot.id)}
             onClose={() => setConfirmRemove(false)}
           />
