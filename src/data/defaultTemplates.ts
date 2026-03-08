@@ -4,7 +4,7 @@ export const defaultTemplates: Template[] = [
   {
     id: 'default-section',
     name: 'Infantry Section (8-man)',
-    description: 'Standard ARMA 3 infantry section with two fireteams',
+    description: 'Standard infantry section with two fireteams',
     isDefault: true,
     groups: [
       {

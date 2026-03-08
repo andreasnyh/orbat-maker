@@ -1,13 +1,13 @@
 # ORBAT Maker
 
-A drag-and-drop Order of Battle builder for ARMA 3 units. Create reusable organizational templates, maintain a personnel roster, and assign people to roles — all from your browser.
+A drag-and-drop Order of Battle builder for milsim units. Create reusable organizational templates, maintain a personnel roster, and assign people to roles — all from your browser.
 
 Data is stored locally in your browser with full offline support via PWA.
 
 ## Features
 
 - **People roster** — manage personnel with names and ranks; search and filter
-- **Template editor** — build reusable ORBAT structures with groups and role slots; ships with default ARMA 3 templates (Infantry Section, Weapons Team, Vehicle Crew)
+- **Template editor** — build reusable ORBAT structures with groups and role slots; ships with default milsim templates (Infantry Section, Weapons Team, Vehicle Crew)
 - **Drag-and-drop builder** — assign people to slots by dragging from the roster; swap and reassign with ease
 - **Export/import** — save and load people, templates, and ORBATs as JSON for backup and sharing
 - **Clipboard export** — copy formatted ORBATs as plain text for Discord or TeamSpeak
@@ -56,5 +56,5 @@ src/
 ├── hooks/            usePeople, useTemplates, useOrbats, useLocalStorage
 ├── lib/              Clipboard formatting, export/import, ID generation
 ├── types/            TypeScript interfaces
-└── data/             Default ARMA 3 templates
+└── data/             Default milsim templates
 ```
