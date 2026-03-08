@@ -72,7 +72,7 @@ export function ExportMenu() {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-dim hover:text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent"
           >
             <Download size={16} aria-hidden="true" />
-            Export
+            <span className="hidden lg:inline">Export</span>
             <ChevronDown
               size={14}
               className={`transition-transform duration-150 ${dropdownOpen ? 'rotate-180' : ''}`}
@@ -110,7 +110,7 @@ export function ExportMenu() {
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-dim hover:text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent"
         >
           <Upload size={16} aria-hidden="true" />
-          Import
+          <span className="hidden lg:inline">Import</span>
         </button>
       </div>
 

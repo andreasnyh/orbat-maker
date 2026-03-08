@@ -37,7 +37,7 @@ export function Navbar({
   return (
     <nav className="bg-panel border-b border-trim">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center h-14 gap-8">
+        <div className="flex items-center h-14 gap-2 lg:gap-8">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="32"
@@ -71,7 +71,7 @@ export function Navbar({
                 <button
                   type="button"
                   onClick={() => onNavigate(page)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent ${
+                  className={`flex items-center gap-1.5 px-2 lg:px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent ${
                     activePage(page)
                       ? 'text-accent'
                       : 'text-dim hover:text-accent/70'
