@@ -83,11 +83,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto flex items-center gap-2 bg-[#1a1a2e] border ${
+            className={`pointer-events-auto flex items-center gap-2 bg-panel border ${
               toast.variant === 'error'
                 ? 'border-red-500/30'
                 : 'border-green-500/30'
-            } rounded-lg px-4 py-2.5 shadow-lg shadow-black/30 text-sm text-gray-200 ${
+            } rounded-lg px-4 py-2.5 shadow-lg shadow-black/30 text-sm text-body ${
               toast.exiting ? 'animate-fade-out' : 'animate-fade-in'
             }`}
           >
@@ -100,7 +100,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             ) : (
               <Check
                 size={16}
-                className="text-green-400 shrink-0"
+                className="text-accent shrink-0"
                 aria-hidden="true"
               />
             )}

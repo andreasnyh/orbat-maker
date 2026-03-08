@@ -73,12 +73,12 @@ export function SlotEditor({
   }
 
   return (
-    <div className="group/row px-2 py-1.5 rounded hover:bg-white/5 transition-colors">
+    <div className="group/row px-2 py-1.5 rounded hover:bg-overlay transition-colors">
       <div className="flex items-center gap-2">
         {/* Drag handle */}
         <button
           type="button"
-          className="text-gray-700 group-hover/row:text-gray-400 hover:!text-gray-300 cursor-grab active:cursor-grabbing shrink-0 transition-colors"
+          className="text-chrome group-hover/row:text-dim hover:!text-sub cursor-grab active:cursor-grabbing shrink-0 transition-colors"
           aria-label={`Reorder ${slot.roleLabel}`}
           {...dragHandleProps}
         >
@@ -95,13 +95,13 @@ export function SlotEditor({
               onBlur={commitEdit}
               onKeyDown={handleKeyDown}
               aria-label="Role label"
-              className="w-full bg-[#0f0f23] border border-green-400/50 rounded px-2 py-0.5 text-sm font-mono text-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/25"
+              className="w-full bg-page border border-accent/50 rounded px-2 py-0.5 text-sm font-mono text-body focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/25"
             />
           ) : (
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="block w-full text-left font-mono text-sm text-gray-300 cursor-text hover:text-gray-100 truncate bg-transparent border-none p-0"
+              className="block w-full text-left font-mono text-sm text-sub cursor-text hover:text-strong truncate bg-transparent border-none p-0"
               title="Click to edit"
             >
               {slot.roleLabel}
@@ -112,7 +112,7 @@ export function SlotEditor({
         {/* Delete button — always visible on hover */}
         <button
           onClick={onDelete}
-          className="shrink-0 text-gray-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+          className="shrink-0 text-faint hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
           aria-label={`Remove ${slot.roleLabel}`}
           title="Remove slot"
           type="button"

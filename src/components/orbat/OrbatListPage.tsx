@@ -132,17 +132,17 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                   <div className="flex items-center gap-2 min-w-0">
                     <ClipboardList
                       size={16}
-                      className="text-green-400 shrink-0 mt-0.5"
+                      className="text-accent shrink-0 mt-0.5"
                     />
-                    <span className="font-display font-semibold text-gray-200 truncate">
+                    <span className="font-display font-semibold text-body truncate">
                       {orbat.name}
                     </span>
                   </div>
                 </div>
 
                 {/* Meta */}
-                <div className="flex flex-col gap-1 text-xs text-gray-400">
-                  <span className="text-gray-400 truncate">
+                <div className="flex flex-col gap-1 text-xs text-dim">
+                  <span className="text-dim truncate">
                     {template ? (
                       template.name
                     ) : (
@@ -156,19 +156,19 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                 {/* Assignment progress */}
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-400">Assignments</span>
+                    <span className="text-dim">Assignments</span>
                     <span
                       className={`font-data ${
                         filled === total && total > 0
-                          ? 'text-green-400'
-                          : 'text-gray-400'
+                          ? 'text-accent'
+                          : 'text-dim'
                       }`}
                     >
                       {filled}/{total}
                     </span>
                   </div>
                   {total > 0 && (
-                    <div className="h-1.5 bg-[#0f0f23] rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-page rounded-full overflow-hidden">
                       <div
                         className="h-full bg-green-600 rounded-full transition-all"
                         style={{ width: `${progressPercent}%` }}
@@ -178,7 +178,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                 </div>
 
                 {/* Card actions */}
-                <div className="flex items-center gap-2 pt-1 border-t border-[#2a2a4a] mt-auto">
+                <div className="flex items-center gap-2 pt-1 border-t border-trim mt-auto">
                   <Button
                     variant="secondary"
                     size="sm"
@@ -207,9 +207,9 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
       ) : (
         /* Empty state */
         <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-          <ClipboardList size={48} className="text-gray-700" />
-          <p className="text-gray-400 text-lg font-medium">No ORBATs yet</p>
-          <p className="text-gray-400 text-sm max-w-xs">
+          <ClipboardList size={48} className="text-chrome" />
+          <p className="text-dim text-lg font-medium">No ORBATs yet</p>
+          <p className="text-dim text-sm max-w-xs">
             Create an ORBAT to start assigning personnel to roles from a
             template.
           </p>
@@ -242,7 +242,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
 
           {/* Template picker */}
           <div className="flex flex-col gap-1">
-            <label htmlFor="orbat-template" className="text-sm text-gray-400">
+            <label htmlFor="orbat-template" className="text-sm text-dim">
               Template
             </label>
             <div className="relative">
@@ -250,8 +250,8 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                 id="orbat-template"
                 value={newTemplateId}
                 onChange={(e) => setNewTemplateId(e.target.value)}
-                className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2 pr-9 text-gray-200 text-sm
-                           focus:outline-none focus:border-green-400/50 focus:ring-1 focus:ring-green-400/25
+                className="w-full bg-page border border-trim rounded-md px-3 py-2 pr-9 text-body text-sm
+                           focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/25
                            appearance-none cursor-pointer"
               >
                 {templates.length === 0 && (
@@ -267,7 +267,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
               </select>
               <ChevronDown
                 size={16}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-faint pointer-events-none"
                 aria-hidden="true"
               />
             </div>

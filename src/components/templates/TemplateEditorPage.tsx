@@ -113,11 +113,11 @@ export function TemplateEditorPage({
   if (!template) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <p className="text-gray-400">Template not found.</p>
+        <p className="text-dim">Template not found.</p>
         <button
           type="button"
           onClick={() => onNavigate('templates')}
-          className="text-green-400 hover:text-green-300 text-sm"
+          className="text-accent hover:text-accent/80 text-sm"
         >
           Back to Templates
         </button>
@@ -213,7 +213,7 @@ export function TemplateEditorPage({
       {/* Back navigation */}
       <button
         onClick={() => onNavigate('templates')}
-        className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-200 transition-colors mb-6 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:text-green-400"
+        className="flex items-center gap-1.5 text-sm text-dim hover:text-body transition-colors mb-6 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent"
         type="button"
       >
         <ArrowLeft size={16} />
@@ -232,13 +232,13 @@ export function TemplateEditorPage({
               onBlur={commitName}
               onKeyDown={handleNameKeyDown}
               aria-label="Template name"
-              className="w-full bg-[#0f0f23] border border-green-400/50 rounded-md px-3 py-1.5 text-2xl font-bold text-gray-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/25"
+              className="w-full bg-page border border-accent/50 rounded-md px-3 py-1.5 text-2xl font-bold text-strong focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/25"
             />
           ) : (
             <button
               type="button"
               onClick={() => setEditingName(true)}
-              className="font-display text-2xl font-bold text-gray-100 uppercase tracking-wide cursor-text hover:text-white text-left"
+              className="font-display text-2xl font-bold text-strong uppercase tracking-wide cursor-text hover:text-white text-left"
               title="Click to edit name"
             >
               {template.name}
@@ -257,14 +257,14 @@ export function TemplateEditorPage({
               onKeyDown={handleDescKeyDown}
               placeholder="Add a description…"
               aria-label="Template description"
-              className="w-full bg-[#0f0f23] border border-green-400/50 rounded-md px-3 py-1 text-sm text-gray-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/25"
+              className="w-full bg-page border border-accent/50 rounded-md px-3 py-1 text-sm text-dim focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/25"
             />
           ) : (
             <button
               type="button"
               onClick={() => setEditingDesc(true)}
-              className={`text-sm cursor-text hover:text-gray-300 transition-colors text-left ${
-                template.description ? 'text-gray-400' : 'text-gray-400 italic'
+              className={`text-sm cursor-text hover:text-sub transition-colors text-left ${
+                template.description ? 'text-dim' : 'text-dim italic'
               }`}
               title="Click to edit description"
             >
@@ -276,9 +276,9 @@ export function TemplateEditorPage({
 
       {/* Groups section */}
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-display text-sm font-semibold text-gray-400 uppercase tracking-widest">
+        <h2 className="font-display text-sm font-semibold text-dim uppercase tracking-widest">
           Groups
-          <span className="ml-2 text-gray-400 normal-case font-normal font-data">
+          <span className="ml-2 text-dim normal-case font-normal font-data">
             ({template.groups.length})
           </span>
         </h2>
@@ -308,9 +308,9 @@ export function TemplateEditorPage({
           </SortableContext>
         </DndContext>
       ) : (
-        <div className="bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg py-10 text-center mb-3">
-          <p className="text-gray-400 text-sm mb-1">No groups yet</p>
-          <p className="text-gray-400 text-xs">
+        <div className="bg-panel border border-trim rounded-lg py-10 text-center mb-3">
+          <p className="text-dim text-sm mb-1">No groups yet</p>
+          <p className="text-dim text-xs">
             Add a group to start building your template
           </p>
         </div>
@@ -321,7 +321,7 @@ export function TemplateEditorPage({
         <button
           onClick={addGroup}
           type="button"
-          className="flex items-center gap-2 px-4 py-2 rounded-md border border-dashed border-[#2a2a4a] text-sm text-green-400 hover:text-green-300 hover:border-green-400/40 transition-colors w-full justify-center"
+          className="flex items-center gap-2 px-4 py-2 rounded-md border border-dashed border-trim text-sm text-accent hover:text-accent/80 hover:border-accent/40 transition-colors w-full justify-center"
         >
           <Plus size={16} />
           Add Group

@@ -104,10 +104,10 @@ export function RanksPage() {
       {/* Content */}
       {ranks.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-          <ChevronsUp size={48} className="text-gray-600" />
+          <ChevronsUp size={48} className="text-faint" />
           <div className="flex flex-col gap-1">
-            <p className="text-gray-300 font-medium">No ranks defined</p>
-            <p className="text-gray-400 text-sm max-w-xs">
+            <p className="text-sub font-medium">No ranks defined</p>
+            <p className="text-dim text-sm max-w-xs">
               Define your unit's ranks once and select them when adding
               personnel.
             </p>
@@ -118,20 +118,18 @@ export function RanksPage() {
           </Button>
         </div>
       ) : (
-        <div className="border border-[#2a2a4a] rounded-md divide-y divide-[#2a2a4a] bg-[#1a1a2e]/50">
+        <div className="border border-trim rounded-md divide-y divide-trim bg-panel/50">
           {ranks.map((rank) => (
             <div
               key={rank.id}
               className="flex items-center justify-between px-4 py-3 gap-3"
             >
-              <span className="text-sm text-gray-200 font-medium">
-                {rank.name}
-              </span>
+              <span className="text-sm text-body font-medium">{rank.name}</span>
               <div className="flex items-center gap-1 shrink-0">
                 <button
                   type="button"
                   onClick={() => setEditTarget(rank)}
-                  className="p-1.5 rounded-md text-gray-400 hover:text-green-400 hover:bg-white/5 transition-colors"
+                  className="p-1.5 rounded-md text-dim hover:text-accent hover:bg-overlay transition-colors"
                   aria-label={`Edit ${rank.name}`}
                 >
                   <Pencil size={14} />
@@ -139,7 +137,7 @@ export function RanksPage() {
                 <button
                   type="button"
                   onClick={() => setDeleteTarget(rank)}
-                  className="p-1.5 rounded-md text-gray-400 hover:text-red-400 hover:bg-white/5 transition-colors"
+                  className="p-1.5 rounded-md text-dim hover:text-red-400 hover:bg-overlay transition-colors"
                   aria-label={`Delete ${rank.name}`}
                 >
                   <Trash2 size={14} />

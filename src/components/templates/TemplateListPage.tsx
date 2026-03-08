@@ -95,7 +95,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
                     size={16}
                     className="text-indigo-400 shrink-0 mt-0.5"
                   />
-                  <span className="font-display font-semibold text-gray-200 truncate">
+                  <span className="font-display font-semibold text-body truncate">
                     {template.name}
                   </span>
                 </div>
@@ -104,24 +104,24 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
 
               {/* Description */}
               {template.description && (
-                <p className="text-sm text-gray-400 line-clamp-2">
+                <p className="text-sm text-dim line-clamp-2">
                   {template.description}
                 </p>
               )}
 
               {/* Stats */}
-              <div className="flex items-center gap-3 text-xs text-gray-400 font-data">
+              <div className="flex items-center gap-3 text-xs text-dim font-data">
                 <span>
                   {groups} {groups === 1 ? 'group' : 'groups'}
                 </span>
-                <span className="text-gray-500">·</span>
+                <span className="text-faint">·</span>
                 <span>
                   {slots} {slots === 1 ? 'slot' : 'slots'}
                 </span>
               </div>
 
               {/* Card actions */}
-              <div className="flex items-center gap-2 pt-1 border-t border-[#2a2a4a] mt-auto">
+              <div className="flex items-center gap-2 pt-1 border-t border-trim mt-auto">
                 <Button
                   variant="secondary"
                   size="sm"

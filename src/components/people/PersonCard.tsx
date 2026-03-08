@@ -59,7 +59,7 @@ export const PersonCard = memo(function PersonCard({
       </div>
 
       {/* Name */}
-      <span className="font-display text-gray-200 font-semibold text-lg leading-tight truncate pl-2 pt-1.5 border-t border-[#2a2a4a]">
+      <span className="font-display text-body font-semibold text-lg leading-tight truncate pl-2 pt-1.5 border-t border-trim">
         {person.name}
       </span>
     </div>

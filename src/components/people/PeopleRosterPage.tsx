@@ -87,10 +87,10 @@ export function PeopleRosterPage() {
       {people.length === 0 ? (
         /* Empty state */
         <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-          <Users size={48} className="text-gray-600" />
+          <Users size={48} className="text-faint" />
           <div className="flex flex-col gap-1">
-            <p className="text-gray-300 font-medium">No personnel yet</p>
-            <p className="text-gray-400 text-sm max-w-xs">
+            <p className="text-sub font-medium">No personnel yet</p>
+            <p className="text-dim text-sm max-w-xs">
               Add personnel to the roster and they will be available to assign
               to ORBAT slots.
             </p>
@@ -103,8 +103,8 @@ export function PeopleRosterPage() {
       ) : filteredPeople.length === 0 ? (
         /* Search no-results state */
         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
-          <p className="text-gray-400 font-medium">No results for "{search}"</p>
-          <p className="text-gray-400 text-sm">
+          <p className="text-dim font-medium">No results for "{search}"</p>
+          <p className="text-dim text-sm">
             Try a different name or clear the search.
           </p>
         </div>

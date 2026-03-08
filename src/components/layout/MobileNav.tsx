@@ -27,7 +27,7 @@ export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 bg-[#1a1a2e] border-t border-[#2a2a4a] md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-panel border-t border-trim md:hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex items-stretch h-16">
@@ -38,10 +38,10 @@ export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {
               type="button"
               key={page}
               onClick={() => onNavigate(page)}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 min-h-11 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-green-400/60 focus-visible:text-green-400 ${
+              className={`flex-1 flex flex-col items-center justify-center gap-1 min-h-11 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/60 focus-visible:text-accent ${
                 active
-                  ? 'text-green-400'
-                  : 'text-gray-400 hover:text-gray-300 active:text-gray-200'
+                  ? 'text-accent'
+                  : 'text-dim hover:text-sub active:text-body'
               }`}
             >
               <Icon size={iconSize ?? 20} aria-hidden="true" />

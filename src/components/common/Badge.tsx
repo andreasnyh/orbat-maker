@@ -12,7 +12,7 @@ export function Badge({ children, variant = 'default' }: BadgeProps) {
       className={clsx(
         'inline-flex items-center px-2 py-0.5 rounded text-xs font-data font-medium',
         {
-          'bg-[#2a2a4a] text-gray-300': variant === 'default',
+          'bg-trim text-sub': variant === 'default',
           'bg-green-400/15 text-green-400': variant === 'green',
           'bg-yellow-400/15 text-yellow-400': variant === 'yellow',
           'bg-amber-400/15 text-amber-400': variant === 'amber',

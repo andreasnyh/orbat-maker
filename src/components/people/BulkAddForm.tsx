@@ -52,7 +52,7 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label htmlFor="bulk-rank-select" className="text-sm text-gray-400">
+        <label htmlFor="bulk-rank-select" className="text-sm text-dim">
           Rank (optional — applies to all)
         </label>
         <select
@@ -62,7 +62,7 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
             setSelectValue(e.target.value);
             if (e.target.value !== CUSTOM_VALUE) setCustomRank('');
           }}
-          className="bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2 text-gray-200 text-sm focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25"
+          className="bg-page border border-trim rounded-md px-3 py-2 text-body text-sm focus-visible:outline-none focus-visible:border-accent/50 focus-visible:ring-1 focus-visible:ring-accent/25"
         >
           <option value="">(None)</option>
           {ranks.map((r) => (
@@ -81,7 +81,7 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
               onChange={(e) => setCustomRank(e.target.value)}
               autoComplete="off"
             />
-            <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer select-none">
+            <label className="flex items-center gap-2 text-sm text-dim cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={saveCustomRank}
@@ -95,13 +95,13 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="bulk-input" className="text-sm text-gray-400">
+        <label htmlFor="bulk-input" className="text-sm text-dim">
           Names — one per line
         </label>
         <textarea
           ref={textareaRef}
           id="bulk-input"
-          className="bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2 text-gray-200 text-sm placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25 resize-none font-mono leading-relaxed"
+          className="bg-page border border-trim rounded-md px-3 py-2 text-body text-sm placeholder:text-faint focus-visible:outline-none focus-visible:border-accent/50 focus-visible:ring-1 focus-visible:ring-accent/25 resize-none font-mono leading-relaxed"
           rows={8}
           placeholder={`John Smith\nJane Doe\nMike Johnson\n…`}
           value={text}
@@ -113,16 +113,16 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
 
       {/* Live preview */}
       {names.length > 0 && (
-        <div className="border border-[#2a2a4a] rounded-md bg-[#0f0f23]/50 max-h-40 overflow-y-auto overscroll-contain">
-          <div className="px-3 py-2 border-b border-[#2a2a4a] flex items-center justify-between">
-            <span className="text-xs text-gray-400 uppercase tracking-wide font-medium">
+        <div className="border border-trim rounded-md bg-page/50 max-h-40 overflow-y-auto overscroll-contain">
+          <div className="px-3 py-2 border-b border-trim flex items-center justify-between">
+            <span className="text-xs text-dim uppercase tracking-wide font-medium">
               Preview
             </span>
-            <span className="text-xs text-green-400 tabular-nums">
+            <span className="text-xs text-accent tabular-nums">
               {names.length} personnel
             </span>
           </div>
-          <ul className="divide-y divide-[#2a2a4a]/50">
+          <ul className="divide-y divide-trim/50">
             {names.map((name, i) => (
               <li
                 // biome-ignore lint/suspicious/noArrayIndexKey: preview list from ephemeral parsed data
@@ -130,11 +130,11 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
                 className="px-3 py-1.5 flex items-center gap-2 text-sm"
               >
                 {trimmedRank && (
-                  <span className="text-green-400 font-mono text-xs bg-green-400/10 px-1.5 py-0.5 rounded">
+                  <span className="text-accent font-mono text-xs bg-accent/10 px-1.5 py-0.5 rounded">
                     {trimmedRank}
                   </span>
                 )}
-                <span className="text-gray-300">{name}</span>
+                <span className="text-sub">{name}</span>
               </li>
             ))}
           </ul>

@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useState } from 'react';
 import { AppShell } from './components/layout/AppShell';
 import { AppStateProvider } from './context/AppStateContext';
+import { useTheme } from './hooks/useTheme';
 import { ToastProvider } from './hooks/useToast';
 import type { Page } from './types';
 
@@ -43,12 +44,13 @@ const AboutPage = lazy(() =>
 function PageSkeleton() {
   return (
     <div className="flex items-center justify-center py-24">
-      <div className="w-6 h-6 border-2 border-green-400/30 border-t-green-400 rounded-full animate-spin" />
+      <div className="w-6 h-6 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
     </div>
   );
 }
 
 function App() {
+  const { theme, setTheme } = useTheme();
   const [currentPage, setCurrentPage] = useState<Page>('orbats');
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -83,7 +85,12 @@ function App() {
   return (
     <AppStateProvider>
       <ToastProvider>
-        <AppShell currentPage={currentPage} onNavigate={navigate}>
+        <AppShell
+          currentPage={currentPage}
+          onNavigate={navigate}
+          theme={theme}
+          setTheme={setTheme}
+        >
           <Suspense fallback={<PageSkeleton />}>{renderPage()}</Suspense>
         </AppShell>
       </ToastProvider>
