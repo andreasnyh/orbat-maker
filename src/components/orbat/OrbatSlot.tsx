@@ -168,7 +168,7 @@ const OrbatSlotContent = memo(
     // ---- Shared sub-elements ----
 
     const equipmentSection = showEquipment && (
-      <div className="flex items-center gap-1 shrink-0 relative">
+      <div className="flex flex-wrap items-center gap-1 shrink-0 relative">
         <EquipmentPills
           equipment={slot.equipment ?? []}
           onRemove={onUpdateEquipment ? handleRemoveEquipment : undefined}
@@ -352,7 +352,7 @@ const OrbatSlotContent = memo(
           <div
             className={clsx(outerClasses, 'flex flex-col gap-1 px-2.5 py-2')}
           >
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
               <span
                 className="font-data text-sm text-dim truncate shrink min-w-0"
                 title={slot.roleLabel}
@@ -360,10 +360,13 @@ const OrbatSlotContent = memo(
                 {slot.roleLabel}
               </span>
               <div className="ml-auto flex items-center gap-1 shrink-0">
-                {equipmentSection}
                 {unassignButton}
                 {removeSlotButton}
               </div>
+              {showEquipment &&
+                (slot.equipment?.length || onUpdateEquipment) && (
+                  <div className="w-full">{equipmentSection}</div>
+                )}
             </div>
 
             <button

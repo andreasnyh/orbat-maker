@@ -485,7 +485,7 @@ export function OrbatBuilderPage({
 
               {/* Toggle, copy & clear — inline on desktop */}
               {template && (
-                <div className="shrink-0 hidden md:flex items-stretch gap-4 divide-x divide-trim">
+                <div className="shrink-0 hidden lg:flex items-stretch gap-4 divide-x divide-trim">
                   <div className="flex items-center gap-4 pr-4">
                     <Toggle
                       checked={showEquipment}
@@ -502,7 +502,7 @@ export function OrbatBuilderPage({
 
             {/* Row 2: Action buttons on mobile */}
             {template && (
-              <div className="flex md:hidden flex-col-reverse gap-4">
+              <div className="flex lg:hidden flex-col-reverse gap-4">
                 <div className="flex items-center justify-between">
                   <Toggle
                     checked={showEquipment}
@@ -542,7 +542,7 @@ export function OrbatBuilderPage({
           {/* Main split layout */}
           <div className="flex gap-6 min-h-0 flex-1">
             {/* Left: Roster sidebar — desktop only */}
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <RosterSidebar
                 assignments={orbat.assignments}
                 className="w-80 shrink-0"
@@ -626,7 +626,7 @@ export function OrbatBuilderPage({
       {/* Semi-transparent backdrop */}
       {showRoster && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
           onClick={() => {
             setShowRoster(false);
             setTapTargetSlotId(null);
@@ -635,14 +635,12 @@ export function OrbatBuilderPage({
         />
       )}
 
-      {/* Bottom sheet panel — sits above the 4rem MobileNav */}
+      {/* Bottom sheet panel — sits above the 4rem MobileNav on mobile, at bottom on tablet */}
       <div
-        className={`fixed left-0 right-0 z-50 md:hidden bg-panel border-t border-trim rounded-t-xl shadow-2xl transition-transform duration-300 flex flex-col overflow-hidden p-4 ${
+        className={`fixed left-0 right-0 z-50 lg:hidden bg-panel border-t border-trim rounded-t-xl shadow-2xl transition-transform duration-300 flex flex-col overflow-hidden p-4 bottom-16 md:bottom-0 max-h-[calc(70dvh-4rem)] md:max-h-[70dvh] ${
           showRoster ? 'translate-y-0' : 'translate-y-full'
         }`}
         style={{
-          bottom: '4rem',
-          maxHeight: 'calc(70dvh - 4rem)',
           overscrollBehavior: 'contain',
         }}
         aria-hidden={!showRoster}
