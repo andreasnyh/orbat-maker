@@ -92,13 +92,12 @@ export const OrbatGroup = memo(function OrbatGroup({
     <div className="flex flex-col gap-2">
       {/* Group header */}
       <div
-        className="flex items-center justify-between py-2 px-2 border-b border-[#2a2a4a] border-l-2 rounded-sm"
+        className="flex items-center justify-between py-2 px-2 border-b border-[#2a2a4a] border-l-2 rounded-sm bg-white/[0.02]"
         style={{
           borderLeftColor: group.color ?? 'rgb(34 197 94 / 0.5)',
-          backgroundImage: `linear-gradient(to right, ${group.color ? `${group.color}40` : 'rgb(34 197 94 / 0.25)'}, transparent)`,
         }}
       >
-        <h3 className="font-display text-sm font-bold text-gray-300 uppercase tracking-widest">
+        <h3 className="font-display text-sm font-bold text-gray-300 uppercase">
           {group.name}
         </h3>
         <span className="text-xs text-gray-400 font-data">

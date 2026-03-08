@@ -2,7 +2,7 @@ export function AboutPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
-        <h1 className="font-display text-2xl font-bold text-gray-100 uppercase tracking-wide mb-2">
+        <h1 className="font-display text-2xl font-bold text-gray-100 uppercase mb-2">
           About ORBAT Maker
         </h1>
         <p className="text-gray-400">
@@ -13,7 +13,7 @@ export function AboutPage() {
       </div>
 
       <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a4a] p-6 space-y-4">
-        <h2 className="font-display text-lg font-semibold text-gray-200 uppercase tracking-wide">
+        <h2 className="font-display text-lg font-semibold text-gray-200 uppercase">
           Features
         </h2>
         <ul className="space-y-2 text-gray-400 text-sm">
@@ -41,7 +41,7 @@ export function AboutPage() {
       </div>
 
       <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a4a] p-6 space-y-4">
-        <h2 className="font-display text-lg font-semibold text-gray-200 uppercase tracking-wide">
+        <h2 className="font-display text-lg font-semibold text-gray-200 uppercase">
           Built by
         </h2>
         <p className="text-gray-400 text-sm">
@@ -67,7 +67,7 @@ export function AboutPage() {
       </div>
 
       <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a4a] p-6 space-y-4">
-        <h2 className="font-display text-lg font-semibold text-gray-200 uppercase tracking-wide">
+        <h2 className="font-display text-lg font-semibold text-gray-200 uppercase">
           Privacy
         </h2>
         <p className="text-gray-400 text-sm">

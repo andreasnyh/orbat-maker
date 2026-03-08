@@ -48,13 +48,13 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       onClick={handleClick}
       onCancel={handleCancel}
       aria-labelledby="modal-title"
-      className="backdrop:bg-black/60 backdrop:backdrop-blur-sm bg-transparent p-0 max-w-lg w-full m-auto outline-none animate-scale-in backdrop:animate-fade-in"
+      className="backdrop:bg-black/60 bg-transparent p-0 max-w-lg w-full m-auto outline-none animate-fade-in backdrop:animate-fade-in"
     >
       <div className="bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl max-h-[85vh] overflow-y-auto overscroll-contain mx-4">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#2a2a4a]">
           <h2
             id="modal-title"
-            className="font-display text-lg font-semibold text-gray-200 uppercase tracking-wide"
+            className="font-display text-lg font-semibold text-gray-200 uppercase"
           >
             {title}
           </h2>
