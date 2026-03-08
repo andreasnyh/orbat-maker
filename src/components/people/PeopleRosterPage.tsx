@@ -21,8 +21,10 @@ export function PeopleRosterPage() {
 
   const filteredPeople = useMemo(() => {
     const query = search.trim().toLowerCase();
-    if (!query) return people;
-    return people.filter((p) => p.name.toLowerCase().includes(query));
+    const list = query
+      ? people.filter((p) => p.name.toLowerCase().includes(query))
+      : [...people];
+    return list.sort((a, b) => a.name.localeCompare(b.name));
   }, [people, search]);
 
   const handleAdd = (name: string, rank?: string) => {
