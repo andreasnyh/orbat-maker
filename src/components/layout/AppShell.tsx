@@ -11,7 +11,7 @@ interface AppShellProps {
 
 export function AppShell({ currentPage, onNavigate, children }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-[#0f0f23] bg-grid-pattern text-gray-200">
+    <div className="min-h-screen bg-[#0f0f23] bg-topo text-gray-200">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-green-600 focus:text-white focus:rounded-md"

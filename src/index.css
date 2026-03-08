@@ -8,6 +8,26 @@
   --font-data: "JetBrains Mono", ui-monospace, monospace;
 }
 
+/* Subtle topographic contour lines for app background */
+.bg-topo {
+  position: relative;
+  z-index: 0;
+}
+
+.bg-topo::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("/topo.svg");
+  background-size: auto 100vh;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.05;
+  mask-image: linear-gradient(to bottom, black 70%, transparent 90%);
+  pointer-events: none;
+}
+
 /* ── Base ────────────────────────────────────────────────────────────── */
 
 @layer base {
@@ -18,16 +38,6 @@
 }
 
 /* ── Utilities ────────────────────────────────────────────────────────── */
-
-/* Subtle dot-grid texture for the app background */
-.bg-grid-pattern {
-  background-image: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.08) 1px,
-    transparent 1px
-  );
-  background-size: 24px 24px;
-}
 
 /* Shared card base — visual depth with shadow + top-edge highlight.
    Add layout/spacing classes (p-4, flex, gap-3, etc.) alongside this. */
@@ -46,6 +56,10 @@
   border-color: #3a3a5a;
 }
 
+.roster-card:hover > .card {
+  border-color: #4a4a6a;
+}
+
 /* ── Animations ──────────────────────────────────────────────────────── */
 
 @keyframes fade-in {
@@ -57,36 +71,12 @@
   }
 }
 
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fade-out-down {
+@keyframes fade-out {
   from {
     opacity: 1;
-    transform: translateY(0);
   }
   to {
     opacity: 0;
-    transform: translateY(8px);
   }
 }
 
@@ -94,25 +84,14 @@
   animation: fade-in 200ms ease-out both;
 }
 
-.animate-scale-in {
-  animation: scale-in 200ms ease-out both;
-}
-
-.animate-fade-in-up {
-  animation: fade-in-up 300ms ease-out both;
-}
-
-.animate-fade-out-down {
-  animation: fade-out-down 300ms ease-out both;
+.animate-fade-out {
+  animation: fade-out 300ms ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in,
-  .animate-scale-in,
-  .animate-fade-in-up,
-  .animate-fade-out-down {
+  .animate-fade-out {
     animation: none;
     opacity: 1;
-    transform: none;
   }
 }
