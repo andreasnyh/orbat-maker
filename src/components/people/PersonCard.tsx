@@ -29,7 +29,7 @@ export const PersonCard = memo(function PersonCard({
       {/* Name and rank */}
       <div className="flex flex-col gap-1.5 min-w-0">
         {person.rank && <Badge variant="green">{person.rank}</Badge>}
-        <span className="font-display text-gray-200 font-semibold text-lg leading-tight truncate">
+        <span className="font-display text-gray-200 font-semibold text-lg leading-tight truncate pl-2">
           {person.name}
         </span>
       </div>
