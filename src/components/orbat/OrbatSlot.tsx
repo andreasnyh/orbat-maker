@@ -93,12 +93,6 @@ export const OrbatSlot = memo(function OrbatSlot(props: OrbatSlotProps) {
 
 // ---------------------------------------------------------------------------
 // Memoized content — contains all the expensive JSX, local state, effects.
-//
-// Custom comparator intentionally skips dnd listener/attribute objects: they
-// get new identities every render but are functionally stable for non-active
-// slots. During an active drag only one item can be dragged at a time, so
-// stale listeners on other slots are never invoked. When the drag ends
-// everything re-renders and listeners refresh.
 // ---------------------------------------------------------------------------
 
 interface OrbatSlotContentProps extends OrbatSlotProps {
@@ -174,7 +168,7 @@ const OrbatSlotContent = memo(
     // ---- Shared sub-elements ----
 
     const equipmentSection = showEquipment && (
-      <div className="flex items-center gap-1 shrink-0 relative">
+      <div className="flex flex-wrap items-center gap-1 shrink-0 relative">
         <EquipmentPills
           equipment={slot.equipment ?? []}
           onRemove={onUpdateEquipment ? handleRemoveEquipment : undefined}
@@ -183,7 +177,7 @@ const OrbatSlotContent = memo(
           <>
             <button
               type="button"
-              className="text-amber-400/70 hover:text-amber-300 transition-colors p-2 md:p-1 rounded"
+              className="text-equip-muted hover:text-equip transition-colors p-2 md:p-1 rounded"
               aria-label="Add equipment"
               title="Add equipment"
               onClick={(e) => {
@@ -204,7 +198,7 @@ const OrbatSlotContent = memo(
                 />
                 <div
                   ref={popoverRef}
-                  className="absolute right-0 top-full mt-1 z-50 bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl p-2 min-w-[200px]"
+                  className="absolute right-0 top-full mt-1 z-50 bg-panel border border-trim rounded-lg shadow-xl p-2 min-w-[200px]"
                   onPointerDown={(e) => e.stopPropagation()}
                 >
                   {equipmentSuggestions && equipmentSuggestions.length > 0 && (
@@ -215,7 +209,7 @@ const OrbatSlotContent = memo(
                           <button
                             key={s}
                             type="button"
-                            className="bg-amber-400/10 text-amber-300/80 hover:bg-amber-400/25 text-[10px] font-mono rounded-full px-2 py-0.5 transition-colors"
+                            className="bg-equip-bg text-equip hover:text-equip text-[10px] font-mono rounded px-2 py-[3px] transition-colors hover:bg-equip-bg"
                             onClick={() => handleAddEquipment(s)}
                           >
                             {s}
@@ -236,7 +230,7 @@ const OrbatSlotContent = memo(
                     }}
                     placeholder="New tag…"
                     aria-label="New equipment tag"
-                    className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded px-2 py-1 text-[11px] text-gray-200 placeholder-gray-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-400/25 font-mono"
+                    className="w-full bg-page border border-trim rounded px-2 py-1 text-[11px] text-body placeholder-faint focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-equip/25 font-mono"
                   />
                 </div>
               </>
@@ -251,7 +245,7 @@ const OrbatSlotContent = memo(
         type="button"
         onClick={handleUnassign}
         onPointerDown={(e) => e.stopPropagation()}
-        className="shrink-0 text-gray-500 hover:text-red-400 transition-colors p-2 md:p-1 rounded"
+        className="shrink-0 text-faint hover:text-red-400 transition-colors p-2 md:p-1 rounded"
         aria-label={`Remove ${person?.name ?? 'personnel'} from ${slot.roleLabel}`}
         title="Remove assignment"
       >
@@ -264,7 +258,7 @@ const OrbatSlotContent = memo(
         type="button"
         onClick={handleRemoveSlot}
         onPointerDown={(e) => e.stopPropagation()}
-        className="shrink-0 text-gray-500 hover:text-red-400 transition-colors p-2 md:p-1 rounded"
+        className="shrink-0 text-faint hover:text-red-400 transition-colors p-2 md:p-1 rounded"
         aria-label={`Delete ${slot.roleLabel} slot`}
         title="Delete slot"
       >
@@ -277,12 +271,12 @@ const OrbatSlotContent = memo(
       isDragging
         ? 'opacity-40'
         : isHighlighted
-          ? 'border-green-400 ring-2 ring-green-400 bg-green-400/5'
+          ? 'border-accent ring-2 ring-accent bg-accent/5'
           : isOver
-            ? 'border-green-400 border-dashed bg-green-400/5'
+            ? 'border-accent border-dashed bg-accent/5'
             : assignment
-              ? 'border-[#2a2a4a] bg-[#16213e] hover:border-[#3a3a5a] hover:bg-[#1a2744]'
-              : 'border-[#2a2a4a] border-dashed bg-[#0f0f23]/50 hover:border-[#3a3a5a] hover:bg-[#0f0f23]/80',
+              ? 'border-trim bg-panel-alt hover:border-trim-hover hover:bg-panel-alt/80'
+              : 'border-trim border-dashed bg-page/50 hover:border-trim-hover hover:bg-page/80',
     );
 
     return (
@@ -304,17 +298,17 @@ const OrbatSlotContent = memo(
             >
               <GripVertical
                 size={14}
-                className="text-gray-700 group-hover/slot:text-gray-400 shrink-0 transition-colors"
+                className="text-chrome group-hover/slot:text-dim shrink-0 transition-colors"
               />
               <span
-                className="font-data text-sm text-gray-400 w-44 shrink-0 truncate"
+                className="font-data text-sm text-dim w-44 shrink-0 truncate"
                 title={slot.roleLabel}
               >
                 {slot.roleLabel}
               </span>
             </div>
 
-            <span className="text-gray-700 shrink-0">—</span>
+            <span className="text-chrome shrink-0">—</span>
 
             {/* Person drag zone */}
             <span
@@ -322,8 +316,8 @@ const OrbatSlotContent = memo(
               className={clsx(
                 'flex-1 min-w-0 flex items-center gap-1.5 rounded-sm px-1.5 -mx-0.5 -my-0.5 py-0.5 transition-colors',
                 person
-                  ? 'font-display text-lg text-gray-200 font-medium cursor-grab active:cursor-grabbing hover:bg-white/5'
-                  : 'text-sm text-gray-400 italic font-data',
+                  ? 'font-display text-lg text-body font-medium cursor-grab active:cursor-grabbing hover:bg-overlay'
+                  : 'text-sm text-dim italic font-data',
               )}
               title={person ? 'Drag to reassign' : undefined}
               {...dragAttrs}
@@ -331,9 +325,9 @@ const OrbatSlotContent = memo(
             >
               {person ? (
                 <>
-                  <GripVertical size={14} className="text-gray-700 shrink-0" />
+                  <GripVertical size={14} className="text-chrome shrink-0" />
                   {person.rank && (
-                    <span className="text-green-400 text-sm font-normal font-data">
+                    <span className="text-accent text-sm font-normal font-data">
                       {person.rank}
                     </span>
                   )}
@@ -358,34 +352,37 @@ const OrbatSlotContent = memo(
           <div
             className={clsx(outerClasses, 'flex flex-col gap-1 px-2.5 py-2')}
           >
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
               <span
-                className="font-data text-sm text-gray-400 truncate shrink min-w-0"
+                className="font-data text-sm text-dim truncate shrink min-w-0"
                 title={slot.roleLabel}
               >
                 {slot.roleLabel}
               </span>
               <div className="ml-auto flex items-center gap-1 shrink-0">
-                {equipmentSection}
                 {unassignButton}
                 {removeSlotButton}
               </div>
+              {showEquipment &&
+                (slot.equipment?.length || onUpdateEquipment) && (
+                  <div className="w-full">{equipmentSection}</div>
+                )}
             </div>
 
             <button
               type="button"
               className={clsx(
-                'rounded px-2 py-1.5 -mx-0.5 transition-colors w-full text-left active:bg-white/5',
+                'rounded px-2 py-1.5 -mx-0.5 transition-colors w-full text-left active:bg-overlay',
                 person
-                  ? 'font-display text-base text-gray-200 font-medium'
-                  : 'border border-dashed border-[#2a2a4a] text-sm text-gray-400 italic font-data',
+                  ? 'font-display text-base text-body font-medium'
+                  : 'border border-dashed border-trim text-sm text-dim italic font-data',
               )}
               onClick={() => onTapAssign(slot.id)}
             >
               {person ? (
                 <span className="flex items-center gap-1.5">
                   {person.rank && (
-                    <span className="text-green-400 text-sm font-normal font-data">
+                    <span className="text-accent text-sm font-normal font-data">
                       {person.rank}
                     </span>
                   )}

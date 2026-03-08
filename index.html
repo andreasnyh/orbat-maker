@@ -10,6 +10,17 @@
     <meta name="description" content="Drag-and-drop ORBAT builder for ARMA 3 units" />
     <link rel="icon" type="image/svg+xml" href="icon-192.svg" />
     <title>ORBAT Maker</title>
+    <script>
+      // FOUC prevention: apply theme before first paint
+      (() => {
+        var t = localStorage.getItem('orbat-theme');
+        if (t !== 'midnight' && t !== 'olive' && t !== 'sand') t = 'midnight';
+        document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.style.colorScheme = t === 'sand' ? 'light' : 'dark';
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.setAttribute('content', t === 'midnight' ? '#1a1a2e' : t === 'olive' ? '#1e211a' : '#ffffff');
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

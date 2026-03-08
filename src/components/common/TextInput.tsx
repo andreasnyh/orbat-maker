@@ -18,7 +18,7 @@ export function TextInput({
   return (
     <div className="flex flex-col gap-1">
       {label && (
-        <label htmlFor={inputId} className="text-sm text-gray-400">
+        <label htmlFor={inputId} className="text-sm text-dim">
           {label}
         </label>
       )}
@@ -26,8 +26,8 @@ export function TextInput({
         ref={ref}
         id={inputId}
         className={clsx(
-          'bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2 text-gray-200 text-sm',
-          'placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25',
+          'bg-page border border-trim rounded-md px-3 py-2 text-body text-sm',
+          'placeholder:text-faint focus-visible:outline-none focus-visible:border-accent/50 focus-visible:ring-1 focus-visible:ring-accent/25',
           className,
         )}
         {...props}

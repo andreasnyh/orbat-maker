@@ -1,10 +1,14 @@
 import { ChevronsUp, Info, LayoutTemplate, Network, Users } from 'lucide-react';
+import type { Theme } from '../../hooks/useTheme';
 import type { Page } from '../../types';
 import { ExportMenu } from '../export/ExportMenu';
+import { ThemePicker } from './ThemePicker';
 
 interface NavbarProps {
   currentPage: Page;
   onNavigate: (page: Page) => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
 }
 
 const navItems: {
@@ -19,28 +23,33 @@ const navItems: {
   { page: 'templates', label: 'Templates', icon: LayoutTemplate },
 ];
 
-export function Navbar({ currentPage, onNavigate }: NavbarProps) {
+export function Navbar({
+  currentPage,
+  onNavigate,
+  theme,
+  setTheme,
+}: NavbarProps) {
   const activePage = (p: Page) =>
     p === currentPage ||
     (p === 'templates' && currentPage === 'template-editor') ||
     (p === 'orbats' && currentPage === 'orbat-builder');
 
   return (
-    <nav className="bg-[#1a1a2e] border-b border-[#2a2a4a]">
+    <nav className="bg-panel border-b border-trim">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center h-14 gap-8">
+        <div className="flex items-center h-14 gap-2 lg:gap-8">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="32"
             height="32"
             viewBox="0 0 24 24"
-            className="shrink-0"
+            className="shrink-0 text-accent"
             aria-label="Orbat Maker"
           >
             <path
               d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
               fill="none"
-              stroke="#4ade80"
+              stroke="currentColor"
               strokeWidth="1.5"
             />
             <text
@@ -49,7 +58,7 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
               fontFamily="'Barlow Condensed',sans-serif"
               fontSize="8.5"
               fontWeight="700"
-              fill="#4ade80"
+              fill="currentColor"
               textAnchor="middle"
               letterSpacing="-0.3"
             >
@@ -62,30 +71,31 @@ export function Navbar({ currentPage, onNavigate }: NavbarProps) {
                 <button
                   type="button"
                   onClick={() => onNavigate(page)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:text-green-400 ${
+                  className={`flex items-center gap-1.5 px-2 lg:px-4 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent ${
                     activePage(page)
-                      ? 'text-green-400'
-                      : 'text-gray-400 hover:text-green-400/70'
+                      ? 'text-accent'
+                      : 'text-dim hover:text-accent/70'
                   }`}
                 >
                   <Icon size={iconSize ?? 18} aria-hidden="true" />
                   {label}
                 </button>
                 {activePage(page) && (
-                  <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-green-400 rounded-full" />
+                  <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-accent rounded-full" />
                 )}
               </div>
             ))}
           </div>
           <div className="ml-auto flex items-center gap-2">
             <ExportMenu />
+            <ThemePicker theme={theme} setTheme={setTheme} />
             <button
               type="button"
               onClick={() => onNavigate('about')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:text-green-400 ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent ${
                 currentPage === 'about'
-                  ? 'text-green-400'
-                  : 'text-gray-400 hover:text-green-400/70'
+                  ? 'text-accent'
+                  : 'text-dim hover:text-accent/70'
               }`}
               aria-label="About"
               title="About"

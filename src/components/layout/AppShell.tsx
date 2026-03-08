@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { Theme } from '../../hooks/useTheme';
 import type { Page } from '../../types';
 import { MobileNav } from './MobileNav';
 import { Navbar } from './Navbar';
@@ -7,21 +8,34 @@ interface AppShellProps {
   currentPage: Page;
   onNavigate: (page: Page, id?: string) => void;
   children: ReactNode;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
 }
 
-export function AppShell({ currentPage, onNavigate, children }: AppShellProps) {
+export function AppShell({
+  currentPage,
+  onNavigate,
+  children,
+  theme,
+  setTheme,
+}: AppShellProps) {
   return (
-    <div className="min-h-screen bg-[#0f0f23] bg-topo text-gray-200">
+    <div className="min-h-screen bg-page bg-topo text-body">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-green-600 focus:text-white focus:rounded-md"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-accent-mid focus:text-white focus:rounded-md"
       >
         Skip to content
       </a>
 
       {/* Desktop top navigation — hidden on mobile, fixed */}
       <div className="hidden md:block fixed top-0 left-0 right-0 z-40">
-        <Navbar currentPage={currentPage} onNavigate={onNavigate} />
+        <Navbar
+          currentPage={currentPage}
+          onNavigate={onNavigate}
+          theme={theme}
+          setTheme={setTheme}
+        />
       </div>
 
       {/* Main content — adds bottom padding on mobile to clear the fixed MobileNav, top padding on desktop for fixed Navbar */}

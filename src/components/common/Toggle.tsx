@@ -33,11 +33,9 @@ export function Toggle({
         aria-hidden="true"
         className={clsx(
           'relative rounded-full transition-colors border shrink-0',
-          'peer-focus-visible:ring-2 peer-focus-visible:ring-green-400/60 peer-focus-visible:ring-offset-1 peer-focus-visible:ring-offset-[#1a1a2e]',
+          'peer-focus-visible:ring-2 peer-focus-visible:ring-accent/60 peer-focus-visible:ring-offset-1 peer-focus-visible:ring-offset-panel',
           size === 'sm' ? 'w-6 h-3.5' : 'w-8 h-4.5',
-          checked
-            ? 'bg-green-600 border-green-500'
-            : 'bg-[#0f0f23] border-[#2a2a4a]',
+          checked ? 'bg-green-600 border-green-500' : 'bg-page border-trim',
         )}
       >
         <span
@@ -54,7 +52,7 @@ export function Toggle({
       </span>
       <span
         className={clsx(
-          'text-gray-400 group-hover:text-gray-300 transition-colors',
+          'text-dim group-hover:text-sub transition-colors',
           size === 'sm' ? 'text-[11px]' : 'text-xs',
         )}
       >

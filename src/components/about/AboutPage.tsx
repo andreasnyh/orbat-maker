@@ -2,56 +2,56 @@ export function AboutPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
-        <h1 className="font-display text-2xl font-bold text-gray-100 uppercase mb-2">
+        <h1 className="font-display text-2xl font-bold text-strong uppercase mb-2">
           About ORBAT Maker
         </h1>
-        <p className="text-gray-400">
+        <p className="text-dim">
           A tool for building and managing Order of Battle charts. Create
           templates, manage personnel rosters, and assign personnel to roles
           with an intuitive drag-and-drop interface.
         </p>
       </div>
 
-      <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a4a] p-6 space-y-4">
-        <h2 className="font-display text-lg font-semibold text-gray-200 uppercase">
+      <div className="bg-panel rounded-lg border border-trim p-6 space-y-4">
+        <h2 className="font-display text-lg font-semibold text-body uppercase">
           Features
         </h2>
-        <ul className="space-y-2 text-gray-400 text-sm">
+        <ul className="space-y-2 text-dim text-sm">
           <li className="flex items-start gap-2">
-            <span className="text-green-400 mt-0.5">&#x2022;</span>
+            <span className="text-accent mt-0.5">&#x2022;</span>
             Create and manage reusable ORBAT templates
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-green-400 mt-0.5">&#x2022;</span>
+            <span className="text-accent mt-0.5">&#x2022;</span>
             Maintain a personnel roster with ranks
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-green-400 mt-0.5">&#x2022;</span>
+            <span className="text-accent mt-0.5">&#x2022;</span>
             Drag-and-drop assignment of personnel to slots
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-green-400 mt-0.5">&#x2022;</span>
+            <span className="text-accent mt-0.5">&#x2022;</span>
             Import and export data for backup and sharing
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-green-400 mt-0.5">&#x2022;</span>
+            <span className="text-accent mt-0.5">&#x2022;</span>
             Works offline as a Progressive Web App
           </li>
         </ul>
       </div>
 
-      <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a4a] p-6 space-y-4">
-        <h2 className="font-display text-lg font-semibold text-gray-200 uppercase">
+      <div className="bg-panel rounded-lg border border-trim p-6 space-y-4">
+        <h2 className="font-display text-lg font-semibold text-body uppercase">
           Built by
         </h2>
-        <p className="text-gray-400 text-sm">
+        <p className="text-dim text-sm">
           Created by Andréas Ny. Built with React, TypeScript, and Tailwind CSS.
         </p>
         <a
           href="https://github.com/andreasnyh"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-accent hover:text-accent/80 transition-colors"
         >
           <svg
             viewBox="0 0 24 24"
@@ -66,17 +66,17 @@ export function AboutPage() {
         </a>
       </div>
 
-      <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a4a] p-6 space-y-4">
-        <h2 className="font-display text-lg font-semibold text-gray-200 uppercase">
+      <div className="bg-panel rounded-lg border border-trim p-6 space-y-4">
+        <h2 className="font-display text-lg font-semibold text-body uppercase">
           Privacy
         </h2>
-        <p className="text-gray-400 text-sm">
+        <p className="text-dim text-sm">
           This site uses{' '}
           <a
             href="https://www.goatcounter.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-green-400 hover:text-green-300 transition-colors"
+            className="text-accent hover:text-accent/80 transition-colors"
           >
             GoatCounter
           </a>{' '}
@@ -85,8 +85,8 @@ export function AboutPage() {
         </p>
       </div>
 
-      <div className="border-t border-[#2a2a4a] pt-6">
-        <p className="text-gray-400 text-xs text-center">
+      <div className="border-t border-trim pt-6">
+        <p className="text-dim text-xs text-center">
           &copy; {new Date().getFullYear()} Andr&eacute;as Ny. Released under
           the MIT License.
         </p>

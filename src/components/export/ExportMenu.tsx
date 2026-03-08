@@ -69,10 +69,10 @@ export function ExportMenu() {
             onClick={() => setDropdownOpen((prev) => !prev)}
             aria-expanded={dropdownOpen}
             aria-haspopup="menu"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-gray-400 hover:text-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:text-green-400"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-dim hover:text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent"
           >
             <Download size={16} aria-hidden="true" />
-            Export
+            <span className="hidden lg:inline">Export</span>
             <ChevronDown
               size={14}
               className={`transition-transform duration-150 ${dropdownOpen ? 'rotate-180' : ''}`}
@@ -83,7 +83,7 @@ export function ExportMenu() {
           {dropdownOpen && (
             <div
               role="menu"
-              className="absolute right-0 top-full mt-1 w-44 bg-[#1a1a2e] border border-[#2a2a4a] rounded-md shadow-xl z-50 py-1"
+              className="absolute right-0 top-full mt-1 w-44 bg-panel border border-trim rounded-md shadow-xl z-50 py-1"
             >
               <DropdownItem
                 label="Export Personnel"
@@ -93,7 +93,7 @@ export function ExportMenu() {
                 label="Export Templates"
                 onClick={() => handleExport('templates')}
               />
-              <div className="border-t border-[#2a2a4a] my-1" />
+              <div className="border-t border-trim my-1" />
               <DropdownItem
                 label="Export All"
                 onClick={() => handleExport('all')}
@@ -107,10 +107,10 @@ export function ExportMenu() {
         <button
           type="button"
           onClick={() => setImportOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-gray-400 hover:text-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 focus-visible:text-green-400"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-dim hover:text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent"
         >
           <Upload size={16} aria-hidden="true" />
-          Import
+          <span className="hidden lg:inline">Import</span>
         </button>
       </div>
 
@@ -131,8 +131,8 @@ function DropdownItem({ label, onClick, bold }: DropdownItemProps) {
       type="button"
       role="menuitem"
       onClick={onClick}
-      className={`w-full text-left px-4 py-2 text-sm hover:bg-white/5 hover:text-green-400 transition-colors ${
-        bold ? 'text-gray-200 font-medium' : 'text-gray-400'
+      className={`w-full text-left px-4 py-2 text-sm hover:bg-overlay hover:text-accent transition-colors ${
+        bold ? 'text-body font-medium' : 'text-dim'
       }`}
     >
       {label}

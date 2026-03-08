@@ -3,9 +3,104 @@
 
 @import "tailwindcss";
 
-@theme {
+/* ── Theme tokens ─────────────────────────────────────────────────────── */
+
+:root,
+[data-theme="midnight"] {
+  --th-page: #0f0f23;
+  --th-panel: #1a1a2e;
+  --th-panel-alt: #16213e;
+  --th-trim: #2a2a4a;
+  --th-trim-hover: #3a3a5a;
+  --th-trim-active: #4a4a6a;
+  --th-accent: #4ade80;
+  --th-accent-dim: #15803d;
+  --th-accent-mid: #16a34a;
+  --th-strong: #f3f4f6;
+  --th-body: #e5e7eb;
+  --th-sub: #d1d5db;
+  --th-dim: #9ca3af;
+  --th-faint: #6b7280;
+  --th-chrome: #374151;
+  --th-equip: #fcd34d;
+  --th-equip-muted: rgba(252, 211, 77, 0.5);
+  --th-equip-bg: rgba(251, 191, 36, 0.15);
+  --th-overlay: rgba(255, 255, 255, 0.05);
+  --th-shadow: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="olive"] {
+  --th-page: #141612;
+  --th-panel: #1e211a;
+  --th-panel-alt: #252a1e;
+  --th-trim: #353a2e;
+  --th-trim-hover: #4a5040;
+  --th-trim-active: #606754;
+  --th-accent: #a3be8c;
+  --th-accent-dim: #5b7a3a;
+  --th-accent-mid: #7d9c56;
+  --th-strong: #ebeee6;
+  --th-body: #dce0d5;
+  --th-sub: #c2c7b9;
+  --th-dim: #959b8a;
+  --th-faint: #6e7463;
+  --th-chrome: #3a4030;
+  --th-equip: #fcd34d;
+  --th-equip-muted: rgba(252, 211, 77, 0.5);
+  --th-equip-bg: rgba(251, 191, 36, 0.15);
+  --th-overlay: rgba(255, 255, 255, 0.05);
+  --th-shadow: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="sand"] {
+  --th-page: #faf8f5;
+  --th-panel: #ffffff;
+  --th-panel-alt: #f5f0ea;
+  --th-trim: #d6d3cd;
+  --th-trim-hover: #b8b5ae;
+  --th-trim-active: #9a978f;
+  --th-accent: #a34d08;
+  --th-accent-dim: #92400e;
+  --th-accent-mid: #d97706;
+  --th-strong: #1c1917;
+  --th-body: #292524;
+  --th-sub: #44403c;
+  --th-dim: #78716c;
+  --th-faint: #a8a29e;
+  --th-chrome: #d6d3cd;
+  --th-equip: #92400e;
+  --th-equip-muted: rgba(146, 64, 14, 0.5);
+  --th-equip-bg: rgba(180, 83, 9, 0.12);
+  --th-overlay: rgba(0, 0, 0, 0.04);
+  --th-shadow: rgba(0, 0, 0, 0.06);
+}
+
+/* ── Register tokens as Tailwind colors ───────────────────────────────── */
+
+@theme inline {
   --font-display: "Barlow Condensed", ui-sans-serif, system-ui, sans-serif;
   --font-data: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-page: var(--th-page);
+  --color-panel: var(--th-panel);
+  --color-panel-alt: var(--th-panel-alt);
+  --color-trim: var(--th-trim);
+  --color-trim-hover: var(--th-trim-hover);
+  --color-trim-active: var(--th-trim-active);
+  --color-accent: var(--th-accent);
+  --color-accent-dim: var(--th-accent-dim);
+  --color-accent-mid: var(--th-accent-mid);
+  --color-strong: var(--th-strong);
+  --color-body: var(--th-body);
+  --color-sub: var(--th-sub);
+  --color-dim: var(--th-dim);
+  --color-faint: var(--th-faint);
+  --color-chrome: var(--th-chrome);
+  --color-equip: var(--th-equip);
+  --color-equip-muted: var(--th-equip-muted);
+  --color-equip-bg: var(--th-equip-bg);
+  --color-overlay: var(--th-overlay);
+  --color-shadow: var(--th-shadow);
 }
 
 /* Subtle topographic contour lines for app background */
@@ -28,6 +123,12 @@
   pointer-events: none;
 }
 
+/* Sand theme: invert the topo pattern for light background */
+[data-theme="sand"] .bg-topo::before {
+  filter: invert(1);
+  opacity: 0.03;
+}
+
 /* ── Base ────────────────────────────────────────────────────────────── */
 
 @layer base {
@@ -42,22 +143,22 @@
 /* Shared card base — visual depth with shadow + top-edge highlight.
    Add layout/spacing classes (p-4, flex, gap-3, etc.) alongside this. */
 .card {
-  background-color: #1a1a2e;
-  border: 1px solid #2a2a4a;
-  border-top-color: #3a3a5a;
+  background-color: var(--th-panel);
+  border: 1px solid var(--th-trim);
+  border-top-color: var(--th-trim-hover);
   border-radius: 0.5rem;
   box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.2),
-    0 2px 4px -2px rgba(0, 0, 0, 0.2);
+    0 4px 6px -1px var(--th-shadow),
+    0 2px 4px -2px var(--th-shadow);
   transition: border-color 150ms;
 }
 
 .card:hover {
-  border-color: #3a3a5a;
+  border-color: var(--th-trim-hover);
 }
 
 .roster-card:hover > .card {
-  border-color: #4a4a6a;
+  border-color: var(--th-trim-active);
 }
 
 /* ── Animations ──────────────────────────────────────────────────────── */

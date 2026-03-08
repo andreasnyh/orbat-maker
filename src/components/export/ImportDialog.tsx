@@ -47,19 +47,19 @@ function ConflictSection<T extends { id: string; name: string }>({
 
   return (
     <div className="flex flex-col gap-2">
-      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+      <h3 className="text-xs font-semibold text-dim uppercase tracking-wide">
         {title}
       </h3>
       {conflicts.map((conflict, i) => (
         <div
           key={conflict.incoming.id}
-          className="flex items-center justify-between gap-3 bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2"
+          className="flex items-center justify-between gap-3 bg-page border border-trim rounded-md px-3 py-2"
         >
           <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-sm text-gray-200 truncate">
+            <span className="text-sm text-body truncate">
               {conflict.incoming.name}
             </span>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-dim">
               Matches existing: {conflict.existingMatch.name}
             </span>
           </div>
@@ -70,7 +70,7 @@ function ConflictSection<T extends { id: string; name: string }>({
               className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
                 conflict.resolution === 'skip'
                   ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                  : 'bg-[#1a1a2e] text-gray-400 border border-[#2a2a4a] hover:text-gray-300'
+                  : 'bg-panel text-dim border border-trim hover:text-sub'
               }`}
             >
               Skip
@@ -81,7 +81,7 @@ function ConflictSection<T extends { id: string; name: string }>({
               className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
                 conflict.resolution === 'add'
                   ? 'bg-green-500/20 text-green-300 border border-green-500/40'
-                  : 'bg-[#1a1a2e] text-gray-400 border border-[#2a2a4a] hover:text-gray-300'
+                  : 'bg-panel text-dim border border-trim hover:text-sub'
               }`}
             >
               Add anyway
@@ -271,7 +271,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         {/* Idle / pick file */}
         {(state.phase === 'idle' || state.phase === 'error') && (
           <>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-dim">
               Select an ORBAT Maker JSON export file. Existing records with
               matching IDs will be skipped; new records will be merged in.
             </p>
@@ -291,7 +291,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
             <button
               type="button"
               onClick={handlePickFile}
-              className="w-full border-2 border-dashed border-[#2a2a4a] hover:border-green-500/50 rounded-lg py-10 flex flex-col items-center gap-3 text-gray-400 hover:text-green-400 transition-colors cursor-pointer"
+              className="w-full border-2 border-dashed border-trim hover:border-accent/50 rounded-lg py-10 flex flex-col items-center gap-3 text-dim hover:text-accent transition-colors cursor-pointer"
             >
               <Upload size={32} />
               <span className="text-sm font-medium">
@@ -304,18 +304,18 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         {/* Preview */}
         {state.phase === 'preview' && (
           <>
-            <div className="bg-[#0f0f23] border border-[#2a2a4a] rounded-md p-4 flex flex-col gap-2">
-              <p className="text-xs text-gray-400 font-mono truncate">
+            <div className="bg-page border border-trim rounded-md p-4 flex flex-col gap-2">
+              <p className="text-xs text-dim font-mono truncate">
                 {state.filename}
               </p>
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-sub">
                 This file contains:{' '}
-                <span className="text-green-400 font-medium">
+                <span className="text-accent font-medium">
                   {describeBundle(state.bundle)}
                 </span>
               </p>
               {state.bundle.exportedAt && (
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-dim">
                   Exported: {new Date(state.bundle.exportedAt).toLocaleString()}
                 </p>
               )}
@@ -328,7 +328,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
               state.bundle.templates?.length && 'templates',
             ].filter(Boolean).length > 1 && (
               <fieldset className="flex flex-col gap-1.5">
-                <legend className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                <legend className="text-xs font-semibold text-dim uppercase tracking-wide mb-1">
                   Import sections
                 </legend>
                 {(
@@ -342,7 +342,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
                   .map(([key, label, count]) => (
                     <label
                       key={key}
-                      className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer select-none"
+                      className="flex items-center gap-2 text-sm text-sub cursor-pointer select-none"
                     >
                       <input
                         type="checkbox"
@@ -355,15 +355,15 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
                         }
                         className="accent-green-500"
                       />
-                      {label} <span className="text-gray-500">({count})</span>
+                      {label} <span className="text-faint">({count})</span>
                     </label>
                   ))}
               </fieldset>
             )}
 
-            <p className="text-xs text-gray-400">
-              Import mode: <span className="text-gray-300">Merge</span> —
-              records whose IDs already exist in the app will be skipped.
+            <p className="text-xs text-dim">
+              Import mode: <span className="text-sub">Merge</span> — records
+              whose IDs already exist in the app will be skipped.
             </p>
 
             <div className="flex gap-2 justify-end">
@@ -402,7 +402,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
               </span>
             </div>
 
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-dim">
               The following imported items have the same name as existing
               records but different IDs. Choose to skip or add them as
               duplicates.
@@ -476,9 +476,9 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         {state.phase === 'success' && (
           <>
             <div className="flex flex-col items-center gap-3 py-6 text-center">
-              <CheckCircle size={40} className="text-green-400" />
-              <p className="text-gray-200 font-medium">Import complete</p>
-              <p className="text-sm text-gray-400">
+              <CheckCircle size={40} className="text-accent" />
+              <p className="text-body font-medium">Import complete</p>
+              <p className="text-sm text-dim">
                 {state.description} merged successfully.
               </p>
             </div>

@@ -72,7 +72,7 @@ export function PersonForm({
       />
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="person-rank" className="text-sm text-gray-400">
+        <label htmlFor="person-rank" className="text-sm text-dim">
           Rank (optional)
         </label>
         <select
@@ -82,7 +82,7 @@ export function PersonForm({
             setSelectValue(e.target.value);
             if (e.target.value !== CUSTOM_VALUE) setCustomRank('');
           }}
-          className="bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2 text-gray-200 text-sm focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25"
+          className="bg-page border border-trim rounded-md px-3 py-2 text-body text-sm focus-visible:outline-none focus-visible:border-accent/50 focus-visible:ring-1 focus-visible:ring-accent/25"
         >
           <option value="">(None)</option>
           {ranks.map((r) => (
@@ -103,7 +103,7 @@ export function PersonForm({
             onChange={(e) => setCustomRank(e.target.value)}
             autoComplete="off"
           />
-          <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer select-none">
+          <label className="flex items-center gap-2 text-sm text-dim cursor-pointer select-none">
             <input
               type="checkbox"
               checked={saveCustomRank}

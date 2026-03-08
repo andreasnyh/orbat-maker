@@ -50,11 +50,11 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       aria-labelledby="modal-title"
       className="backdrop:bg-black/60 bg-transparent p-0 max-w-lg w-full m-auto outline-none animate-fade-in backdrop:animate-fade-in"
     >
-      <div className="bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg shadow-xl max-h-[85vh] overflow-y-auto overscroll-contain mx-4">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#2a2a4a]">
+      <div className="bg-panel border border-trim rounded-lg shadow-xl max-h-[85vh] overflow-y-auto overscroll-contain mx-4">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-trim">
           <h2
             id="modal-title"
-            className="font-display text-lg font-semibold text-gray-200 uppercase"
+            className="font-display text-lg font-semibold text-body uppercase"
           >
             {title}
           </h2>
@@ -62,7 +62,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-gray-400 hover:text-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/60 rounded"
+            className="text-dim hover:text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 rounded"
           >
             <X size={20} />
           </button>

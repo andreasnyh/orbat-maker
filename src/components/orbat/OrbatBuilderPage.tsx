@@ -372,7 +372,7 @@ export function OrbatBuilderPage({
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
         <AlertTriangle size={40} className="text-yellow-400" />
-        <p className="text-gray-400">ORBAT not found.</p>
+        <p className="text-dim">ORBAT not found.</p>
         <Button variant="secondary" onClick={() => onNavigate('orbats')}>
           <ArrowLeft size={14} />
           Back to ORBATs
@@ -393,7 +393,7 @@ export function OrbatBuilderPage({
         title="Copy formatted ORBAT for Discord"
       >
         {copiedTarget === 'discord' ? (
-          <Check size={14} className="text-green-400" />
+          <Check size={14} className="text-accent" />
         ) : (
           <Clipboard size={14} />
         )}
@@ -407,7 +407,7 @@ export function OrbatBuilderPage({
         title="Copy formatted ORBAT for TeamSpeak"
       >
         {copiedTarget === 'teamspeak' ? (
-          <Check size={14} className="text-green-400" />
+          <Check size={14} className="text-accent" />
         ) : (
           <Clipboard size={14} />
         )}
@@ -466,7 +466,7 @@ export function OrbatBuilderPage({
                 ) : (
                   <button
                     type="button"
-                    className="font-display text-xl font-bold text-gray-100 uppercase tracking-wide truncate cursor-pointer hover:text-green-400 transition-colors inline-flex items-center gap-2 group/name"
+                    className="font-display text-xl font-bold text-strong uppercase tracking-wide truncate cursor-pointer hover:text-accent transition-colors inline-flex items-center gap-2 group/name"
                     onClick={() => {
                       setNameValue(orbat.name);
                       setEditingName(true);
@@ -476,7 +476,7 @@ export function OrbatBuilderPage({
                     <span className="truncate">{orbat.name}</span>
                     <Pencil
                       size={14}
-                      className="shrink-0 text-gray-500 group-hover/name:text-green-400 transition-colors"
+                      className="shrink-0 text-faint group-hover/name:text-accent transition-colors"
                       aria-hidden="true"
                     />
                   </button>
@@ -485,7 +485,7 @@ export function OrbatBuilderPage({
 
               {/* Toggle, copy & clear — inline on desktop */}
               {template && (
-                <div className="shrink-0 hidden md:flex items-stretch gap-4 divide-x divide-[#2a2a4a]">
+                <div className="shrink-0 hidden lg:flex items-stretch gap-4 divide-x divide-trim">
                   <div className="flex items-center gap-4 pr-4">
                     <Toggle
                       checked={showEquipment}
@@ -502,7 +502,7 @@ export function OrbatBuilderPage({
 
             {/* Row 2: Action buttons on mobile */}
             {template && (
-              <div className="flex md:hidden flex-col-reverse gap-4">
+              <div className="flex lg:hidden flex-col-reverse gap-4">
                 <div className="flex items-center justify-between">
                   <Toggle
                     checked={showEquipment}
@@ -521,7 +521,7 @@ export function OrbatBuilderPage({
 
           {/* Template meta */}
           {template && (
-            <div className="text-xs text-gray-400 hidden sm:flex items-center gap-2">
+            <div className="text-xs text-dim hidden sm:flex items-center gap-2">
               <span>{template.name}</span>
             </div>
           )}
@@ -542,7 +542,7 @@ export function OrbatBuilderPage({
           {/* Main split layout */}
           <div className="flex gap-6 min-h-0 flex-1">
             {/* Left: Roster sidebar — desktop only */}
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <RosterSidebar
                 assignments={orbat.assignments}
                 className="w-80 shrink-0"
@@ -570,14 +570,14 @@ export function OrbatBuilderPage({
                     />
                   ))}
                   {template.groups.length === 0 && (
-                    <div className="text-center py-16 text-gray-400 text-sm italic">
+                    <div className="text-center py-16 text-dim text-sm italic">
                       This template has no groups. Edit the template to add
                       groups and slots.
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="text-center py-16 text-gray-400 text-sm italic">
+                <div className="text-center py-16 text-dim text-sm italic">
                   Template unavailable — cannot display slots.
                 </div>
               )}
@@ -604,7 +604,7 @@ export function OrbatBuilderPage({
               {activePerson.rank && (
                 <Badge variant="green">{activePerson.rank}</Badge>
               )}
-              <span className="font-display text-gray-200 font-semibold truncate">
+              <span className="font-display text-body font-semibold truncate">
                 {activePerson.name}
               </span>
             </div>
@@ -626,7 +626,7 @@ export function OrbatBuilderPage({
       {/* Semi-transparent backdrop */}
       {showRoster && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
           onClick={() => {
             setShowRoster(false);
             setTapTargetSlotId(null);
@@ -635,27 +635,25 @@ export function OrbatBuilderPage({
         />
       )}
 
-      {/* Bottom sheet panel — sits above the 4rem MobileNav */}
+      {/* Bottom sheet panel — sits above the 4rem MobileNav on mobile, at bottom on tablet */}
       <div
-        className={`fixed left-0 right-0 z-50 md:hidden bg-[#1a1a2e] border-t border-[#2a2a4a] rounded-t-xl shadow-2xl transition-transform duration-300 flex flex-col overflow-hidden p-4 ${
+        className={`fixed left-0 right-0 z-50 lg:hidden bg-panel border-t border-trim rounded-t-xl shadow-2xl transition-transform duration-300 flex flex-col overflow-hidden p-4 bottom-16 md:bottom-0 max-h-[calc(70dvh-4rem)] md:max-h-[70dvh] ${
           showRoster ? 'translate-y-0' : 'translate-y-full'
         }`}
         style={{
-          bottom: '4rem',
-          maxHeight: 'calc(70dvh - 4rem)',
           overscrollBehavior: 'contain',
         }}
         aria-hidden={!showRoster}
       >
         {/* Drag handle indicator */}
         <div className="flex justify-center mb-3 shrink-0">
-          <div className="w-10 h-1 rounded-full bg-[#2a2a4a]" />
+          <div className="w-10 h-1 rounded-full bg-trim" />
         </div>
 
         {/* Tap-assign banner */}
         {tapTargetSlot && (
-          <div className="bg-green-400/10 border border-green-400/30 rounded-lg px-3 py-2 mb-3 shrink-0">
-            <span className="text-sm text-green-300">
+          <div className="bg-accent/10 border border-accent/30 rounded-lg px-3 py-2 mb-3 shrink-0">
+            <span className="text-sm text-accent">
               Assigning to: <strong>{tapTargetSlot.roleLabel}</strong>
             </span>
           </div>

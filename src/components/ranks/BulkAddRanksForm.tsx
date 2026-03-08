@@ -35,13 +35,13 @@ export function BulkAddRanksForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label htmlFor="bulk-ranks-input" className="text-sm text-gray-400">
+        <label htmlFor="bulk-ranks-input" className="text-sm text-dim">
           Ranks — one per line
         </label>
         <textarea
           ref={textareaRef}
           id="bulk-ranks-input"
-          className="bg-[#0f0f23] border border-[#2a2a4a] rounded-md px-3 py-2 text-gray-200 text-sm placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25 resize-none font-mono leading-relaxed"
+          className="bg-page border border-trim rounded-md px-3 py-2 text-body text-sm placeholder:text-faint focus-visible:outline-none focus-visible:border-accent/50 focus-visible:ring-1 focus-visible:ring-accent/25 resize-none font-mono leading-relaxed"
           rows={8}
           placeholder={`Pvt.\nCpl.\nSgt.\nLt.\nCapt.\n…`}
           value={text}
@@ -52,21 +52,21 @@ export function BulkAddRanksForm({
       </div>
 
       {names.length > 0 && (
-        <div className="border border-[#2a2a4a] rounded-md bg-[#0f0f23]/50 max-h-40 overflow-y-auto overscroll-contain">
-          <div className="px-3 py-2 border-b border-[#2a2a4a] flex items-center justify-between">
-            <span className="text-xs text-gray-400 uppercase tracking-wide font-medium">
+        <div className="border border-trim rounded-md bg-page/50 max-h-40 overflow-y-auto overscroll-contain">
+          <div className="px-3 py-2 border-b border-trim flex items-center justify-between">
+            <span className="text-xs text-dim uppercase tracking-wide font-medium">
               Preview
             </span>
-            <span className="text-xs text-green-400 tabular-nums">
+            <span className="text-xs text-accent tabular-nums">
               {names.length} {names.length === 1 ? 'rank' : 'ranks'}
             </span>
           </div>
-          <ul className="divide-y divide-[#2a2a4a]/50">
+          <ul className="divide-y divide-trim/50">
             {names.map((name, i) => (
               <li
                 // biome-ignore lint/suspicious/noArrayIndexKey: preview list from ephemeral parsed data
                 key={i}
-                className="px-3 py-1.5 text-sm text-gray-300"
+                className="px-3 py-1.5 text-sm text-sub"
               >
                 {name}
               </li>

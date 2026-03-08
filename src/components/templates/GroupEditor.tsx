@@ -164,16 +164,16 @@ export function GroupEditor({
 
   return (
     <>
-      <div className="bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg overflow-hidden">
+      <div className="bg-panel border border-trim rounded-lg overflow-hidden">
         {/* Group header */}
         <div
-          className="flex items-center gap-2 px-3 py-2 border-b border-[#2a2a4a] bg-[#15152a] border-l-2"
+          className="flex items-center gap-2 px-3 py-2 border-b border-trim bg-panel border-l-2"
           style={{ borderLeftColor: group.color ?? 'transparent' }}
         >
           {/* Drag handle for the group */}
           <button
             type="button"
-            className="text-gray-700 hover:text-gray-300 cursor-grab active:cursor-grabbing shrink-0 transition-colors"
+            className="text-chrome hover:text-sub cursor-grab active:cursor-grabbing shrink-0 transition-colors"
             aria-label={`Reorder ${group.name}`}
             {...dragHandleProps}
           >
@@ -190,13 +190,13 @@ export function GroupEditor({
                 onBlur={commitGroupName}
                 onKeyDown={handleNameKeyDown}
                 aria-label="Group name"
-                className="w-full bg-[#0f0f23] border border-green-400/50 rounded px-2 py-0.5 text-sm font-semibold text-gray-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/25"
+                className="w-full bg-page border border-accent/50 rounded px-2 py-0.5 text-sm font-semibold text-body focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/25"
               />
             ) : (
               <button
                 type="button"
                 onClick={() => setEditingName(true)}
-                className="block w-full text-left font-display text-sm font-semibold text-gray-200 cursor-text hover:text-white truncate bg-transparent border-none p-0"
+                className="block w-full text-left font-display text-sm font-semibold text-body cursor-text hover:text-white truncate bg-transparent border-none p-0"
                 title="Click to edit group name"
               >
                 {group.name}
@@ -205,7 +205,7 @@ export function GroupEditor({
           </div>
 
           {/* Slot count */}
-          <span className="shrink-0 text-xs text-gray-400 font-data">
+          <span className="shrink-0 text-xs text-dim font-data">
             {group.slots.length} {group.slots.length === 1 ? 'slot' : 'slots'}
           </span>
 
@@ -213,7 +213,7 @@ export function GroupEditor({
           <div ref={colorPickerRef} className="relative shrink-0">
             <button
               onClick={() => setShowColors((v) => !v)}
-              className="flex items-center gap-1 text-gray-500 hover:text-gray-300 transition-colors"
+              className="flex items-center gap-1 text-faint hover:text-sub transition-colors"
               aria-label="Set group color"
               title="Set group color"
               type="button"
@@ -229,7 +229,7 @@ export function GroupEditor({
             </button>
 
             {showColors && (
-              <div className="absolute right-0 top-full mt-1 z-20 bg-[#1a1a2e] border border-[#2a2a4a] rounded-lg p-2 shadow-xl">
+              <div className="absolute right-0 top-full mt-1 z-20 bg-panel border border-trim rounded-lg p-2 shadow-xl">
                 <div className="flex gap-1.5">
                   {GROUP_COLORS.map((c) => (
                     <button
@@ -259,7 +259,7 @@ export function GroupEditor({
           {/* Delete group button */}
           <button
             onClick={() => setConfirmDelete(true)}
-            className="shrink-0 text-gray-500 hover:text-red-400 transition-colors"
+            className="shrink-0 text-faint hover:text-red-400 transition-colors"
             aria-label={`Delete ${group.name}`}
             title="Delete group"
             type="button"
@@ -290,18 +290,18 @@ export function GroupEditor({
               </SortableContext>
             </DndContext>
           ) : (
-            <p className="text-xs text-gray-400 text-center py-2 italic">
+            <p className="text-xs text-dim text-center py-2 italic">
               No slots — add one below
             </p>
           )}
         </div>
 
         {/* Add slot button */}
-        <div className="px-3 py-2 border-t border-[#2a2a4a]">
+        <div className="px-3 py-2 border-t border-trim">
           <button
             onClick={addSlot}
             type="button"
-            className="flex items-center gap-1.5 text-xs text-green-400 hover:text-green-300 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-accent hover:text-accent/80 transition-colors"
           >
             <Plus size={12} />
             Add Slot

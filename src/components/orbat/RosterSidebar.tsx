@@ -34,8 +34,6 @@ const DraggablePersonCard = memo(function DraggablePersonCard({
     data: { type: 'person', personId: person.id },
   });
 
-  // Listeners + attributes are on the wrapper so that inner content receives
-  // stable props and its memo can skip re-renders during drag.
   return (
     <div
       ref={setNodeRef}
@@ -51,8 +49,7 @@ const DraggablePersonCard = memo(function DraggablePersonCard({
   );
 });
 
-// Memoized inner content — avoids re-creating JSX on every dnd context update.
-// Only re-renders when person data or assignment status changes.
+// Memoized inner content
 const DraggablePersonContent = memo(function DraggablePersonContent({
   person,
   isAssigned,
@@ -69,7 +66,7 @@ const DraggablePersonContent = memo(function DraggablePersonContent({
       )}
     >
       {person.rank && <Badge variant="green">{person.rank}</Badge>}
-      <span className="font-display text-gray-200 font-semibold truncate">
+      <span className="font-display text-body font-semibold truncate">
         {person.name}
       </span>
       {isAssigned && (
@@ -98,16 +95,16 @@ const TappablePersonRow = memo(function TappablePersonRow({
       className={clsx(
         'flex items-center gap-2 w-full text-left px-3 py-2.5 rounded-md border transition-colors',
         isAssigned
-          ? 'opacity-50 border-[#2a2a4a] bg-[#0f0f23]/50'
-          : 'border-[#2a2a4a] bg-[#16213e] active:bg-[#1a2744]',
+          ? 'opacity-50 border-trim bg-page/50'
+          : 'border-trim bg-panel-alt active:bg-panel-alt/80',
       )}
     >
       {person.rank && (
-        <span className="text-green-400 text-xs font-data shrink-0">
+        <span className="text-accent text-xs font-data shrink-0">
           {person.rank}
         </span>
       )}
-      <span className="font-display text-gray-200 font-medium truncate">
+      <span className="font-display text-body font-medium truncate">
         {person.name}
       </span>
       {isAssigned && (
@@ -164,19 +161,18 @@ export function RosterSidebar({
       {/* Sidebar header */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-sm font-semibold text-gray-400 uppercase">
+          <h2 className="font-display text-sm font-semibold text-dim uppercase">
             Roster
           </h2>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-400 font-data">
+            <span className="text-xs text-dim font-data">
               {assignedCount}/{people.length} assigned
             </span>
-            {/* Close button — only rendered in mobile bottom-sheet mode */}
             {onClose && (
               <button
                 type="button"
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-300 transition-colors p-1 -mr-1"
+                className="text-dim hover:text-sub transition-colors p-1 -mr-1"
                 aria-label="Close roster"
               >
                 <X size={18} />
@@ -190,7 +186,7 @@ export function RosterSidebar({
           <div className="relative">
             <Search
               size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-faint pointer-events-none"
               aria-hidden="true"
             />
             <input
@@ -199,8 +195,8 @@ export function RosterSidebar({
               aria-label="Search personnel"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-[#0f0f23] border border-[#2a2a4a] rounded-md pl-8 pr-3 py-2 text-gray-200 text-sm
-                         placeholder:text-gray-500 focus-visible:outline-none focus-visible:border-green-400/50 focus-visible:ring-1 focus-visible:ring-green-400/25"
+              className="w-full bg-page border border-trim rounded-md pl-8 pr-3 py-2 text-body text-sm
+                         placeholder:text-faint focus-visible:outline-none focus-visible:border-accent/50 focus-visible:ring-1 focus-visible:ring-accent/25"
             />
           </div>
         )}
@@ -215,12 +211,12 @@ export function RosterSidebar({
       </div>
 
       {/* Divider */}
-      <div className="border-t border-[#2a2a4a]" />
+      <div className="border-t border-trim" />
 
       {/* Person list */}
       <div className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0 pr-1">
         {filtered.length === 0 ? (
-          <p className="text-xs text-gray-400 italic text-center py-8">
+          <p className="text-xs text-dim italic text-center py-8">
             {people.length === 0
               ? 'No personnel in roster. Add personnel first.'
               : 'No matches found.'}
