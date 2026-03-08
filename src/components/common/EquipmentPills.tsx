@@ -43,8 +43,8 @@ export function EquipmentPills({
 
   const pillClass =
     size === 'sm'
-      ? 'inline-flex items-center gap-0.5 bg-amber-400/15 text-amber-300 text-[10px] font-mono rounded-full px-1.5 py-[3px]'
-      : 'inline-flex items-center gap-0.5 bg-amber-400/15 text-amber-300 text-[10px] font-mono rounded-full px-2 py-[3px]';
+      ? 'inline-flex items-center gap-0.5 bg-amber-400/15 text-amber-300 text-[10px] font-mono rounded px-1.5 py-[3px]'
+      : 'inline-flex items-center gap-0.5 bg-amber-400/15 text-amber-300 text-[10px] font-mono rounded px-2 py-[3px]';
 
   return (
     <>
@@ -76,7 +76,7 @@ export function EquipmentPills({
             onBlur={commitTag}
             onKeyDown={handleKeyDown}
             placeholder="Tag…"
-            className="bg-[#0f0f23] border border-amber-400/30 rounded-full px-2 py-0.5 text-[10px] font-mono text-gray-200 w-20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-400/25"
+            className="bg-[#0f0f23] border border-amber-400/30 rounded px-2 py-0.5 text-[10px] font-mono text-gray-200 w-20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-400/25"
           />
         ) : (
           <button

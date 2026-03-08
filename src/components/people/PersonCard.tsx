@@ -23,47 +23,45 @@ export const PersonCard = memo(function PersonCard({
 }: PersonCardProps) {
   return (
     <div
-      className={clsx('card p-4', 'flex flex-col gap-3', className)}
+      className={clsx('card p-4', 'flex flex-col gap-1.5', className)}
       {...rest}
     >
-      {/* Name and rank */}
-      <div className="flex flex-col gap-1.5 min-w-0">
+      {/* Rank and actions */}
+      <div className="flex items-center gap-1 min-w-0">
         {person.rank && <Badge variant="green">{person.rank}</Badge>}
-        <span className="font-display text-gray-200 font-semibold text-lg leading-tight truncate">
-          {person.name}
-        </span>
+        {(onEdit || onDelete) && (
+          <div className="flex items-center gap-1 ml-auto">
+            {onEdit && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onEdit(person)}
+                aria-label={`Edit ${person.name}`}
+                title="Edit"
+              >
+                <Pencil size={14} />
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onDelete(person)}
+                aria-label={`Delete ${person.name}`}
+                title="Delete"
+                className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+              >
+                <Trash2 size={14} />
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Actions */}
-      {(onEdit || onDelete) && (
-        <div className="flex items-center gap-1 mt-auto pt-1 border-t border-[#2a2a4a]">
-          {onEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(person)}
-              aria-label={`Edit ${person.name}`}
-              title="Edit"
-            >
-              <Pencil size={14} />
-              Edit
-            </Button>
-          )}
-          {onDelete && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDelete(person)}
-              aria-label={`Delete ${person.name}`}
-              title="Delete"
-              className="text-red-400 hover:text-red-300 hover:bg-red-400/10 ml-auto"
-            >
-              <Trash2 size={14} />
-              Delete
-            </Button>
-          )}
-        </div>
-      )}
+      {/* Name */}
+      <span className="font-display text-gray-200 font-semibold text-lg leading-tight truncate pl-2 pt-1.5 border-t border-[#2a2a4a]">
+        {person.name}
+      </span>
     </div>
   );
 });

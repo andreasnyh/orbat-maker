@@ -40,7 +40,7 @@ const DraggablePersonCard = memo(function DraggablePersonCard({
     <div
       ref={setNodeRef}
       className={clsx(
-        'relative cursor-grab active:cursor-grabbing',
+        'roster-card relative cursor-grab active:cursor-grabbing',
         isDragging && 'opacity-40',
       )}
       {...attributes}
@@ -65,7 +65,6 @@ const DraggablePersonContent = memo(function DraggablePersonContent({
       className={clsx(
         'card px-3 py-2 select-none transition-all duration-150 pointer-events-none',
         'flex items-center gap-2',
-        'hover:-translate-y-px hover:shadow-lg hover:shadow-black/25 hover:border-green-400/30',
         isAssigned && 'opacity-50',
       )}
     >
@@ -165,7 +164,7 @@ export function RosterSidebar({
       {/* Sidebar header */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-sm font-semibold text-gray-400 uppercase tracking-widest">
+          <h2 className="font-display text-sm font-semibold text-gray-400 uppercase">
             Roster
           </h2>
           <div className="flex items-center gap-3">

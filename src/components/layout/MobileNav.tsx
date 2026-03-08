@@ -45,7 +45,7 @@ export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {
               }`}
             >
               <Icon size={iconSize ?? 20} aria-hidden="true" />
-              <span className="font-display text-[10px] font-semibold tracking-wide uppercase">
+              <span className="font-display text-[10px] font-semibold uppercase">
                 {label}
               </span>
             </button>

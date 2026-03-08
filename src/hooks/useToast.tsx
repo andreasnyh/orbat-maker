@@ -88,7 +88,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 ? 'border-red-500/30'
                 : 'border-green-500/30'
             } rounded-lg px-4 py-2.5 shadow-lg shadow-black/30 text-sm text-gray-200 ${
-              toast.exiting ? 'animate-fade-out-down' : 'animate-fade-in-up'
+              toast.exiting ? 'animate-fade-out' : 'animate-fade-in'
             }`}
           >
             {toast.variant === 'error' ? (
