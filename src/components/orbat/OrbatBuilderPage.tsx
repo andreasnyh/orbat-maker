@@ -98,6 +98,7 @@ export function OrbatBuilderPage({
     'discord' | 'teamspeak' | null
   >(null);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(copiedTimerRef.current), []);
 
   // ---- DnD sensors ---------------------------------------------------------
   const sensors = useSensors(
@@ -155,31 +156,33 @@ export function OrbatBuilderPage({
 
   // ---- Slot management (auto-fork + mutate) --------------------------------
 
-  const handleAddSlot = useCallback(
-    (groupId: string, roleLabel: string) => {
+  const withOwnTemplate = useCallback(
+    (fn: (tid: string) => void) => {
       const tid = ensureOwnTemplate(orbatId);
-      if (tid) addSlotToGroup(tid, groupId, roleLabel);
+      if (tid) fn(tid);
     },
-    [orbatId, ensureOwnTemplate, addSlotToGroup],
+    [orbatId, ensureOwnTemplate],
+  );
+
+  const handleAddSlot = useCallback(
+    (groupId: string, roleLabel: string) =>
+      withOwnTemplate((tid) => addSlotToGroup(tid, groupId, roleLabel)),
+    [withOwnTemplate, addSlotToGroup],
   );
 
   const handleRemoveSlot = useCallback(
-    (groupId: string, slotId: string) => {
-      const tid = ensureOwnTemplate(orbatId);
-      if (tid) {
+    (groupId: string, slotId: string) =>
+      withOwnTemplate((tid) => {
         unassignSlot(orbatId, slotId);
         removeSlotFromGroup(tid, groupId, slotId);
-      }
-    },
-    [orbatId, ensureOwnTemplate, removeSlotFromGroup, unassignSlot],
+      }),
+    [withOwnTemplate, orbatId, removeSlotFromGroup, unassignSlot],
   );
 
   const handleReorderSlots = useCallback(
-    (groupId: string, slots: Slot[]) => {
-      const tid = ensureOwnTemplate(orbatId);
-      if (tid) reorderSlotsInGroup(tid, groupId, slots);
-    },
-    [orbatId, ensureOwnTemplate, reorderSlotsInGroup],
+    (groupId: string, slots: Slot[]) =>
+      withOwnTemplate((tid) => reorderSlotsInGroup(tid, groupId, slots)),
+    [withOwnTemplate, reorderSlotsInGroup],
   );
 
   const handleMoveSlotBetweenGroups = useCallback(
@@ -188,20 +191,17 @@ export function OrbatBuilderPage({
       toGroupId: string,
       slotId: string,
       targetIndex: number,
-    ) => {
-      const tid = ensureOwnTemplate(orbatId);
-      if (tid)
-        moveSlotBetweenGroups(tid, fromGroupId, toGroupId, slotId, targetIndex);
-    },
-    [orbatId, ensureOwnTemplate, moveSlotBetweenGroups],
+    ) =>
+      withOwnTemplate((tid) =>
+        moveSlotBetweenGroups(tid, fromGroupId, toGroupId, slotId, targetIndex),
+      ),
+    [withOwnTemplate, moveSlotBetweenGroups],
   );
 
   const handleUpdateSlot = useCallback(
-    (groupId: string, slotId: string, updates: Partial<Omit<Slot, 'id'>>) => {
-      const tid = ensureOwnTemplate(orbatId);
-      if (tid) updateSlot(tid, groupId, slotId, updates);
-    },
-    [orbatId, ensureOwnTemplate, updateSlot],
+    (groupId: string, slotId: string, updates: Partial<Omit<Slot, 'id'>>) =>
+      withOwnTemplate((tid) => updateSlot(tid, groupId, slotId, updates)),
+    [withOwnTemplate, updateSlot],
   );
 
   const handleUnassign = useCallback(
@@ -230,7 +230,7 @@ export function OrbatBuilderPage({
 
       // ---- Slot reorder drag (grip handle) ----
       if (active.data.current?.type === 'slot-reorder') {
-        if (!template) return;
+        if (!templateGroups) return;
         const activeSlotId = active.data.current.slotId as string;
         const activeGroupId = active.data.current.groupId as string;
         const overGroupId = over.data.current?.groupId as string | undefined;
@@ -241,7 +241,7 @@ export function OrbatBuilderPage({
         if (activeGroupId === overGroupId) {
           // Same group — reorder
           if (!overSlotId) return;
-          const group = template.groups.find((g) => g.id === activeGroupId);
+          const group = templateGroups.find((g) => g.id === activeGroupId);
           if (!group) return;
           const oldIndex = group.slots.findIndex((s) => s.id === activeSlotId);
           const newIndex = group.slots.findIndex((s) => s.id === overSlotId);
@@ -252,7 +252,7 @@ export function OrbatBuilderPage({
           );
         } else {
           // Different group — move between groups
-          const toGroup = template.groups.find((g) => g.id === overGroupId);
+          const toGroup = templateGroups.find((g) => g.id === overGroupId);
           if (!toGroup) return;
           const targetIndex = overSlotId
             ? toGroup.slots.findIndex((s) => s.id === overSlotId)
@@ -289,7 +289,7 @@ export function OrbatBuilderPage({
       }
     },
     [
-      template,
+      templateGroups,
       handleReorderSlots,
       handleMoveSlotBetweenGroups,
       assignmentsBySlotId,
@@ -383,38 +383,28 @@ export function OrbatBuilderPage({
 
   // ---- Render -------------------------------------------------------------
 
-  const copyButtons = (
-    <>
-      <Button
-        variant="secondary"
-        size="sm"
-        onClick={() => handleCopy('discord')}
-        disabled={copiedTarget != null}
-        title="Copy formatted ORBAT for Discord"
-      >
-        {copiedTarget === 'discord' ? (
-          <Check size={14} className="text-accent" />
-        ) : (
-          <Clipboard size={14} />
-        )}
-        Discord
-      </Button>
-      <Button
-        variant="secondary"
-        size="sm"
-        onClick={() => handleCopy('teamspeak')}
-        disabled={copiedTarget != null}
-        title="Copy formatted ORBAT for TeamSpeak"
-      >
-        {copiedTarget === 'teamspeak' ? (
-          <Check size={14} className="text-accent" />
-        ) : (
-          <Clipboard size={14} />
-        )}
-        TeamSpeak
-      </Button>
-    </>
-  );
+  const copyTargets = [
+    { key: 'discord', label: 'Discord' },
+    { key: 'teamspeak', label: 'TeamSpeak' },
+  ] as const;
+
+  const copyButtons = copyTargets.map(({ key, label }) => (
+    <Button
+      key={key}
+      variant="secondary"
+      size="sm"
+      onClick={() => handleCopy(key)}
+      disabled={copiedTarget != null}
+      title={`Copy formatted ORBAT for ${label}`}
+    >
+      {copiedTarget === key ? (
+        <Check size={14} className="text-accent" />
+      ) : (
+        <Clipboard size={14} />
+      )}
+      {label}
+    </Button>
+  ));
 
   const clearButton = orbat.assignments.length > 0 && (
     <Button
