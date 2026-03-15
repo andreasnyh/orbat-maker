@@ -4,6 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
 import { GripVertical, Plus, Trash2, X } from 'lucide-react';
 import { memo, useEffect, useRef, useState } from 'react';
+import { useToggle } from '../../hooks/useToggle';
 import type { Assignment, Person, Slot } from '../../types';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { EquipmentPills } from '../common/EquipmentPills';
@@ -125,10 +126,13 @@ const OrbatSlotContent = memo(
     dragAttrs,
     dragListeners,
   }: OrbatSlotContentProps) {
-    const [confirmRemove, setConfirmRemove] = useState(false);
-    const [equipPopoverOpen, setEquipPopoverOpen] = useState(false);
+    const [confirmRemove, , setConfirmRemove] = useToggle();
+    const [equipPopoverOpen, toggleEquipPopoverOpen, setEquipPopoverOpen] =
+      useToggle();
     const [newTag, setNewTag] = useState('');
+    const [popoverAbove, setPopoverAbove] = useState(false);
     const popoverRef = useRef<HTMLDivElement>(null);
+    const addEquipBtnRef = useRef<HTMLButtonElement>(null);
     const tagInputRef = useRef<HTMLInputElement>(null);
 
     function handleUnassign(e: React.MouseEvent) {
@@ -176,13 +180,18 @@ const OrbatSlotContent = memo(
         {onUpdateEquipment && (
           <>
             <button
+              ref={addEquipBtnRef}
               type="button"
               className="text-equip-muted hover:text-equip transition-colors p-2 md:p-1 rounded"
               aria-label="Add equipment"
               title="Add equipment"
               onClick={(e) => {
                 e.stopPropagation();
-                setEquipPopoverOpen((v) => !v);
+                if (!equipPopoverOpen && addEquipBtnRef.current) {
+                  const rect = addEquipBtnRef.current.getBoundingClientRect();
+                  setPopoverAbove(rect.bottom > window.innerHeight * 0.6);
+                }
+                toggleEquipPopoverOpen();
               }}
               onPointerDown={(e) => e.stopPropagation()}
             >
@@ -198,7 +207,10 @@ const OrbatSlotContent = memo(
                 />
                 <div
                   ref={popoverRef}
-                  className="absolute right-0 top-full mt-1 z-50 bg-panel border border-trim rounded-lg shadow-xl p-2 min-w-[200px]"
+                  className={clsx(
+                    'absolute right-0 z-50 bg-panel border border-trim rounded-lg shadow-xl p-2 min-w-[200px]',
+                    popoverAbove ? 'bottom-full mb-1' : 'top-full mt-1',
+                  )}
                   onPointerDown={(e) => e.stopPropagation()}
                 >
                   {equipmentSuggestions && equipmentSuggestions.length > 0 && (
