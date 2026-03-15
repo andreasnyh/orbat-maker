@@ -57,6 +57,46 @@ export function PersonForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <SelectInput
+          label="Rank (optional)"
+          value={selectValue}
+          onChange={(e) => {
+            setSelectValue(e.target.value);
+            if (e.target.value !== CUSTOM_VALUE) setCustomRank('');
+          }}
+        >
+          <option value="">(None)</option>
+          {ranks.map((r) => (
+            <option key={r.id} value={r.name}>
+              {r.name}
+            </option>
+          ))}
+          <option value={CUSTOM_VALUE}>(Custom…)</option>
+        </SelectInput>
+
+        {selectValue === CUSTOM_VALUE && (
+          <>
+            <TextInput
+              label="Custom rank"
+              placeholder="e.g. SGT, CPT, LTC…"
+              value={customRank}
+              onChange={(e) => setCustomRank(e.target.value)}
+              autoComplete="off"
+            />
+            <label className="flex items-center gap-2 text-sm text-dim cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={saveCustomRank}
+                onChange={(e) => setSaveCustomRank(e.target.checked)}
+                className="accent-green-500"
+              />
+              Save to ranks list
+            </label>
+          </>
+        )}
+      </div>
+
       <TextInput
         label="Name"
         placeholder="e.g. John Smith…"
@@ -65,44 +105,6 @@ export function PersonForm({
         required
         autoComplete="off"
       />
-
-      <SelectInput
-        label="Rank (optional)"
-        value={selectValue}
-        onChange={(e) => {
-          setSelectValue(e.target.value);
-          if (e.target.value !== CUSTOM_VALUE) setCustomRank('');
-        }}
-      >
-        <option value="">(None)</option>
-        {ranks.map((r) => (
-          <option key={r.id} value={r.name}>
-            {r.name}
-          </option>
-        ))}
-        <option value={CUSTOM_VALUE}>(Custom…)</option>
-      </SelectInput>
-
-      {selectValue === CUSTOM_VALUE && (
-        <>
-          <TextInput
-            label="Custom rank"
-            placeholder="e.g. SGT, CPT, LTC…"
-            value={customRank}
-            onChange={(e) => setCustomRank(e.target.value)}
-            autoComplete="off"
-          />
-          <label className="flex items-center gap-2 text-sm text-dim cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={saveCustomRank}
-              onChange={(e) => setSaveCustomRank(e.target.checked)}
-              className="accent-green-500"
-            />
-            Save to ranks list
-          </label>
-        </>
-      )}
 
       <div className="flex justify-end gap-3 pt-1">
         <Button type="button" variant="secondary" onClick={onCancel}>
