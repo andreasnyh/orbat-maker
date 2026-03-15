@@ -39,6 +39,7 @@ interface SortableGroupProps {
   onDelete: () => void;
   onSlotUpdate: (groupId: string, slot: Slot) => void;
   onSlotDelete: (groupId: string, slotId: string) => void;
+  equipmentSuggestions?: string[];
 }
 
 function SortableGroup({
@@ -47,6 +48,7 @@ function SortableGroup({
   onDelete,
   onSlotUpdate,
   onSlotDelete,
+  equipmentSuggestions,
 }: SortableGroupProps) {
   const {
     attributes,
@@ -90,6 +92,7 @@ function SortableGroup({
                 groupId={group.id}
                 onUpdate={(s) => onSlotUpdate(group.id, s)}
                 onDelete={() => onSlotDelete(group.id, slot.id)}
+                equipmentSuggestions={equipmentSuggestions}
               />
             ))}
           </SortableContext>
@@ -130,6 +133,20 @@ export function TemplateEditorPage({
   useEffect(() => {
     if (!editingDesc) setDescDraft(template?.description ?? '');
   }, [template?.description, editingDesc]);
+
+  const equipmentSuggestions = useMemo(
+    () =>
+      template
+        ? Array.from(
+            new Set(
+              template.groups.flatMap((g) =>
+                g.slots.flatMap((s) => s.equipment ?? []),
+              ),
+            ),
+          )
+        : [],
+    [template],
+  );
 
   // ---- DnD sensors (must be before early return to satisfy rules-of-hooks) ---
   const sensors = useSensors(
@@ -416,6 +433,7 @@ export function TemplateEditorPage({
                   onDelete={() => handleGroupDelete(group.id)}
                   onSlotUpdate={handleSlotUpdate}
                   onSlotDelete={handleSlotDelete}
+                  equipmentSuggestions={equipmentSuggestions}
                 />
               ))}
             </div>

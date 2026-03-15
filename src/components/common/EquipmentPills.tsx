@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { Plus, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useFocusWhen } from '../../hooks/useFocusWhen';
@@ -7,49 +8,42 @@ interface EquipmentPillsProps {
   equipment: string[];
   onAdd?: (tag: string) => void;
   onRemove?: (tag: string) => void;
-  /** Pill size variant */
-  size?: 'sm' | 'md';
+  suggestions?: string[];
 }
 
 export function EquipmentPills({
   equipment,
   onAdd,
   onRemove,
-  size = 'sm',
+  suggestions,
 }: EquipmentPillsProps) {
-  const [adding, , setAdding] = useToggle();
-  const [draft, setDraft] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [popoverOpen, togglePopoverOpen, setPopoverOpen] = useToggle();
+  const [newTag, setNewTag] = useState('');
+  const [popoverAbove, setPopoverAbove] = useState(false);
+  const addBtnRef = useRef<HTMLButtonElement>(null);
+  const tagInputRef = useRef<HTMLInputElement>(null);
 
-  useFocusWhen(inputRef, adding);
+  useFocusWhen(tagInputRef, popoverOpen);
 
-  function commitTag() {
-    const trimmed = draft.trim();
-    if (trimmed) onAdd?.(trimmed);
-    setDraft('');
-    setAdding(false);
+  function closePopover() {
+    setPopoverOpen(false);
+    setNewTag('');
   }
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      commitTag();
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      setDraft('');
-      setAdding(false);
-    }
+  function handleAdd(tag: string) {
+    const trimmed = tag.trim();
+    if (trimmed && !equipment.includes(trimmed)) onAdd?.(trimmed);
   }
 
-  const pillClass =
-    size === 'sm'
-      ? 'inline-flex items-center gap-0.5 bg-equip-bg text-equip text-[10px] font-mono rounded px-1.5 py-[3px]'
-      : 'inline-flex items-center gap-0.5 bg-equip-bg text-equip text-[10px] font-mono rounded px-2 py-[3px]';
+  const unusedSuggestions = suggestions?.filter((s) => !equipment.includes(s));
 
   return (
     <>
       {equipment.map((tag) => (
-        <span key={tag} className={pillClass}>
+        <span
+          key={tag}
+          className="inline-flex items-center gap-0.5 bg-equip-bg text-equip text-[10px] font-mono rounded px-1.5 py-[3px]"
+        >
           <span className="translate-y-px">{tag}</span>
           {onRemove && (
             <button
@@ -67,32 +61,75 @@ export function EquipmentPills({
           )}
         </span>
       ))}
-      {onAdd &&
-        (adding ? (
-          <input
-            ref={inputRef}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onBlur={commitTag}
-            onKeyDown={handleKeyDown}
-            placeholder="Tag…"
-            className="bg-page border border-equip/30 rounded px-2 py-0.5 text-[10px] font-mono text-body w-20 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-equip/25"
-          />
-        ) : (
+      {onAdd && (
+        <>
           <button
+            ref={addBtnRef}
             type="button"
+            className="text-equip-muted hover:text-equip transition-colors p-2 md:p-1 rounded"
+            aria-label="Add equipment"
+            title="Add equipment"
             onClick={(e) => {
               e.stopPropagation();
-              setAdding(true);
+              if (!popoverOpen && addBtnRef.current) {
+                const rect = addBtnRef.current.getBoundingClientRect();
+                setPopoverAbove(rect.bottom > window.innerHeight * 0.6);
+              }
+              togglePopoverOpen();
             }}
             onPointerDown={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-0.5 text-[10px] text-equip-muted hover:text-equip transition-colors"
-            title="Add equipment tag"
-            aria-label="Add equipment tag"
           >
-            <Plus size={10} />
+            <Plus className="size-5 md:size-4" />
           </button>
-        ))}
+          {popoverOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-40"
+                onClick={closePopover}
+                onPointerDown={(e) => e.stopPropagation()}
+                aria-hidden="true"
+              />
+              <div
+                className={clsx(
+                  'absolute right-0 z-50 bg-panel border border-trim rounded-lg shadow-xl p-2 min-w-[200px]',
+                  popoverAbove ? 'bottom-full mb-1' : 'top-full mt-1',
+                )}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                {unusedSuggestions && unusedSuggestions.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2 max-h-40 overflow-y-auto">
+                    {unusedSuggestions.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        className="bg-equip-bg text-equip hover:brightness-125 text-[10px] font-mono rounded px-2 py-[3px] transition-colors"
+                        onClick={() => handleAdd(s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <input
+                  ref={tagInputRef}
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAdd(newTag);
+                      setNewTag('');
+                    }
+                    if (e.key === 'Escape') closePopover();
+                  }}
+                  placeholder="New tag…"
+                  aria-label="New equipment tag"
+                  className="w-full bg-page border border-trim rounded px-2 py-1 text-[11px] text-body placeholder-faint focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-equip/25 font-mono"
+                />
+              </div>
+            </>
+          )}
+        </>
+      )}
     </>
   );
 }

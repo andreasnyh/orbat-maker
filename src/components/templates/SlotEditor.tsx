@@ -11,6 +11,7 @@ interface SlotEditorProps {
   onUpdate: (slot: Slot) => void;
   onDelete: () => void;
   dragHandleProps?: DraggableSyntheticListeners;
+  equipmentSuggestions?: string[];
 }
 
 export function SlotEditor({
@@ -18,6 +19,7 @@ export function SlotEditor({
   onUpdate,
   onDelete,
   dragHandleProps,
+  equipmentSuggestions,
 }: SlotEditorProps) {
   const [editing, , setEditing] = useToggle();
   const [draft, setDraft] = useState(slot.roleLabel);
@@ -119,12 +121,12 @@ export function SlotEditor({
       </div>
 
       {/* Equipment pills */}
-      <div className="flex items-center gap-1.5 mt-1 ml-6 flex-wrap">
+      <div className="flex flex-wrap items-center gap-1 mt-1 ml-6 relative">
         <EquipmentPills
           equipment={slot.equipment ?? []}
           onAdd={handleAddEquipment}
           onRemove={handleRemoveEquipment}
-          size="md"
+          suggestions={equipmentSuggestions}
         />
       </div>
     </div>
