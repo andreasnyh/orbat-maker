@@ -1,9 +1,11 @@
 import {
-  closestCenter,
   DndContext,
   type DragEndEvent,
+  MeasuringStrategy,
   PointerSensor,
+  pointerWithin,
   TouchSensor,
+  useDroppable,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
@@ -20,8 +22,9 @@ import { useTemplatesState } from '../../context/AppStateContext';
 import { useFocusWhen } from '../../hooks/useFocusWhen';
 import { useToggle } from '../../hooks/useToggle';
 import { generateId } from '../../lib/ids';
-import type { Group, Page } from '../../types';
+import type { Group, Page, Slot } from '../../types';
 import { GroupEditor } from './GroupEditor';
+import { SortableSlot } from './SortableSlot';
 
 interface TemplateEditorPageProps {
   templateId: string;
@@ -34,9 +37,17 @@ interface SortableGroupProps {
   group: Group;
   onUpdate: (group: Group) => void;
   onDelete: () => void;
+  onSlotUpdate: (groupId: string, slot: Slot) => void;
+  onSlotDelete: (groupId: string, slotId: string) => void;
 }
 
-function SortableGroup({ group, onUpdate, onDelete }: SortableGroupProps) {
+function SortableGroup({
+  group,
+  onUpdate,
+  onDelete,
+  onSlotUpdate,
+  onSlotDelete,
+}: SortableGroupProps) {
   const {
     attributes,
     listeners,
@@ -44,7 +55,12 @@ function SortableGroup({ group, onUpdate, onDelete }: SortableGroupProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: group.id });
+  } = useSortable({ id: group.id, data: { type: 'group' } });
+
+  const { setNodeRef: setDroppableRef } = useDroppable({
+    id: `group-drop-${group.id}`,
+    data: { type: 'slot-reorder', groupId: group.id },
+  });
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -61,6 +77,23 @@ function SortableGroup({ group, onUpdate, onDelete }: SortableGroupProps) {
         onUpdate={onUpdate}
         onDelete={onDelete}
         dragHandleProps={listeners}
+        slotDroppableRef={setDroppableRef}
+        renderSlots={(slots) => (
+          <SortableContext
+            items={slots.map((s) => s.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {slots.map((slot) => (
+              <SortableSlot
+                key={slot.id}
+                slot={slot}
+                groupId={group.id}
+                onUpdate={(s) => onSlotUpdate(group.id, s)}
+                onDelete={() => onSlotDelete(group.id, slot.id)}
+              />
+            ))}
+          </SortableContext>
+        )}
       />
     </div>
   );
@@ -189,15 +222,97 @@ export function TemplateEditorPage({
     });
   }
 
-  function handleGroupDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const oldIndex = t.groups.findIndex((g) => g.id === active.id);
-    const newIndex = t.groups.findIndex((g) => g.id === over.id);
-    if (oldIndex === -1 || newIndex === -1) return;
+  function handleSlotUpdate(groupId: string, updated: Slot) {
     updateTemplate(templateId, {
-      groups: arrayMove(t.groups, oldIndex, newIndex),
+      groups: t.groups.map((g) =>
+        g.id === groupId
+          ? {
+              ...g,
+              slots: g.slots.map((s) => (s.id === updated.id ? updated : s)),
+            }
+          : g,
+      ),
     });
+  }
+
+  function handleSlotDelete(groupId: string, slotId: string) {
+    updateTemplate(templateId, {
+      groups: t.groups.map((g) =>
+        g.id === groupId
+          ? { ...g, slots: g.slots.filter((s) => s.id !== slotId) }
+          : g,
+      ),
+    });
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!active || !over) return;
+
+    const activeType = active.data.current?.type;
+
+    if (activeType === 'group') {
+      if (active.id === over.id) return;
+      const oldIndex = t.groups.findIndex((g) => g.id === active.id);
+      const newIndex = t.groups.findIndex((g) => g.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return;
+      updateTemplate(templateId, {
+        groups: arrayMove(t.groups, oldIndex, newIndex),
+      });
+      return;
+    }
+
+    if (activeType === 'slot') {
+      const activeGroupId = active.data.current?.groupId as string;
+      const overData = over.data.current;
+      const overGroupId =
+        overData?.type === 'slot'
+          ? (overData.groupId as string)
+          : overData?.type === 'slot-reorder'
+            ? (overData.groupId as string)
+            : activeGroupId;
+
+      if (activeGroupId === overGroupId) {
+        // Same-group reorder
+        if (active.id === over.id) return;
+        const group = t.groups.find((g) => g.id === activeGroupId);
+        if (!group) return;
+        const oldIndex = group.slots.findIndex((s) => s.id === active.id);
+        const newIndex = group.slots.findIndex((s) => s.id === over.id);
+        if (oldIndex === -1 || newIndex === -1) return;
+        updateTemplate(templateId, {
+          groups: t.groups.map((g) =>
+            g.id === activeGroupId
+              ? { ...g, slots: arrayMove(g.slots, oldIndex, newIndex) }
+              : g,
+          ),
+        });
+      } else {
+        // Cross-group move
+        const sourceGroup = t.groups.find((g) => g.id === activeGroupId);
+        const targetGroup = t.groups.find((g) => g.id === overGroupId);
+        if (!sourceGroup || !targetGroup) return;
+        const slot = sourceGroup.slots.find((s) => s.id === active.id);
+        if (!slot) return;
+        const targetIndex =
+          overData?.type === 'slot'
+            ? targetGroup.slots.findIndex((s) => s.id === over.id)
+            : targetGroup.slots.length;
+
+        updateTemplate(templateId, {
+          groups: t.groups.map((g) => {
+            if (g.id === activeGroupId)
+              return { ...g, slots: g.slots.filter((s) => s.id !== active.id) };
+            if (g.id === overGroupId) {
+              const newSlots = [...g.slots];
+              newSlots.splice(targetIndex, 0, slot);
+              return { ...g, slots: newSlots };
+            }
+            return g;
+          }),
+        });
+      }
+    }
   }
 
   // ---- Render -----------------------------------------------------------------
@@ -282,8 +397,11 @@ export function TemplateEditorPage({
       {template.groups.length > 0 ? (
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleGroupDragEnd}
+          collisionDetection={pointerWithin}
+          onDragEnd={handleDragEnd}
+          measuring={{
+            droppable: { strategy: MeasuringStrategy.WhileDragging },
+          }}
         >
           <SortableContext
             items={template.groups.map((g) => g.id)}
@@ -296,6 +414,8 @@ export function TemplateEditorPage({
                   group={group}
                   onUpdate={handleGroupUpdate}
                   onDelete={() => handleGroupDelete(group.id)}
+                  onSlotUpdate={handleSlotUpdate}
+                  onSlotDelete={handleSlotDelete}
                 />
               ))}
             </div>

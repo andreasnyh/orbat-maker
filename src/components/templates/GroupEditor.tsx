@@ -1,64 +1,20 @@
 import type { DraggableSyntheticListeners } from '@dnd-kit/core';
-import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Palette, Plus, Trash2 } from 'lucide-react';
+import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusWhen } from '../../hooks/useFocusWhen';
 import { useToggle } from '../../hooks/useToggle';
 import { generateId } from '../../lib/ids';
 import type { Group, Slot } from '../../types';
 import { ConfirmDialog } from '../common/ConfirmDialog';
-import { SlotEditor } from './SlotEditor';
 
 interface GroupEditorProps {
   group: Group;
   onUpdate: (group: Group) => void;
   onDelete: () => void;
   dragHandleProps?: DraggableSyntheticListeners;
-}
-
-// ---- Sortable wrapper for each slot ----------------------------------------
-
-interface SortableSlotProps {
-  slot: Slot;
-  onUpdate: (slot: Slot) => void;
-  onDelete: () => void;
-}
-
-function SortableSlot({ slot, onUpdate, onDelete }: SortableSlotProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: slot.id });
-
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-    position: 'relative',
-    zIndex: isDragging ? 10 : undefined,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} {...attributes}>
-      <SlotEditor
-        slot={slot}
-        onUpdate={onUpdate}
-        onDelete={onDelete}
-        dragHandleProps={listeners}
-      />
-    </div>
-  );
+  slotDroppableRef?: (element: HTMLElement | null) => void;
+  renderSlots?: (slots: Slot[]) => React.ReactNode;
 }
 
 // ---- GroupEditor -------------------------------------------------------------
@@ -80,6 +36,8 @@ export function GroupEditor({
   onUpdate,
   onDelete,
   dragHandleProps,
+  slotDroppableRef,
+  renderSlots,
 }: GroupEditorProps) {
   const [editingName, , setEditingName] = useToggle();
   const [nameDraft, setNameDraft] = useState(group.name);
@@ -140,26 +98,6 @@ export function GroupEditor({
   function addSlot() {
     const newSlot: Slot = { id: generateId(), roleLabel: 'New Role' };
     onUpdate({ ...group, slots: [...group.slots, newSlot] });
-  }
-
-  function updateSlot(updated: Slot) {
-    onUpdate({
-      ...group,
-      slots: group.slots.map((s) => (s.id === updated.id ? updated : s)),
-    });
-  }
-
-  function deleteSlot(slotId: string) {
-    onUpdate({ ...group, slots: group.slots.filter((s) => s.id !== slotId) });
-  }
-
-  function handleSlotDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const oldIndex = group.slots.findIndex((s) => s.id === active.id);
-    const newIndex = group.slots.findIndex((s) => s.id === over.id);
-    if (oldIndex === -1 || newIndex === -1) return;
-    onUpdate({ ...group, slots: arrayMove(group.slots, oldIndex, newIndex) });
   }
 
   return (
@@ -269,26 +207,9 @@ export function GroupEditor({
         </div>
 
         {/* Slots list */}
-        <div className="px-1 py-1">
-          {group.slots.length > 0 ? (
-            <DndContext
-              collisionDetection={closestCenter}
-              onDragEnd={handleSlotDragEnd}
-            >
-              <SortableContext
-                items={group.slots.map((s) => s.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                {group.slots.map((slot) => (
-                  <SortableSlot
-                    key={slot.id}
-                    slot={slot}
-                    onUpdate={updateSlot}
-                    onDelete={() => deleteSlot(slot.id)}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
+        <div ref={slotDroppableRef} className="px-1 py-1">
+          {group.slots.length > 0 && renderSlots ? (
+            renderSlots(group.slots)
           ) : (
             <p className="text-xs text-dim text-center py-2 italic">
               No slots — add one below
