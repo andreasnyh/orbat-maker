@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRanksState } from '../../context/AppStateContext';
 import { Button } from '../common/Button';
+import { SelectInput } from '../common/SelectInput';
+import { TextArea } from '../common/TextArea';
 import { TextInput } from '../common/TextInput';
 
 const CUSTOM_VALUE = '__custom__';
@@ -52,17 +54,13 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label htmlFor="bulk-rank-select" className="text-sm text-dim">
-          Rank (optional — applies to all)
-        </label>
-        <select
-          id="bulk-rank-select"
+        <SelectInput
+          label="Rank (optional — applies to all)"
           value={selectValue}
           onChange={(e) => {
             setSelectValue(e.target.value);
             if (e.target.value !== CUSTOM_VALUE) setCustomRank('');
           }}
-          className="bg-page border border-trim rounded-md px-3 py-2 text-body text-sm focus-visible:outline-none focus-visible:border-accent/50 focus-visible:ring-1 focus-visible:ring-accent/25"
         >
           <option value="">(None)</option>
           {ranks.map((r) => (
@@ -71,7 +69,7 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
             </option>
           ))}
           <option value={CUSTOM_VALUE}>(Custom…)</option>
-        </select>
+        </SelectInput>
         {selectValue === CUSTOM_VALUE && (
           <>
             <TextInput
@@ -94,22 +92,17 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
         )}
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="bulk-input" className="text-sm text-dim">
-          Names — one per line
-        </label>
-        <textarea
-          ref={textareaRef}
-          id="bulk-input"
-          className="bg-page border border-trim rounded-md px-3 py-2 text-body text-sm placeholder:text-faint focus-visible:outline-none focus-visible:border-accent/50 focus-visible:ring-1 focus-visible:ring-accent/25 resize-none font-mono leading-relaxed"
-          rows={8}
-          placeholder={`John Smith\nJane Doe\nMike Johnson\n…`}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          spellCheck={false}
-          autoComplete="off"
-        />
-      </div>
+      <TextArea
+        ref={textareaRef}
+        label="Names — one per line"
+        className="resize-none font-mono leading-relaxed"
+        rows={8}
+        placeholder={`John Smith\nJane Doe\nMike Johnson\n…`}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        spellCheck={false}
+        autoComplete="off"
+      />
 
       {/* Live preview */}
       {names.length > 0 && (

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRanksState } from '../../context/AppStateContext';
 import { Button } from '../common/Button';
+import { SelectInput } from '../common/SelectInput';
 import { TextInput } from '../common/TextInput';
 
 const CUSTOM_VALUE = '__custom__';
@@ -71,28 +72,22 @@ export function PersonForm({
         autoComplete="off"
       />
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="person-rank" className="text-sm text-dim">
-          Rank (optional)
-        </label>
-        <select
-          id="person-rank"
-          value={selectValue}
-          onChange={(e) => {
-            setSelectValue(e.target.value);
-            if (e.target.value !== CUSTOM_VALUE) setCustomRank('');
-          }}
-          className="bg-page border border-trim rounded-md px-3 py-2 text-body text-sm focus-visible:outline-none focus-visible:border-accent/50 focus-visible:ring-1 focus-visible:ring-accent/25"
-        >
-          <option value="">(None)</option>
-          {ranks.map((r) => (
-            <option key={r.id} value={r.name}>
-              {r.name}
-            </option>
-          ))}
-          <option value={CUSTOM_VALUE}>(Custom…)</option>
-        </select>
-      </div>
+      <SelectInput
+        label="Rank (optional)"
+        value={selectValue}
+        onChange={(e) => {
+          setSelectValue(e.target.value);
+          if (e.target.value !== CUSTOM_VALUE) setCustomRank('');
+        }}
+      >
+        <option value="">(None)</option>
+        {ranks.map((r) => (
+          <option key={r.id} value={r.name}>
+            {r.name}
+          </option>
+        ))}
+        <option value={CUSTOM_VALUE}>(Custom…)</option>
+      </SelectInput>
 
       {selectValue === CUSTOM_VALUE && (
         <>
