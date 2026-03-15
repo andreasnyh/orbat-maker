@@ -9,6 +9,7 @@ interface SortableSlotProps {
   onUpdate: (slot: Slot) => void;
   onDelete: () => void;
   equipmentSuggestions?: string[];
+  isLast?: boolean;
 }
 
 export function SortableSlot({
@@ -17,6 +18,7 @@ export function SortableSlot({
   onUpdate,
   onDelete,
   equipmentSuggestions,
+  isLast,
 }: SortableSlotProps) {
   const {
     attributes,
@@ -43,6 +45,7 @@ export function SortableSlot({
         onDelete={onDelete}
         dragHandleProps={listeners}
         equipmentSuggestions={equipmentSuggestions}
+        isLast={isLast}
       />
     </div>
   );

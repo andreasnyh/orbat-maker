@@ -9,6 +9,8 @@ interface EquipmentPillsProps {
   onAdd?: (tag: string) => void;
   onRemove?: (tag: string) => void;
   suggestions?: string[];
+  /** Force popover to open above the button (e.g. last slot in group) */
+  isLast?: boolean;
 }
 
 export function EquipmentPills({
@@ -16,10 +18,12 @@ export function EquipmentPills({
   onAdd,
   onRemove,
   suggestions,
+  isLast,
 }: EquipmentPillsProps) {
   const [popoverOpen, togglePopoverOpen, setPopoverOpen] = useToggle();
   const [newTag, setNewTag] = useState('');
   const [popoverAbove, setPopoverAbove] = useState(false);
+  const [popoverAlignRight, setPopoverAlignRight] = useState(false);
   const addBtnRef = useRef<HTMLButtonElement>(null);
   const tagInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,7 +66,7 @@ export function EquipmentPills({
         </span>
       ))}
       {onAdd && (
-        <>
+        <span className="relative">
           <button
             ref={addBtnRef}
             type="button"
@@ -73,7 +77,10 @@ export function EquipmentPills({
               e.stopPropagation();
               if (!popoverOpen && addBtnRef.current) {
                 const rect = addBtnRef.current.getBoundingClientRect();
-                setPopoverAbove(rect.bottom > window.innerHeight * 0.6);
+                setPopoverAbove(
+                  isLast || rect.bottom > window.innerHeight * 0.6,
+                );
+                setPopoverAlignRight(rect.left > window.innerWidth * 0.5);
               }
               togglePopoverOpen();
             }}
@@ -91,7 +98,8 @@ export function EquipmentPills({
               />
               <div
                 className={clsx(
-                  'absolute right-0 z-50 bg-panel border border-trim rounded-lg shadow-xl p-2 min-w-[200px]',
+                  'absolute z-50 bg-panel border border-trim rounded-lg shadow-xl p-2 min-w-[200px]',
+                  popoverAlignRight ? 'right-0' : 'left-0',
                   popoverAbove ? 'bottom-full mb-1' : 'top-full mt-1',
                 )}
                 onPointerDown={(e) => e.stopPropagation()}
@@ -128,7 +136,7 @@ export function EquipmentPills({
               </div>
             </>
           )}
-        </>
+        </span>
       )}
     </>
   );

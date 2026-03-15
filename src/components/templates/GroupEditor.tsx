@@ -102,7 +102,7 @@ export function GroupEditor({
 
   return (
     <>
-      <div className="bg-panel border border-trim rounded-lg overflow-hidden">
+      <div className="bg-panel border border-trim rounded-lg">
         {/* Group header */}
         <div
           className="flex items-center gap-2 px-3 py-2 border-b border-trim bg-panel border-l-2"

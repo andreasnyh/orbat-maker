@@ -85,7 +85,7 @@ function SortableGroup({
             items={slots.map((s) => s.id)}
             strategy={verticalListSortingStrategy}
           >
-            {slots.map((slot) => (
+            {slots.map((slot, i) => (
               <SortableSlot
                 key={slot.id}
                 slot={slot}
@@ -93,6 +93,7 @@ function SortableGroup({
                 onUpdate={(s) => onSlotUpdate(group.id, s)}
                 onDelete={() => onSlotDelete(group.id, slot.id)}
                 equipmentSuggestions={equipmentSuggestions}
+                isLast={i === slots.length - 1}
               />
             ))}
           </SortableContext>
