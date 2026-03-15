@@ -11,14 +11,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import {
-  AlertTriangle,
-  ArrowLeft,
-  Check,
-  Clipboard,
-  Pencil,
-  RotateCcw,
-} from 'lucide-react';
+import { AlertTriangle, ArrowLeft } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   useCrossCuttingState,
@@ -28,6 +21,7 @@ import {
 } from '../../context/AppStateContext';
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { useToast } from '../../hooks/useToast';
+import { useToggle } from '../../hooks/useToggle';
 import {
   copyToClipboard,
   formatOrbatForDiscord,
@@ -37,9 +31,9 @@ import type { Page, Person, Slot } from '../../types';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
 import { ConfirmDialog } from '../common/ConfirmDialog';
-import { TextInput } from '../common/TextInput';
-import { Toggle } from '../common/Toggle';
+import { MobileRosterSheet } from './MobileRosterSheet';
 import { OrbatGroup } from './OrbatGroup';
+import { OrbatToolbar } from './OrbatToolbar';
 import { RosterSidebar } from './RosterSidebar';
 
 // Re-measure droppable rects frequently so collision detection stays
@@ -78,21 +72,26 @@ export function OrbatBuilderPage({
   const { ensureOwnTemplate } = useCrossCuttingState();
   const toast = useToast();
 
-  const orbat = orbats.find((o) => o.id === orbatId);
-  const template = orbat
-    ? templates.find((t) => t.id === orbat.templateId)
-    : undefined;
+  const orbat = useMemo(
+    () => orbats.find((o) => o.id === orbatId),
+    [orbats, orbatId],
+  );
+  const template = useMemo(
+    () =>
+      orbat ? templates.find((t) => t.id === orbat.templateId) : undefined,
+    [templates, orbat],
+  );
 
   const isMobile = useIsMobile();
 
   // ---- Local state ----------------------------------------------------------
   const [activePerson, setActivePerson] = useState<Person | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
-  const [editingName, setEditingName] = useState(false);
+  const [editingName, , setEditingName] = useToggle();
   const [nameValue, setNameValue] = useState(orbat?.name ?? '');
-  const [showRoster, setShowRoster] = useState(false);
-  const [showEquipment, setShowEquipment] = useState(true);
-  const [confirmClear, setConfirmClear] = useState(false);
+  const [showRoster, , setShowRoster] = useToggle();
+  const [showEquipment, , setShowEquipment] = useToggle(true);
+  const [confirmClear, , setConfirmClear] = useToggle();
   const [tapTargetSlotId, setTapTargetSlotId] = useState<string | null>(null);
   const [copiedTarget, setCopiedTarget] = useState<
     'discord' | 'teamspeak' | null
@@ -302,6 +301,11 @@ export function OrbatBuilderPage({
 
   // ---- Name editing --------------------------------------------------------
 
+  const handleNameEditStart = useCallback(() => {
+    setNameValue(orbat?.name ?? '');
+    setEditingName(true);
+  }, [orbat?.name, setEditingName]);
+
   function handleNameCommit() {
     const trimmed = nameValue.trim();
     if (trimmed && trimmed !== orbat?.name) {
@@ -319,6 +323,16 @@ export function OrbatBuilderPage({
       setEditingName(false);
     }
   }
+
+  const handleClearClick = useCallback(
+    () => setConfirmClear(true),
+    [setConfirmClear],
+  );
+
+  const handleRosterClose = useCallback(() => {
+    setShowRoster(false);
+    setTapTargetSlotId(null);
+  }, [setShowRoster]);
 
   // ---- Clipboard copy handlers --------------------------------------------
 
@@ -342,10 +356,13 @@ export function OrbatBuilderPage({
 
   // ---- Tap-to-assign (mobile) -----------------------------------------------
 
-  const handleTapAssign = useCallback((slotId: string) => {
-    setTapTargetSlotId(slotId);
-    setShowRoster(true);
-  }, []);
+  const handleTapAssign = useCallback(
+    (slotId: string) => {
+      setTapTargetSlotId(slotId);
+      setShowRoster(true);
+    },
+    [setShowRoster],
+  );
 
   const handlePersonTap = useCallback(
     (personId: string) => {
@@ -354,7 +371,7 @@ export function OrbatBuilderPage({
       setTapTargetSlotId(null);
       setShowRoster(false);
     },
-    [tapTargetSlotId, orbatId, assignPersonToSlot],
+    [tapTargetSlotId, orbatId, assignPersonToSlot, setShowRoster],
   );
 
   const tapTargetSlot = useMemo(() => {
@@ -383,41 +400,6 @@ export function OrbatBuilderPage({
 
   // ---- Render -------------------------------------------------------------
 
-  const copyTargets = [
-    { key: 'discord', label: 'Discord' },
-    { key: 'teamspeak', label: 'TeamSpeak' },
-  ] as const;
-
-  const copyButtons = copyTargets.map(({ key, label }) => (
-    <Button
-      key={key}
-      variant="secondary"
-      size="sm"
-      onClick={() => handleCopy(key)}
-      disabled={copiedTarget != null}
-      title={`Copy formatted ORBAT for ${label}`}
-    >
-      {copiedTarget === key ? (
-        <Check size={14} className="text-accent" />
-      ) : (
-        <Clipboard size={14} />
-      )}
-      {label}
-    </Button>
-  ));
-
-  const clearButton = orbat.assignments.length > 0 && (
-    <Button
-      variant="danger"
-      size="sm"
-      onClick={() => setConfirmClear(true)}
-      title="Clear all assignments"
-    >
-      <RotateCcw size={14} />
-      Clear
-    </Button>
-  );
-
   return (
     <>
       <DndContext
@@ -429,92 +411,24 @@ export function OrbatBuilderPage({
       >
         <div className="flex flex-col gap-4 h-full">
           {/* Top bar */}
-          <div className="flex flex-col gap-3">
-            {/* Row 1: Back button + ORBAT name */}
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onNavigate('orbats')}
-                className="shrink-0"
-              >
-                <ArrowLeft size={14} />
-                <span className="hidden sm:inline">ORBATs</span>
-              </Button>
-
-              {/* Editable ORBAT name */}
-              <div className="flex-1 min-w-0">
-                {editingName ? (
-                  <TextInput
-                    value={nameValue}
-                    onChange={(e) => setNameValue(e.target.value)}
-                    onBlur={handleNameCommit}
-                    onKeyDown={handleNameKeyDown}
-                    autoFocus
-                    className="text-xl font-bold"
-                  />
-                ) : (
-                  <button
-                    type="button"
-                    className="font-display text-xl font-bold text-strong uppercase tracking-wide truncate cursor-pointer hover:text-accent transition-colors inline-flex items-center gap-2 group/name"
-                    onClick={() => {
-                      setNameValue(orbat.name);
-                      setEditingName(true);
-                    }}
-                    title="Click to rename"
-                  >
-                    <span className="truncate">{orbat.name}</span>
-                    <Pencil
-                      size={14}
-                      className="shrink-0 text-faint group-hover/name:text-accent transition-colors"
-                      aria-hidden="true"
-                    />
-                  </button>
-                )}
-              </div>
-
-              {/* Toggle, copy & clear — inline on desktop */}
-              {template && (
-                <div className="shrink-0 hidden lg:flex items-stretch gap-4 divide-x divide-trim">
-                  <div className="flex items-center gap-4 pr-4">
-                    <Toggle
-                      checked={showEquipment}
-                      onChange={setShowEquipment}
-                      label="Show equipment"
-                      size="md"
-                    />
-                    {clearButton}
-                  </div>
-                  <div className="flex items-center gap-2">{copyButtons}</div>
-                </div>
-              )}
-            </div>
-
-            {/* Row 2: Action buttons on mobile */}
-            {template && (
-              <div className="flex lg:hidden flex-col-reverse gap-4">
-                <div className="flex items-center justify-between">
-                  <Toggle
-                    checked={showEquipment}
-                    onChange={setShowEquipment}
-                    label="Show equipment"
-                    size="md"
-                  />
-                  {clearButton}
-                </div>
-                <div className="flex items-center gap-2 *:flex-1">
-                  {copyButtons}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Template meta */}
-          {template && (
-            <div className="text-xs text-dim hidden sm:flex items-center gap-2">
-              <span>{template.name}</span>
-            </div>
-          )}
+          <OrbatToolbar
+            orbatName={orbat.name}
+            onNavigate={onNavigate}
+            editingName={editingName}
+            nameValue={nameValue}
+            onNameValueChange={setNameValue}
+            onNameEditStart={handleNameEditStart}
+            onNameCommit={handleNameCommit}
+            onNameKeyDown={handleNameKeyDown}
+            hasTemplate={!!template}
+            templateName={template?.name}
+            showEquipment={showEquipment}
+            onShowEquipmentChange={setShowEquipment}
+            hasAssignments={orbat.assignments.length > 0}
+            onClearClick={handleClearClick}
+            copiedTarget={copiedTarget}
+            onCopy={handleCopy}
+          />
 
           {/* Missing template warning */}
           {!template && (
@@ -614,50 +528,14 @@ export function OrbatBuilderPage({
       </DndContext>
 
       {/* ---- Mobile roster bottom-sheet (outside DndContext so touch scroll works) ---- */}
-
-      {/* Semi-transparent backdrop */}
-      {showRoster && (
-        <div
-          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
-          onClick={() => {
-            setShowRoster(false);
-            setTapTargetSlotId(null);
-          }}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Bottom sheet panel — sits above the 4rem MobileNav on mobile, at bottom on tablet */}
-      <div
-        className={`fixed left-0 right-0 z-50 lg:hidden bg-panel border-t border-trim rounded-t-xl shadow-2xl transition-transform duration-300 flex flex-col overflow-hidden p-4 bottom-16 md:bottom-0 max-h-[calc(70dvh-4rem)] md:max-h-[70dvh] ${
-          showRoster ? 'translate-y-0' : 'translate-y-full'
-        }`}
-        style={{
-          overscrollBehavior: 'contain',
-        }}
-        aria-hidden={!showRoster}
-      >
-        {/* Drag handle indicator */}
-        <div className="flex justify-center mb-3 shrink-0">
-          <div className="w-10 h-1 rounded-full bg-trim" />
-        </div>
-
-        {/* Tap-assign banner */}
-        {tapTargetSlot && (
-          <div className="bg-accent/10 border border-accent/30 rounded-lg px-3 py-2 mb-3 shrink-0">
-            <span className="text-sm text-accent">
-              Assigning to: <strong>{tapTargetSlot.roleLabel}</strong>
-            </span>
-          </div>
-        )}
-
-        <RosterSidebar
-          assignments={orbat.assignments}
-          onPersonTap={tapTargetSlotId ? handlePersonTap : undefined}
-          hideSearch
-          className="flex-1 min-h-0 overflow-hidden"
-        />
-      </div>
+      <MobileRosterSheet
+        open={showRoster}
+        onClose={handleRosterClose}
+        assignments={orbat.assignments}
+        tapTargetSlotId={tapTargetSlotId}
+        tapTargetSlot={tapTargetSlot}
+        onPersonTap={tapTargetSlotId ? handlePersonTap : undefined}
+      />
     </>
   );
 }
