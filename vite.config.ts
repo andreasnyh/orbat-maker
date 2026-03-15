@@ -5,6 +5,18 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/orbat-maker/' : '/',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/react-dom/')) return 'react-vendor';
+          if (id.includes('node_modules/react/')) return 'react-vendor';
+          if (id.includes('node_modules/@dnd-kit/')) return 'dnd-kit';
+          if (id.includes('node_modules/lucide-react/')) return 'icons';
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),
