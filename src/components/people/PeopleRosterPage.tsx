@@ -123,10 +123,12 @@ export function PeopleRosterPage() {
         onClose={() => setIsAddModalOpen(false)}
         title="Add Personnel"
       >
-        <PersonForm
-          onSubmit={handleAdd}
-          onCancel={() => setIsAddModalOpen(false)}
-        />
+        {isAddModalOpen && (
+          <PersonForm
+            onSubmit={handleAdd}
+            onCancel={() => setIsAddModalOpen(false)}
+          />
+        )}
       </Modal>
 
       {/* Edit modal */}
@@ -152,10 +154,12 @@ export function PeopleRosterPage() {
         onClose={() => setIsBulkAddOpen(false)}
         title="Bulk Add Personnel"
       >
-        <BulkAddForm
-          onSubmit={handleBulkAdd}
-          onCancel={() => setIsBulkAddOpen(false)}
-        />
+        {isBulkAddOpen && (
+          <BulkAddForm
+            onSubmit={handleBulkAdd}
+            onCancel={() => setIsBulkAddOpen(false)}
+          />
+        )}
       </Modal>
 
       {/* Delete confirmation */}
