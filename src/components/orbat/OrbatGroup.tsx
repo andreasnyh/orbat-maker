@@ -5,6 +5,7 @@ import {
 } from '@dnd-kit/sortable';
 import { Plus } from 'lucide-react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useToggle } from '../../hooks/useToggle';
 import type { Assignment, Group, Person, Slot } from '../../types';
 import { OrbatSlot } from './OrbatSlot';
 
@@ -44,7 +45,7 @@ export const OrbatGroup = memo(function OrbatGroup({
     data: { type: 'slot-reorder', groupId: group.id },
   });
 
-  const [addingSlot, setAddingSlot] = useState(false);
+  const [addingSlot, toggleAddingSlot, setAddingSlot] = useToggle();
   const [newRoleLabel, setNewRoleLabel] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -161,7 +162,7 @@ export const OrbatGroup = memo(function OrbatGroup({
             />
           ) : (
             <button
-              onClick={() => setAddingSlot(true)}
+              onClick={toggleAddingSlot}
               type="button"
               className="flex items-center gap-1.5 text-xs text-accent/70 hover:text-accent transition-colors py-1"
             >

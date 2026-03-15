@@ -8,6 +8,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Palette, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useToggle } from '../../hooks/useToggle';
 import { generateId } from '../../lib/ids';
 import type { Group, Slot } from '../../types';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -79,21 +80,24 @@ export function GroupEditor({
   onDelete,
   dragHandleProps,
 }: GroupEditorProps) {
-  const [editingName, setEditingName] = useState(false);
+  const [editingName, , setEditingName] = useToggle();
   const [nameDraft, setNameDraft] = useState(group.name);
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [showColors, setShowColors] = useState(false);
+  const [confirmDelete, , setConfirmDelete] = useToggle();
+  const [showColors, toggleShowColors, setShowColors] = useToggle();
   const nameInputRef = useRef<HTMLInputElement>(null);
   const colorPickerRef = useRef<HTMLDivElement>(null);
 
-  const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (
-      colorPickerRef.current &&
-      !colorPickerRef.current.contains(e.target as Node)
-    ) {
-      setShowColors(false);
-    }
-  }, []);
+  const handleClickOutside = useCallback(
+    (e: MouseEvent) => {
+      if (
+        colorPickerRef.current &&
+        !colorPickerRef.current.contains(e.target as Node)
+      ) {
+        setShowColors(false);
+      }
+    },
+    [setShowColors],
+  );
 
   useEffect(() => {
     if (showColors) {
@@ -212,7 +216,7 @@ export function GroupEditor({
           {/* Color picker toggle */}
           <div ref={colorPickerRef} className="relative shrink-0">
             <button
-              onClick={() => setShowColors((v) => !v)}
+              onClick={toggleShowColors}
               className="flex items-center gap-1 text-faint hover:text-sub transition-colors"
               aria-label="Set group color"
               title="Set group color"

@@ -1,5 +1,6 @@
 import { Plus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { useToggle } from '../../hooks/useToggle';
 
 interface EquipmentPillsProps {
   equipment: string[];
@@ -15,7 +16,7 @@ export function EquipmentPills({
   onRemove,
   size = 'sm',
 }: EquipmentPillsProps) {
-  const [adding, setAdding] = useState(false);
+  const [adding, , setAdding] = useToggle();
   const [draft, setDraft] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 

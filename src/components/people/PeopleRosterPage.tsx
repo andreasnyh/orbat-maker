@@ -1,6 +1,7 @@
 import { UserPlus, Users, UsersRound } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { usePeopleState } from '../../context/AppStateContext';
+import { useToggle } from '../../hooks/useToggle';
 import type { Person } from '../../types';
 import { Button } from '../common/Button';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -14,8 +15,8 @@ export function PeopleRosterPage() {
   const { people, addPerson, updatePerson, deletePerson } = usePeopleState();
 
   const [search, setSearch] = useState('');
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isBulkAddOpen, setIsBulkAddOpen] = useState(false);
+  const [isAddModalOpen, , setIsAddModalOpen] = useToggle();
+  const [isBulkAddOpen, , setIsBulkAddOpen] = useToggle();
   const [editTarget, setEditTarget] = useState<Person | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Person | null>(null);
 

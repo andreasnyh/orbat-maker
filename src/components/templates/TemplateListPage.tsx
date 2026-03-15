@@ -1,6 +1,7 @@
 import { Copy, LayoutTemplate, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTemplatesState } from '../../context/AppStateContext';
+import { useToggle } from '../../hooks/useToggle';
 import type { Page } from '../../types';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
@@ -17,7 +18,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
     useTemplatesState();
 
   // ---- New template modal state ---------------------------------------------
-  const [showNewModal, setShowNewModal] = useState(false);
+  const [showNewModal, , setShowNewModal] = useToggle();
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
 

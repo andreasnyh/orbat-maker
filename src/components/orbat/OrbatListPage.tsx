@@ -10,6 +10,7 @@ import {
   useOrbatsState,
   useTemplatesState,
 } from '../../context/AppStateContext';
+import { useToggle } from '../../hooks/useToggle';
 import type { Page } from '../../types';
 import { Button } from '../common/Button';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -25,7 +26,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
   const { templates } = useTemplatesState();
 
   // ---- New ORBAT modal state -----------------------------------------------
-  const [showNewModal, setShowNewModal] = useState(false);
+  const [showNewModal, , setShowNewModal] = useToggle();
   const [newName, setNewName] = useState('');
   const [newTemplateId, setNewTemplateId] = useState<string>('');
   // ---- Delete confirmation state -------------------------------------------

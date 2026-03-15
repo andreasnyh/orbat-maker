@@ -1,5 +1,6 @@
 import { GripVertical, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { useToggle } from '../../hooks/useToggle';
 import type { Slot } from '../../types';
 import { EquipmentPills } from '../common/EquipmentPills';
 
@@ -17,7 +18,7 @@ export function SlotEditor({
   onDelete,
   dragHandleProps,
 }: SlotEditorProps) {
-  const [editing, setEditing] = useState(false);
+  const [editing, , setEditing] = useToggle();
   const [draft, setDraft] = useState(slot.roleLabel);
   const inputRef = useRef<HTMLInputElement>(null);
 

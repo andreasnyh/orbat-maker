@@ -15,8 +15,9 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ArrowLeft, Plus } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTemplatesState } from '../../context/AppStateContext';
+import { useToggle } from '../../hooks/useToggle';
 import { generateId } from '../../lib/ids';
 import type { Group, Page } from '../../types';
 import { GroupEditor } from './GroupEditor';
@@ -71,11 +72,14 @@ export function TemplateEditorPage({
   onNavigate,
 }: TemplateEditorPageProps) {
   const { templates, updateTemplate } = useTemplatesState();
-  const template = templates.find((t) => t.id === templateId);
+  const template = useMemo(
+    () => templates.find((t) => t.id === templateId),
+    [templates, templateId],
+  );
 
-  const [editingName, setEditingName] = useState(false);
+  const [editingName, , setEditingName] = useToggle();
   const [nameDraft, setNameDraft] = useState(template?.name ?? '');
-  const [editingDesc, setEditingDesc] = useState(false);
+  const [editingDesc, , setEditingDesc] = useToggle();
   const [descDraft, setDescDraft] = useState(template?.description ?? '');
 
   const nameInputRef = useRef<HTMLInputElement>(null);

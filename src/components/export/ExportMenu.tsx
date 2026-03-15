@@ -1,10 +1,11 @@
 import { ChevronDown, Download, Upload } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   usePeopleState,
   useRanksState,
   useTemplatesState,
 } from '../../context/AppStateContext';
+import { useToggle } from '../../hooks/useToggle';
 import {
   createExportBundle,
   downloadJson,
@@ -16,8 +17,8 @@ export function ExportMenu() {
   const { people } = usePeopleState();
   const { ranks } = useRanksState();
   const { templates } = useTemplatesState();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [importOpen, setImportOpen] = useState(false);
+  const [dropdownOpen, toggleDropdownOpen, setDropdownOpen] = useToggle();
+  const [importOpen, , setImportOpen] = useToggle();
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -33,7 +34,7 @@ export function ExportMenu() {
     }
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, [dropdownOpen]);
+  }, [dropdownOpen, setDropdownOpen]);
 
   function handleExport(type: 'people' | 'templates' | 'all') {
     setDropdownOpen(false);
@@ -66,7 +67,7 @@ export function ExportMenu() {
         <div className="relative">
           <button
             type="button"
-            onClick={() => setDropdownOpen((prev) => !prev)}
+            onClick={toggleDropdownOpen}
             aria-expanded={dropdownOpen}
             aria-haspopup="menu"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-dim hover:text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent"

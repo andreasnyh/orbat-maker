@@ -1,6 +1,7 @@
 import { ChevronsUp, Pencil, Plus, Trash2, UsersRound } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useRanksState } from '../../context/AppStateContext';
+import { useToggle } from '../../hooks/useToggle';
 import type { Rank } from '../../types';
 import { Button } from '../common/Button';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -58,8 +59,8 @@ function RankForm({
 export function RanksPage() {
   const { ranks, addRank, updateRank, deleteRank } = useRanksState();
 
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  const [isBulkAddOpen, setIsBulkAddOpen] = useState(false);
+  const [isAddOpen, , setIsAddOpen] = useToggle();
+  const [isBulkAddOpen, , setIsBulkAddOpen] = useToggle();
   const [editTarget, setEditTarget] = useState<Rank | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Rank | null>(null);
 
