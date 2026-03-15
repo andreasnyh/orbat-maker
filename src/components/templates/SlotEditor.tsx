@@ -1,5 +1,7 @@
+import type { DraggableSyntheticListeners } from '@dnd-kit/core';
 import { GripVertical, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { useFocusWhen } from '../../hooks/useFocusWhen';
 import { useToggle } from '../../hooks/useToggle';
 import type { Slot } from '../../types';
 import { EquipmentPills } from '../common/EquipmentPills';
@@ -8,8 +10,7 @@ interface SlotEditorProps {
   slot: Slot;
   onUpdate: (slot: Slot) => void;
   onDelete: () => void;
-  // biome-ignore lint/suspicious/noExplicitAny: drag handle props from dnd-kit
-  dragHandleProps?: Record<string, any>;
+  dragHandleProps?: DraggableSyntheticListeners;
 }
 
 export function SlotEditor({
@@ -22,12 +23,7 @@ export function SlotEditor({
   const [draft, setDraft] = useState(slot.roleLabel);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (editing) {
-      inputRef.current?.focus();
-      inputRef.current?.select();
-    }
-  }, [editing]);
+  useFocusWhen(inputRef, editing, { select: true });
 
   // Keep draft in sync if the slot changes from outside (e.g. parent reorders)
   useEffect(() => {

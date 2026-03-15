@@ -1,5 +1,6 @@
 import { Plus, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useFocusWhen } from '../../hooks/useFocusWhen';
 import { useToggle } from '../../hooks/useToggle';
 
 interface EquipmentPillsProps {
@@ -20,9 +21,7 @@ export function EquipmentPills({
   const [draft, setDraft] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (adding) inputRef.current?.focus();
-  }, [adding]);
+  useFocusWhen(inputRef, adding);
 
   function commitTag() {
     const trimmed = draft.trim();

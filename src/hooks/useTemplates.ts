@@ -103,44 +103,45 @@ export function useTemplates() {
     [setTemplates],
   );
 
-  const addSlotToGroup = useCallback(
-    (templateId: string, groupId: string, roleLabel: string): Slot => {
-      const newSlot: Slot = { id: generateId(), roleLabel };
+  /** Update slots within a specific group of a specific template. */
+  const updateGroupSlots = useCallback(
+    (
+      templateId: string,
+      groupId: string,
+      updater: (slots: Slot[]) => Slot[],
+    ) => {
       setTemplates((prev) =>
         prev.map((t) =>
           t.id === templateId
             ? {
                 ...t,
                 groups: t.groups.map((g) =>
-                  g.id === groupId ? { ...g, slots: [...g.slots, newSlot] } : g,
+                  g.id === groupId ? { ...g, slots: updater(g.slots) } : g,
                 ),
               }
             : t,
         ),
       );
-      return newSlot;
     },
     [setTemplates],
   );
 
+  const addSlotToGroup = useCallback(
+    (templateId: string, groupId: string, roleLabel: string): Slot => {
+      const newSlot: Slot = { id: generateId(), roleLabel };
+      updateGroupSlots(templateId, groupId, (slots) => [...slots, newSlot]);
+      return newSlot;
+    },
+    [updateGroupSlots],
+  );
+
   const removeSlotFromGroup = useCallback(
     (templateId: string, groupId: string, slotId: string) => {
-      setTemplates((prev) =>
-        prev.map((t) =>
-          t.id === templateId
-            ? {
-                ...t,
-                groups: t.groups.map((g) =>
-                  g.id === groupId
-                    ? { ...g, slots: g.slots.filter((s) => s.id !== slotId) }
-                    : g,
-                ),
-              }
-            : t,
-        ),
+      updateGroupSlots(templateId, groupId, (slots) =>
+        slots.filter((s) => s.id !== slotId),
       );
     },
-    [setTemplates],
+    [updateGroupSlots],
   );
 
   const updateSlot = useCallback(
@@ -150,45 +151,18 @@ export function useTemplates() {
       slotId: string,
       updates: Partial<Omit<Slot, 'id'>>,
     ) => {
-      setTemplates((prev) =>
-        prev.map((t) =>
-          t.id === templateId
-            ? {
-                ...t,
-                groups: t.groups.map((g) =>
-                  g.id === groupId
-                    ? {
-                        ...g,
-                        slots: g.slots.map((s) =>
-                          s.id === slotId ? { ...s, ...updates } : s,
-                        ),
-                      }
-                    : g,
-                ),
-              }
-            : t,
-        ),
+      updateGroupSlots(templateId, groupId, (slots) =>
+        slots.map((s) => (s.id === slotId ? { ...s, ...updates } : s)),
       );
     },
-    [setTemplates],
+    [updateGroupSlots],
   );
 
   const reorderSlotsInGroup = useCallback(
     (templateId: string, groupId: string, slots: Slot[]) => {
-      setTemplates((prev) =>
-        prev.map((t) =>
-          t.id === templateId
-            ? {
-                ...t,
-                groups: t.groups.map((g) =>
-                  g.id === groupId ? { ...g, slots } : g,
-                ),
-              }
-            : t,
-        ),
-      );
+      updateGroupSlots(templateId, groupId, () => slots);
     },
-    [setTemplates],
+    [updateGroupSlots],
   );
 
   const moveSlotBetweenGroups = useCallback(

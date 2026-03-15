@@ -134,42 +134,34 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
     e.target.value = '';
   }
 
+  function mergeNewItems<T extends { id: string }>(
+    incoming: T[] | undefined,
+    existing: T[],
+    skippedIds: Set<string>,
+    setter: (updater: (prev: T[]) => T[]) => void,
+  ) {
+    if (!incoming?.length) return;
+    const existingIds = new Set(existing.map((item) => item.id));
+    const newItems = incoming.filter(
+      (item) => !existingIds.has(item.id) && !skippedIds.has(item.id),
+    );
+    if (newItems.length > 0) setter((prev) => [...prev, ...newItems]);
+  }
+
   function performImport(
     bundle: ExportBundle,
     skippedPeopleIds: Set<string>,
     skippedTemplateIds: Set<string>,
     skippedRankIds: Set<string>,
   ) {
-    if (bundle.people?.length) {
-      const existingIds = new Set(people.map((p) => p.id));
-      const newPeople = bundle.people.filter(
-        (p) => !existingIds.has(p.id) && !skippedPeopleIds.has(p.id),
-      );
-      if (newPeople.length > 0) {
-        setPeople((prev) => [...prev, ...newPeople]);
-      }
-    }
-
-    if (bundle.ranks?.length) {
-      const existingIds = new Set(ranks.map((r) => r.id));
-      const newRanks = bundle.ranks.filter(
-        (r) => !existingIds.has(r.id) && !skippedRankIds.has(r.id),
-      );
-      if (newRanks.length > 0) {
-        setRanks((prev) => [...prev, ...newRanks]);
-      }
-    }
-
-    if (bundle.templates?.length) {
-      const existingIds = new Set(templates.map((t) => t.id));
-      const newTemplates = bundle.templates.filter(
-        (t) => !existingIds.has(t.id) && !skippedTemplateIds.has(t.id),
-      );
-      if (newTemplates.length > 0) {
-        setTemplates((prev) => [...prev, ...newTemplates]);
-      }
-    }
-
+    mergeNewItems(bundle.people, people, skippedPeopleIds, setPeople);
+    mergeNewItems(bundle.ranks, ranks, skippedRankIds, setRanks);
+    mergeNewItems(
+      bundle.templates,
+      templates,
+      skippedTemplateIds,
+      setTemplates,
+    );
     setState({ phase: 'success', description: describeBundle(bundle) });
   }
 
@@ -215,27 +207,38 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
     performImport(bundle, new Set(), new Set(), new Set());
   }
 
+  function buildSkippedIds<T extends { id: string }>(
+    conflicts: Conflict<T>[],
+  ): Set<string> {
+    return new Set(
+      conflicts
+        .filter((c) => c.resolution === 'skip')
+        .map((c) => c.incoming.id),
+    );
+  }
+
   function handleConfirmedImport() {
     if (state.phase !== 'conflicts') return;
     const { bundle, peopleConflicts, rankConflicts, templateConflicts } = state;
+    performImport(
+      bundle,
+      buildSkippedIds(peopleConflicts),
+      buildSkippedIds(templateConflicts),
+      buildSkippedIds(rankConflicts),
+    );
+  }
 
-    const skippedPeopleIds = new Set(
-      peopleConflicts
-        .filter((c) => c.resolution === 'skip')
-        .map((c) => c.incoming.id),
-    );
-    const skippedRankIds = new Set(
-      rankConflicts
-        .filter((c) => c.resolution === 'skip')
-        .map((c) => c.incoming.id),
-    );
-    const skippedTemplateIds = new Set(
-      templateConflicts
-        .filter((c) => c.resolution === 'skip')
-        .map((c) => c.incoming.id),
-    );
-
-    performImport(bundle, skippedPeopleIds, skippedTemplateIds, skippedRankIds);
+  function toggleConflict(
+    key: 'peopleConflicts' | 'rankConflicts' | 'templateConflicts',
+    i: number,
+    resolution: 'skip' | 'add',
+  ) {
+    setState((prev) => {
+      if (prev.phase !== 'conflicts') return prev;
+      const updated = [...prev[key]];
+      updated[i] = { ...updated[i], resolution };
+      return { ...prev, [key]: updated };
+    });
   }
 
   function handleClose() {
@@ -413,36 +416,21 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
                 title="Personnel"
                 conflicts={state.peopleConflicts}
                 onToggle={(i, resolution) =>
-                  setState((prev) => {
-                    if (prev.phase !== 'conflicts') return prev;
-                    const updated = [...prev.peopleConflicts];
-                    updated[i] = { ...updated[i], resolution };
-                    return { ...prev, peopleConflicts: updated };
-                  })
+                  toggleConflict('peopleConflicts', i, resolution)
                 }
               />
               <ConflictSection
                 title="Ranks"
                 conflicts={state.rankConflicts}
                 onToggle={(i, resolution) =>
-                  setState((prev) => {
-                    if (prev.phase !== 'conflicts') return prev;
-                    const updated = [...prev.rankConflicts];
-                    updated[i] = { ...updated[i], resolution };
-                    return { ...prev, rankConflicts: updated };
-                  })
+                  toggleConflict('rankConflicts', i, resolution)
                 }
               />
               <ConflictSection
                 title="Templates"
                 conflicts={state.templateConflicts}
                 onToggle={(i, resolution) =>
-                  setState((prev) => {
-                    if (prev.phase !== 'conflicts') return prev;
-                    const updated = [...prev.templateConflicts];
-                    updated[i] = { ...updated[i], resolution };
-                    return { ...prev, templateConflicts: updated };
-                  })
+                  toggleConflict('templateConflicts', i, resolution)
                 }
               />
             </div>

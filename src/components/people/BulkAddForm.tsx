@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRanksState } from '../../context/AppStateContext';
 import { Button } from '../common/Button';
 import { SelectInput } from '../common/SelectInput';
@@ -25,11 +25,6 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
   const [customRank, setCustomRank] = useState('');
   const [saveCustomRank, setSaveCustomRank] = useState(true);
   const [text, setText] = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    textareaRef.current?.focus();
-  }, []);
 
   const names = useMemo(() => parseNames(text), [text]);
   const trimmedRank =
@@ -93,7 +88,6 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
       </div>
 
       <TextArea
-        ref={textareaRef}
         label="Names — one per line"
         className="resize-none font-mono leading-relaxed"
         rows={8}

@@ -17,6 +17,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTemplatesState } from '../../context/AppStateContext';
+import { useFocusWhen } from '../../hooks/useFocusWhen';
 import { useToggle } from '../../hooks/useToggle';
 import { generateId } from '../../lib/ids';
 import type { Group, Page } from '../../types';
@@ -85,19 +86,8 @@ export function TemplateEditorPage({
   const nameInputRef = useRef<HTMLInputElement>(null);
   const descInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (editingName) {
-      nameInputRef.current?.focus();
-      nameInputRef.current?.select();
-    }
-  }, [editingName]);
-
-  useEffect(() => {
-    if (editingDesc) {
-      descInputRef.current?.focus();
-      descInputRef.current?.select();
-    }
-  }, [editingDesc]);
+  useFocusWhen(nameInputRef, editingName, { select: true });
+  useFocusWhen(descInputRef, editingDesc, { select: true });
 
   // Keep drafts in sync when template changes externally
   useEffect(() => {

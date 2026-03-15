@@ -1,3 +1,4 @@
+import type { DraggableSyntheticListeners } from '@dnd-kit/core';
 import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -8,6 +9,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Palette, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useFocusWhen } from '../../hooks/useFocusWhen';
 import { useToggle } from '../../hooks/useToggle';
 import { generateId } from '../../lib/ids';
 import type { Group, Slot } from '../../types';
@@ -18,8 +20,7 @@ interface GroupEditorProps {
   group: Group;
   onUpdate: (group: Group) => void;
   onDelete: () => void;
-  // biome-ignore lint/suspicious/noExplicitAny: drag handle props from dnd-kit
-  dragHandleProps?: Record<string, any>;
+  dragHandleProps?: DraggableSyntheticListeners;
 }
 
 // ---- Sortable wrapper for each slot ----------------------------------------
@@ -107,12 +108,7 @@ export function GroupEditor({
     }
   }, [showColors, handleClickOutside]);
 
-  useEffect(() => {
-    if (editingName) {
-      nameInputRef.current?.focus();
-      nameInputRef.current?.select();
-    }
-  }, [editingName]);
+  useFocusWhen(nameInputRef, editingName, { select: true });
 
   useEffect(() => {
     if (!editingName) {

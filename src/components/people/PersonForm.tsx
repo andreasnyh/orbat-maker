@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useRanksState } from '../../context/AppStateContext';
 import { Button } from '../common/Button';
 import { SelectInput } from '../common/SelectInput';
@@ -21,7 +21,6 @@ export function PersonForm({
 }: PersonFormProps) {
   const { ranks, addRank } = useRanksState();
   const [name, setName] = useState(initialName);
-  const nameRef = useRef<HTMLInputElement>(null);
 
   const isEditMode = initialName !== '';
 
@@ -35,10 +34,6 @@ export function PersonForm({
     initialRank && !initialIsDefinedRank ? initialRank : '',
   );
   const [saveCustomRank, setSaveCustomRank] = useState(true);
-
-  useEffect(() => {
-    nameRef.current?.focus();
-  }, []);
 
   const resolvedRank =
     selectValue === CUSTOM_VALUE
@@ -63,7 +58,6 @@ export function PersonForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <TextInput
-        ref={nameRef}
         label="Name"
         placeholder="e.g. John Smith…"
         value={name}

@@ -4,7 +4,8 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { Plus } from 'lucide-react';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useFocusWhen } from '../../hooks/useFocusWhen';
 import { useToggle } from '../../hooks/useToggle';
 import type { Assignment, Group, Person, Slot } from '../../types';
 import { OrbatSlot } from './OrbatSlot';
@@ -54,9 +55,7 @@ export const OrbatGroup = memo(function OrbatGroup({
     [group.slots, assignmentsBySlotId],
   );
 
-  useEffect(() => {
-    if (addingSlot) inputRef.current?.focus();
-  }, [addingSlot]);
+  useFocusWhen(inputRef, addingSlot);
 
   function commitNewSlot() {
     const trimmed = newRoleLabel.trim();

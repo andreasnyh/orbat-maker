@@ -17,6 +17,11 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
 
     if (open && !dialog.open) {
       dialog.showModal();
+      // Focus the first text input or textarea in the dialog content
+      const focusTarget = dialog.querySelector<HTMLElement>(
+        'input:not([type=hidden]):not([type=checkbox]), textarea',
+      );
+      focusTarget?.focus();
     } else if (!open && dialog.open) {
       dialog.close();
     }

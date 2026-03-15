@@ -3,7 +3,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
 import { GripVertical, Plus, Trash2, X } from 'lucide-react';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useRef, useState } from 'react';
+import { useFocusWhen } from '../../hooks/useFocusWhen';
 import { useToggle } from '../../hooks/useToggle';
 import type { Assignment, Person, Slot } from '../../types';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -150,9 +151,7 @@ const OrbatSlotContent = memo(
       setNewTag('');
     }
 
-    useEffect(() => {
-      if (equipPopoverOpen) tagInputRef.current?.focus();
-    }, [equipPopoverOpen]);
+    useFocusWhen(tagInputRef, equipPopoverOpen);
 
     function handleRemoveEquipment(tag: string) {
       onUpdateEquipment?.(
