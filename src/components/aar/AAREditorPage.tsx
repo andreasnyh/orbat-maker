@@ -60,7 +60,18 @@ export function AAREditorPage({ aarId, onNavigate }: AAREditorPageProps) {
   }, [aar]);
 
   if (!aar) {
-    return <div className="text-dim text-center py-12">AAR not found.</div>;
+    return (
+      <div className="flex flex-col items-center gap-4 py-12">
+        <p className="text-dim">AAR not found.</p>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => onNavigate('orbats')}
+        >
+          Back to ORBATs
+        </Button>
+      </div>
+    );
   }
 
   return (

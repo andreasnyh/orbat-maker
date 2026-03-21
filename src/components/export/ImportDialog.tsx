@@ -166,7 +166,9 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
       skippedTemplateIds,
       setTemplates,
     );
-    mergeNewItems(bundle.aars, aars, new Set(), setAARs);
+    if (selectedSections.aars) {
+      mergeNewItems(bundle.aars, aars, new Set(), setAARs);
+    }
     setState({ phase: 'success', description: describeBundle(bundle) });
   }
 
