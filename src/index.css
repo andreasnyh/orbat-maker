@@ -196,3 +196,62 @@
     opacity: 1;
   }
 }
+
+/* ── TipTap AAR editor ───────────────────────────────────────────────── */
+
+.aar-editor-content .tiptap {
+  outline: none;
+  min-height: 300px;
+}
+
+.aar-editor-content .tiptap h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--th-strong);
+}
+
+.aar-editor-content .tiptap h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+  color: var(--th-strong);
+}
+
+.aar-editor-content .tiptap h2:first-child,
+.aar-editor-content .tiptap h3:first-child {
+  margin-top: 0;
+}
+
+.aar-editor-content .tiptap p {
+  margin-bottom: 0.5rem;
+}
+
+.aar-editor-content .tiptap ul,
+.aar-editor-content .tiptap ol {
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.aar-editor-content .tiptap ul {
+  list-style-type: disc;
+}
+
+.aar-editor-content .tiptap ol {
+  list-style-type: decimal;
+}
+
+.aar-editor-content .tiptap li {
+  margin-bottom: 0.125rem;
+}
+
+.aar-editor-content .tiptap strong {
+  font-weight: 600;
+  color: var(--th-strong);
+}
+
+.aar-editor-content .tiptap em {
+  font-style: italic;
+}

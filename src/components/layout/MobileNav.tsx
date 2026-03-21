@@ -23,7 +23,10 @@ export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {
   const isActive = (p: Page) =>
     p === currentPage ||
     (p === 'templates' && currentPage === 'template-editor') ||
-    (p === 'orbats' && currentPage === 'orbat-builder');
+    (p === 'orbats' &&
+      (currentPage === 'orbat-builder' ||
+        currentPage === 'aar-list' ||
+        currentPage === 'aar-editor'));
 
   return (
     <nav

@@ -32,7 +32,10 @@ export function Navbar({
   const activePage = (p: Page) =>
     p === currentPage ||
     (p === 'templates' && currentPage === 'template-editor') ||
-    (p === 'orbats' && currentPage === 'orbat-builder');
+    (p === 'orbats' &&
+      (currentPage === 'orbat-builder' ||
+        currentPage === 'aar-list' ||
+        currentPage === 'aar-editor'));
 
   return (
     <nav className="bg-panel border-b border-trim">
