@@ -1,9 +1,9 @@
-import { lazy, Suspense, useCallback, useState } from 'react';
+import { lazy, Suspense } from 'react';
 import { AppShell } from './components/layout/AppShell';
 import { AppStateProvider } from './context/AppStateContext';
+import { useHashRouter } from './hooks/useHashRouter';
 import { useTheme } from './hooks/useTheme';
 import { ToastProvider } from './hooks/useToast';
-import type { Page } from './types';
 
 const PeopleRosterPage = lazy(() =>
   import('./components/people/PeopleRosterPage').then((m) => ({
@@ -61,13 +61,7 @@ function PageSkeleton() {
 
 function App() {
   const { theme, setTheme } = useTheme();
-  const [currentPage, setCurrentPage] = useState<Page>('orbats');
-  const [activeId, setActiveId] = useState<string | null>(null);
-
-  const navigate = useCallback((page: Page, id?: string) => {
-    setCurrentPage(page);
-    setActiveId(id ?? null);
-  }, []);
+  const { currentPage, activeId, navigate } = useHashRouter();
 
   const renderPage = () => {
     switch (currentPage) {
