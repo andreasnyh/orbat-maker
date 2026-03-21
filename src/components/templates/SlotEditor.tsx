@@ -79,7 +79,7 @@ export function SlotEditor({
         {/* Drag handle */}
         <button
           type="button"
-          className="text-chrome group-hover/row:text-dim hover:!text-sub cursor-grab active:cursor-grabbing shrink-0 transition-colors"
+          className="text-chrome group-hover/row:text-dim hover:text-sub! cursor-grab active:cursor-grabbing shrink-0 transition-colors"
           aria-label={`Reorder ${slot.roleLabel}`}
           {...dragHandleProps}
         >

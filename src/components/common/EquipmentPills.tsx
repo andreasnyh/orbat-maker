@@ -98,7 +98,7 @@ export function EquipmentPills({
               />
               <div
                 className={clsx(
-                  'absolute z-50 bg-panel border border-trim rounded-lg shadow-xl p-2 min-w-[200px]',
+                  'absolute z-50 bg-panel border border-trim rounded-lg shadow-xl p-2 min-w-50',
                   popoverAlignRight ? 'right-0' : 'left-0',
                   popoverAbove ? 'bottom-full mb-1' : 'top-full mt-1',
                 )}
