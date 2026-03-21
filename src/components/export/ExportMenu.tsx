@@ -38,7 +38,7 @@ export function ExportMenu() {
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, [dropdownOpen, setDropdownOpen]);
 
-  function handleExport(type: 'people' | 'templates' | 'all') {
+  function handleExport(type: 'people' | 'templates' | 'aars' | 'all') {
     setDropdownOpen(false);
     switch (type) {
       case 'people':
@@ -52,6 +52,9 @@ export function ExportMenu() {
           createExportBundle({ templates }),
           generateFilename('templates'),
         );
+        break;
+      case 'aars':
+        downloadJson(createExportBundle({ aars }), generateFilename('aars'));
         break;
       case 'all':
         downloadJson(
@@ -95,6 +98,10 @@ export function ExportMenu() {
               <DropdownItem
                 label="Export Templates"
                 onClick={() => handleExport('templates')}
+              />
+              <DropdownItem
+                label="Export AARs"
+                onClick={() => handleExport('aars')}
               />
               <div className="border-t border-trim my-1" />
               <DropdownItem
