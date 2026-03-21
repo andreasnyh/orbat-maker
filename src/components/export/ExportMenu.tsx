@@ -77,7 +77,7 @@ export function ExportMenu() {
             aria-haspopup="menu"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-dim hover:text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent"
           >
-            <Download size={16} aria-hidden="true" />
+            <Upload size={16} aria-hidden="true" />
             <span className="hidden lg:inline">Export</span>
             <ChevronDown
               size={14}
@@ -119,7 +119,7 @@ export function ExportMenu() {
           onClick={() => setImportOpen(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-dim hover:text-body transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent"
         >
-          <Upload size={16} aria-hidden="true" />
+          <Download size={16} aria-hidden="true" />
           <span className="hidden lg:inline">Import</span>
         </button>
       </div>
