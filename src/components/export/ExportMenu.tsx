@@ -1,6 +1,7 @@
 import { ChevronDown, Download, Upload } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import {
+  useAARsState,
   usePeopleState,
   useRanksState,
   useTemplatesState,
@@ -17,6 +18,7 @@ export function ExportMenu() {
   const { people } = usePeopleState();
   const { ranks } = useRanksState();
   const { templates } = useTemplatesState();
+  const { aars } = useAARsState();
   const [dropdownOpen, toggleDropdownOpen, setDropdownOpen] = useToggle();
   const [importOpen, , setImportOpen] = useToggle();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -53,7 +55,7 @@ export function ExportMenu() {
         break;
       case 'all':
         downloadJson(
-          createExportBundle({ people, ranks, templates }),
+          createExportBundle({ people, ranks, templates, aars }),
           generateFilename('all'),
         );
         break;

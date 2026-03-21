@@ -48,5 +48,5 @@ export function useAARs() {
     [setAARs],
   );
 
-  return { aars, createAAR, updateAAR, deleteAAR };
+  return { aars, createAAR, updateAAR, deleteAAR, setAARs };
 }

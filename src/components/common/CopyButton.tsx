@@ -7,12 +7,14 @@ import { Button } from './Button';
 interface CopyButtonProps {
   getText: () => string;
   label?: string;
+  title?: string;
   size?: 'sm' | 'md';
 }
 
 export function CopyButton({
   getText,
   label = 'Copy',
+  title,
   size = 'sm',
 }: CopyButtonProps) {
   const toast = useToast();
@@ -42,7 +44,7 @@ export function CopyButton({
       size={size}
       onClick={handleClick}
       disabled={copied}
-      title={`Copy as plain text`}
+      title={title ?? `Copy ${label}`}
     >
       {copied ? (
         <Check size={14} className="text-accent" />

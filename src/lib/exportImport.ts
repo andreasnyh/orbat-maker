@@ -1,4 +1,11 @@
-import type { ExportBundle, ORBAT, Person, Rank, Template } from '../types';
+import type {
+  AAR,
+  ExportBundle,
+  ORBAT,
+  Person,
+  Rank,
+  Template,
+} from '../types';
 
 export interface Conflict<T> {
   incoming: T;
@@ -40,6 +47,7 @@ export function createExportBundle(options: {
   templates?: Template[];
   orbats?: ORBAT[];
   ranks?: Rank[];
+  aars?: AAR[];
 }): ExportBundle {
   return {
     version: CURRENT_VERSION,
@@ -91,5 +99,6 @@ export function describeBundle(bundle: ExportBundle): string {
   if (bundle.ranks?.length) parts.push(`${bundle.ranks.length} ranks`);
   if (bundle.templates?.length)
     parts.push(`${bundle.templates.length} templates`);
+  if (bundle.aars?.length) parts.push(`${bundle.aars.length} AARs`);
   return parts.length ? parts.join(', ') : 'Empty file';
 }

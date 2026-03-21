@@ -1,6 +1,7 @@
 import { AlertTriangle, CheckCircle, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
 import {
+  useAARsState,
   usePeopleState,
   useRanksState,
   useTemplatesState,
@@ -97,12 +98,14 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
   const { people, setPeople } = usePeopleState();
   const { ranks, setRanks } = useRanksState();
   const { templates, setTemplates } = useTemplatesState();
+  const { aars, setAARs } = useAARsState();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<ImportState>({ phase: 'idle' });
   const [selectedSections, setSelectedSections] = useState({
     people: true,
     ranks: true,
     templates: true,
+    aars: true,
   });
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -124,6 +127,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
           people: (bundle.people?.length ?? 0) > 0,
           ranks: (bundle.ranks?.length ?? 0) > 0,
           templates: (bundle.templates?.length ?? 0) > 0,
+          aars: (bundle.aars?.length ?? 0) > 0,
         });
         setState({ phase: 'preview', bundle, filename: file.name });
       }
@@ -162,6 +166,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
       skippedTemplateIds,
       setTemplates,
     );
+    mergeNewItems(bundle.aars, aars, new Set(), setAARs);
     setState({ phase: 'success', description: describeBundle(bundle) });
   }
 
@@ -176,6 +181,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
       ...(selectedSections.people && { people: fullBundle.people }),
       ...(selectedSections.ranks && { ranks: fullBundle.ranks }),
       ...(selectedSections.templates && { templates: fullBundle.templates }),
+      ...(selectedSections.aars && { aars: fullBundle.aars }),
     };
 
     const peopleConflicts = bundle.people?.length
@@ -329,6 +335,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
               state.bundle.people?.length && 'people',
               state.bundle.ranks?.length && 'ranks',
               state.bundle.templates?.length && 'templates',
+              state.bundle.aars?.length && 'aars',
             ].filter(Boolean).length > 1 && (
               <fieldset className="flex flex-col gap-1.5">
                 <legend className="text-xs font-semibold text-dim uppercase tracking-wide mb-1">
@@ -339,6 +346,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
                     ['people', 'Personnel', state.bundle.people?.length],
                     ['ranks', 'Ranks', state.bundle.ranks?.length],
                     ['templates', 'Templates', state.bundle.templates?.length],
+                    ['aars', 'AARs', state.bundle.aars?.length],
                   ] as const
                 )
                   .filter(([, , count]) => count)
@@ -380,7 +388,8 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
                 disabled={
                   !selectedSections.people &&
                   !selectedSections.ranks &&
-                  !selectedSections.templates
+                  !selectedSections.templates &&
+                  !selectedSections.aars
                 }
               >
                 <Upload size={14} />

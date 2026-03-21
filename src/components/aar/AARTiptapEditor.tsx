@@ -65,6 +65,10 @@ const toolbarButtons = [
 
 export function AARTiptapEditor({ content, onUpdate }: AARTiptapEditorProps) {
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const onUpdateRef = useRef(onUpdate);
+  useEffect(() => {
+    onUpdateRef.current = onUpdate;
+  });
 
   const editor = useEditor({
     extensions: [
@@ -100,9 +104,9 @@ export function AARTiptapEditor({ content, onUpdate }: AARTiptapEditorProps) {
   useEffect(() => {
     return () => {
       clearTimeout(debounceRef.current);
-      if (editor) onUpdate(editor.getHTML());
+      if (editor) onUpdateRef.current(editor.getHTML());
     };
-  }, [editor, onUpdate]);
+  }, [editor]);
 
   if (!editor) return null;
 

@@ -14,6 +14,14 @@ function getPersonDisplay(person: Person): string {
   return person.rank ? `${person.rank} ${person.name}` : person.name;
 }
 
+function formatAARDate(): string {
+  return new Date().toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
 export function generateAARContent(
   orbat: ORBAT,
   template: Template,
@@ -22,11 +30,7 @@ export function generateAARContent(
   const personMap = buildPersonMap(people);
   const assignmentMap = buildAssignmentMap(orbat.assignments);
 
-  const today = new Date().toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+  const today = formatAARDate();
 
   const parts: string[] = [];
   parts.push(`<h2>AAR — ${orbat.name} — ${today}</h2>`);
@@ -102,10 +106,5 @@ export function aarHtmlToPlainText(html: string): string {
 }
 
 export function generateAARTitle(orbatName: string): string {
-  const today = new Date().toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-  return `AAR — ${orbatName} — ${today}`;
+  return `AAR — ${orbatName} — ${formatAARDate()}`;
 }

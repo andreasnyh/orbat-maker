@@ -38,7 +38,10 @@ export function AAREditorPage({ aarId, onNavigate }: AAREditorPageProps) {
   const handleTitleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') handleTitleCommit();
-      if (e.key === 'Escape') setEditingTitle(false);
+      if (e.key === 'Escape') {
+        setTitleValue('');
+        setEditingTitle(false);
+      }
     },
     [handleTitleCommit],
   );
