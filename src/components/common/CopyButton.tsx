@@ -1,5 +1,6 @@
 import { Check, Clipboard } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useToast } from '../../hooks/useToast';
 import { copyToClipboard } from '../../lib/clipboard';
 import { Button } from './Button';
 
@@ -14,6 +15,7 @@ export function CopyButton({
   label = 'Copy',
   size = 'sm',
 }: CopyButtonProps) {
+  const toast = useToast();
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -25,11 +27,14 @@ export function CopyButton({
     if (copied) return;
     const ok = await copyToClipboard(getText());
     if (ok) {
+      toast.success('Copied');
       setCopied(true);
       clearTimeout(timer.current);
       timer.current = setTimeout(() => setCopied(false), 1500);
+    } else {
+      toast.error('Failed to copy — clipboard not available');
     }
-  }, [copied, getText]);
+  }, [copied, getText, toast]);
 
   return (
     <Button
