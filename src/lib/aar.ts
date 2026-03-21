@@ -43,7 +43,7 @@ export function generateAARContent(
       const person = personMap.get(assignment.personId);
       if (!person) continue;
       parts.push(
-        `<li><p><strong>${slot.roleLabel}</strong>: ${getPersonDisplay(person)}<br><br class="ProseMirror-trailingBreak"></p></li>`,
+        `<li><p><strong>${slot.roleLabel}</strong>: ${getPersonDisplay(person)}<br><br></p></li>`,
       );
     }
     parts.push('</ul>');

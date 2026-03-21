@@ -1,5 +1,5 @@
 import { ArrowLeft, FileText, Plus, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   useAARsState,
   useOrbatsState,
@@ -38,20 +38,20 @@ export function AARListPage({ orbatId, onNavigate }: AARListPageProps) {
         .filter((a) => a.orbatId === orbatId)
         .sort(
           (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
         ),
     [aars, orbatId],
   );
 
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
-  const handleNewAAR = () => {
+  const handleNewAAR = useCallback(() => {
     if (!orbat || !template) return;
     const content = generateAARContent(orbat, template, people);
     const title = generateAARTitle(orbat.name);
     const aar = createAAR(orbatId, title, content);
     onNavigate('aar-editor', aar.id);
-  };
+  }, [orbat, template, people, orbatId, createAAR, onNavigate]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -72,7 +72,11 @@ export function AARListPage({ orbatId, onNavigate }: AARListPageProps) {
         </h1>
 
         <div className="ml-auto">
-          <Button size="sm" onClick={handleNewAAR} disabled={!template}>
+          <Button
+            size="sm"
+            onClick={handleNewAAR}
+            disabled={!orbat || !template}
+          >
             <Plus size={14} />
             New AAR
           </Button>

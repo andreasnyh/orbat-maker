@@ -98,8 +98,11 @@ export function AARTiptapEditor({ content, onUpdate }: AARTiptapEditorProps) {
   }, [editor]);
 
   useEffect(() => {
-    return () => clearTimeout(debounceRef.current);
-  }, []);
+    return () => {
+      clearTimeout(debounceRef.current);
+      if (editor) onUpdate(editor.getHTML());
+    };
+  }, [editor, onUpdate]);
 
   if (!editor) return null;
 

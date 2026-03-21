@@ -105,7 +105,11 @@ export function AAREditorPage({ aarId, onNavigate }: AAREditorPageProps) {
       </div>
 
       {/* Editor */}
-      <AARTiptapEditor content={aar.content} onUpdate={handleContentUpdate} />
+      <AARTiptapEditor
+        key={aar.id}
+        content={aar.content}
+        onUpdate={handleContentUpdate}
+      />
 
       {/* Meta */}
       <div className="text-xs text-dim">

@@ -57,6 +57,18 @@ export const OrbatToolbar = memo(function OrbatToolbar({
   onCopy,
   onAARsClick,
 }: OrbatToolbarProps) {
+  const aarButton = (
+    <Button
+      variant="secondary"
+      size="sm"
+      onClick={onAARsClick}
+      title="After Action Reports"
+    >
+      <FileText size={14} />
+      AARs
+    </Button>
+  );
+
   const copyButtons = copyTargets.map(({ key, label }) => (
     <Button
       key={key}
@@ -143,15 +155,7 @@ export const OrbatToolbar = memo(function OrbatToolbar({
             </div>
             <div className="flex items-center gap-2">
               {copyButtons}
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={onAARsClick}
-                title="After Action Reports"
-              >
-                <FileText size={14} />
-                AARs
-              </Button>
+              {aarButton}
             </div>
           </div>
         )}
@@ -171,15 +175,7 @@ export const OrbatToolbar = memo(function OrbatToolbar({
           </div>
           <div className="flex items-center gap-2 *:flex-1">
             {copyButtons}
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={onAARsClick}
-              title="After Action Reports"
-            >
-              <FileText size={14} />
-              AARs
-            </Button>
+            {aarButton}
           </div>
         </div>
       )}
