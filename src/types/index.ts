@@ -42,6 +42,15 @@ export interface ORBAT {
   assignments: Assignment[];
 }
 
+export interface AAR {
+  id: string;
+  orbatId: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ExportBundle {
   version: number;
   exportedAt: string;
@@ -58,4 +67,6 @@ export type Page =
   | 'template-editor'
   | 'orbats'
   | 'orbat-builder'
+  | 'aar-list'
+  | 'aar-editor'
   | 'about';
