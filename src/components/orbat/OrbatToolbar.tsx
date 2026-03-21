@@ -1,4 +1,11 @@
-import { ArrowLeft, Check, Clipboard, Pencil, RotateCcw } from 'lucide-react';
+import {
+  ArrowLeft,
+  Check,
+  Clipboard,
+  FileText,
+  Pencil,
+  RotateCcw,
+} from 'lucide-react';
 import type { KeyboardEvent } from 'react';
 import { memo } from 'react';
 import type { Page } from '../../types';
@@ -8,7 +15,7 @@ import { Toggle } from '../common/Toggle';
 
 interface OrbatToolbarProps {
   orbatName: string;
-  onNavigate: (page: Page) => void;
+  onNavigate: (page: Page, id?: string) => void;
   editingName: boolean;
   nameValue: string;
   onNameValueChange: (value: string) => void;
@@ -23,6 +30,7 @@ interface OrbatToolbarProps {
   onClearClick: () => void;
   copiedTarget: 'discord' | 'teamspeak' | null;
   onCopy: (target: 'discord' | 'teamspeak') => void;
+  onAARsClick: () => void;
 }
 
 const copyTargets = [
@@ -47,6 +55,7 @@ export const OrbatToolbar = memo(function OrbatToolbar({
   onClearClick,
   copiedTarget,
   onCopy,
+  onAARsClick,
 }: OrbatToolbarProps) {
   const copyButtons = copyTargets.map(({ key, label }) => (
     <Button
@@ -132,7 +141,18 @@ export const OrbatToolbar = memo(function OrbatToolbar({
               />
               {clearButton}
             </div>
-            <div className="flex items-center gap-2">{copyButtons}</div>
+            <div className="flex items-center gap-2">
+              {copyButtons}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={onAARsClick}
+                title="After Action Reports"
+              >
+                <FileText size={14} />
+                AARs
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -149,7 +169,18 @@ export const OrbatToolbar = memo(function OrbatToolbar({
             />
             {clearButton}
           </div>
-          <div className="flex items-center gap-2 *:flex-1">{copyButtons}</div>
+          <div className="flex items-center gap-2 *:flex-1">
+            {copyButtons}
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onAARsClick}
+              title="After Action Reports"
+            >
+              <FileText size={14} />
+              AARs
+            </Button>
+          </div>
         </div>
       )}
 
