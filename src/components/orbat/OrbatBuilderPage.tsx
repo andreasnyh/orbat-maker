@@ -44,7 +44,7 @@ const measuringConfig = {
 
 interface OrbatBuilderPageProps {
   orbatId: string;
-  onNavigate: (page: Page) => void;
+  onNavigate: (page: Page, id?: string) => void;
 }
 
 export function OrbatBuilderPage({
@@ -428,6 +428,7 @@ export function OrbatBuilderPage({
             onClearClick={handleClearClick}
             copiedTarget={copiedTarget}
             onCopy={handleCopy}
+            onAARsClick={() => onNavigate('aar-list', orbatId)}
           />
 
           {/* Missing template warning */}

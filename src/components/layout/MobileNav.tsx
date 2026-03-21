@@ -1,5 +1,5 @@
 import { ChevronsUp, Info, LayoutTemplate, Network, Users } from 'lucide-react';
-import type { Page } from '../../types';
+import { isActivePage, type Page } from '../../types';
 
 interface MobileNavProps {
   currentPage: Page;
@@ -20,10 +20,7 @@ const navItems: {
 ];
 
 export function MobileNav({ currentPage, onNavigate }: MobileNavProps) {
-  const isActive = (p: Page) =>
-    p === currentPage ||
-    (p === 'templates' && currentPage === 'template-editor') ||
-    (p === 'orbats' && currentPage === 'orbat-builder');
+  const isActive = (p: Page) => isActivePage(p, currentPage);
 
   return (
     <nav

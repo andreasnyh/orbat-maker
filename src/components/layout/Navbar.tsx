@@ -1,6 +1,6 @@
 import { ChevronsUp, Info, LayoutTemplate, Network, Users } from 'lucide-react';
 import type { Theme } from '../../hooks/useTheme';
-import type { Page } from '../../types';
+import { isActivePage, type Page } from '../../types';
 import { ExportMenu } from '../export/ExportMenu';
 import { ThemePicker } from './ThemePicker';
 
@@ -29,10 +29,7 @@ export function Navbar({
   theme,
   setTheme,
 }: NavbarProps) {
-  const activePage = (p: Page) =>
-    p === currentPage ||
-    (p === 'templates' && currentPage === 'template-editor') ||
-    (p === 'orbats' && currentPage === 'orbat-builder');
+  const activePage = (p: Page) => isActivePage(p, currentPage);
 
   return (
     <nav className="bg-panel border-b border-trim">

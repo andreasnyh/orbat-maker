@@ -6,6 +6,7 @@ import {
   useEffect,
   useMemo,
 } from 'react';
+import { useAARs } from '../hooks/useAARs';
 import { useOrbats } from '../hooks/useOrbats';
 import { usePeople } from '../hooks/usePeople';
 import { useRanks } from '../hooks/useRanks';
@@ -18,6 +19,7 @@ type PeopleState = ReturnType<typeof usePeople>;
 type RanksState = ReturnType<typeof useRanks>;
 type TemplatesState = ReturnType<typeof useTemplates>;
 type OrbatsState = ReturnType<typeof useOrbats>;
+type AARsState = ReturnType<typeof useAARs>;
 interface CrossCuttingState {
   ensureOwnTemplate: (orbatId: string) => string | null;
 }
@@ -28,6 +30,7 @@ const PeopleContext = createContext<PeopleState | null>(null);
 const RanksContext = createContext<RanksState | null>(null);
 const TemplatesContext = createContext<TemplatesState | null>(null);
 const OrbatsContext = createContext<OrbatsState | null>(null);
+const AARsContext = createContext<AARsState | null>(null);
 const CrossCuttingContext = createContext<CrossCuttingState | null>(null);
 
 // ---- Provider ----------------------------------------------------------------
@@ -41,6 +44,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const ranks = useRanks();
   const templates = useTemplates();
   const orbats = useOrbats();
+  const aarsState = useAARs();
 
   const { orbats: orbatList, updateOrbat } = orbats;
   const { templates: templateList, forkTemplate } = templates;
@@ -82,9 +86,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       <RanksContext.Provider value={ranks}>
         <TemplatesContext.Provider value={templates}>
           <OrbatsContext.Provider value={orbats}>
-            <CrossCuttingContext.Provider value={crossCuttingValue}>
-              {children}
-            </CrossCuttingContext.Provider>
+            <AARsContext.Provider value={aarsState}>
+              <CrossCuttingContext.Provider value={crossCuttingValue}>
+                {children}
+              </CrossCuttingContext.Provider>
+            </AARsContext.Provider>
           </OrbatsContext.Provider>
         </TemplatesContext.Provider>
       </RanksContext.Provider>
@@ -119,6 +125,13 @@ export function useOrbatsState(): OrbatsState {
   const ctx = useContext(OrbatsContext);
   if (!ctx)
     throw new Error('useOrbatsState must be used within AppStateProvider');
+  return ctx;
+}
+
+export function useAARsState(): AARsState {
+  const ctx = useContext(AARsContext);
+  if (!ctx)
+    throw new Error('useAARsState must be used within AppStateProvider');
   return ctx;
 }
 

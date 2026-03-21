@@ -1,6 +1,7 @@
 import { ChevronDown, Download, Upload } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import {
+  useAARsState,
   usePeopleState,
   useRanksState,
   useTemplatesState,
@@ -17,6 +18,7 @@ export function ExportMenu() {
   const { people } = usePeopleState();
   const { ranks } = useRanksState();
   const { templates } = useTemplatesState();
+  const { aars } = useAARsState();
   const [dropdownOpen, toggleDropdownOpen, setDropdownOpen] = useToggle();
   const [importOpen, , setImportOpen] = useToggle();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -36,7 +38,7 @@ export function ExportMenu() {
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, [dropdownOpen, setDropdownOpen]);
 
-  function handleExport(type: 'people' | 'templates' | 'all') {
+  function handleExport(type: 'people' | 'templates' | 'aars' | 'all') {
     setDropdownOpen(false);
     switch (type) {
       case 'people':
@@ -51,9 +53,12 @@ export function ExportMenu() {
           generateFilename('templates'),
         );
         break;
+      case 'aars':
+        downloadJson(createExportBundle({ aars }), generateFilename('aars'));
+        break;
       case 'all':
         downloadJson(
-          createExportBundle({ people, ranks, templates }),
+          createExportBundle({ people, ranks, templates, aars }),
           generateFilename('all'),
         );
         break;
@@ -93,6 +98,10 @@ export function ExportMenu() {
               <DropdownItem
                 label="Export Templates"
                 onClick={() => handleExport('templates')}
+              />
+              <DropdownItem
+                label="Export AARs"
+                onClick={() => handleExport('aars')}
               />
               <div className="border-t border-trim my-1" />
               <DropdownItem

@@ -42,6 +42,15 @@ export interface ORBAT {
   assignments: Assignment[];
 }
 
+export interface AAR {
+  id: string;
+  orbatId: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ExportBundle {
   version: number;
   exportedAt: string;
@@ -49,6 +58,20 @@ export interface ExportBundle {
   templates?: Template[];
   orbats?: ORBAT[];
   ranks?: Rank[];
+  aars?: AAR[];
+}
+
+export function isActivePage(page: Page, currentPage: Page): boolean {
+  if (page === currentPage) return true;
+  if (page === 'templates' && currentPage === 'template-editor') return true;
+  if (
+    page === 'orbats' &&
+    (currentPage === 'orbat-builder' ||
+      currentPage === 'aar-list' ||
+      currentPage === 'aar-editor')
+  )
+    return true;
+  return false;
 }
 
 export type Page =
@@ -58,4 +81,6 @@ export type Page =
   | 'template-editor'
   | 'orbats'
   | 'orbat-builder'
+  | 'aar-list'
+  | 'aar-editor'
   | 'about';

@@ -35,6 +35,16 @@ const RanksPage = lazy(() =>
     default: m.RanksPage,
   })),
 );
+const AARListPage = lazy(() =>
+  import('./components/aar/AARListPage').then((m) => ({
+    default: m.AARListPage,
+  })),
+);
+const AAREditorPage = lazy(() =>
+  import('./components/aar/AAREditorPage').then((m) => ({
+    default: m.AAREditorPage,
+  })),
+);
 const AboutPage = lazy(() =>
   import('./components/about/AboutPage').then((m) => ({
     default: m.AboutPage,
@@ -77,6 +87,12 @@ function App() {
       case 'orbat-builder':
         if (!activeId) return null;
         return <OrbatBuilderPage orbatId={activeId} onNavigate={navigate} />;
+      case 'aar-list':
+        if (!activeId) return null;
+        return <AARListPage orbatId={activeId} onNavigate={navigate} />;
+      case 'aar-editor':
+        if (!activeId) return null;
+        return <AAREditorPage aarId={activeId} onNavigate={navigate} />;
       case 'about':
         return <AboutPage />;
     }
