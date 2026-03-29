@@ -18,8 +18,8 @@ const navItems: {
   iconSize?: number;
 }[] = [
   { page: 'orbats', label: 'ORBATs', icon: Network },
-  { page: 'people', label: 'Personnel', icon: Users },
   { page: 'ranks', label: 'Ranks', icon: ChevronsUp, iconSize: 22 },
+  { page: 'people', label: 'Personnel', icon: Users },
   { page: 'templates', label: 'Templates', icon: LayoutTemplate },
 ];
 

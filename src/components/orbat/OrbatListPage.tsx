@@ -1,13 +1,20 @@
 import {
+  Check,
   ChevronDown,
+  ChevronRight,
+  ChevronsUp,
   ClipboardList,
   FolderOpen,
+  LayoutTemplate,
   Plus,
   Trash2,
+  Users,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import {
   useOrbatsState,
+  usePeopleState,
+  useRanksState,
   useTemplatesState,
 } from '../../context/AppStateContext';
 import { useToggle } from '../../hooks/useToggle';
@@ -24,6 +31,8 @@ interface OrbatListPageProps {
 export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
   const { orbats, createOrbat, deleteOrbat } = useOrbatsState();
   const { templates } = useTemplatesState();
+  const { ranks } = useRanksState();
+  const { people } = usePeopleState();
 
   // ---- New ORBAT modal state -----------------------------------------------
   const [showNewModal, , setShowNewModal] = useToggle();
@@ -206,20 +215,101 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
           })}
         </div>
       ) : (
-        /* Empty state */
-        <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-          <ClipboardList size={48} className="text-chrome" />
-          <p className="text-dim text-lg font-medium">No ORBATs yet</p>
-          <p className="text-dim text-sm max-w-xs">
-            Create an ORBAT to start assigning personnel to roles from a
-            template.
+        /* Empty state — workflow checklist */
+        <div className="max-w-md mx-auto py-16">
+          <p className="text-dim text-sm mb-5 text-center">
+            Set up your data, then build an ORBAT.
           </p>
-          {templates.length > 0 && (
-            <Button variant="primary" size="md" onClick={handleOpenNewModal}>
-              <Plus size={16} />
-              New ORBAT
-            </Button>
-          )}
+
+          <ol className="flex flex-col gap-1">
+            {[
+              {
+                label: 'Define ranks',
+                page: 'ranks' as Page,
+                icon: ChevronsUp,
+                done: ranks.length > 0,
+                optional: true,
+              },
+              {
+                label: 'Add personnel',
+                page: 'people' as Page,
+                icon: Users,
+                done: people.length > 0,
+                optional: false,
+              },
+              {
+                label: 'Customize a template',
+                page: 'templates' as Page,
+                icon: LayoutTemplate,
+                done: templates.some((t) => !t.isDefault),
+                optional: false,
+              },
+            ].map((step, i) => (
+              <li key={step.page}>
+                <button
+                  type="button"
+                  onClick={() => onNavigate(step.page)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm transition-colors
+                    ${step.done ? 'text-dim' : 'text-body hover:bg-panel-hover'}`}
+                >
+                  {/* Step number / check */}
+                  <span
+                    className={`shrink-0 flex items-center justify-center w-6 h-6 rounded-full text-xs font-data font-semibold
+                      ${step.done ? 'bg-green-600/20 text-green-400' : 'bg-panel border border-trim text-dim'}`}
+                  >
+                    {step.done ? <Check size={13} /> : i + 1}
+                  </span>
+
+                  <step.icon
+                    size={15}
+                    className={step.done ? 'text-chrome' : 'text-accent'}
+                  />
+                  <span
+                    className={
+                      step.done ? 'line-through decoration-trim' : 'font-medium'
+                    }
+                  >
+                    {step.label}
+                  </span>
+                  {step.optional && !step.done && (
+                    <span className="text-xs text-dim italic">Optional</span>
+                  )}
+
+                  <ChevronRight size={14} className="ml-auto text-chrome" />
+                </button>
+              </li>
+            ))}
+
+            {/* Final step: Build ORBAT — only active when prerequisites met */}
+            <li className="mt-2 pt-2 border-t border-trim">
+              <button
+                type="button"
+                onClick={templates.length > 0 ? handleOpenNewModal : undefined}
+                disabled={templates.length === 0}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm transition-colors
+                  ${templates.length > 0 ? 'text-body hover:bg-panel-hover' : 'text-chrome cursor-not-allowed'}`}
+              >
+                <span
+                  className={`shrink-0 flex items-center justify-center w-6 h-6 rounded-full text-xs font-data font-semibold
+                    ${templates.length > 0 ? 'bg-accent/20 text-accent' : 'bg-panel border border-trim text-chrome'}`}
+                >
+                  4
+                </span>
+                <ClipboardList
+                  size={15}
+                  className={
+                    templates.length > 0 ? 'text-accent' : 'text-chrome'
+                  }
+                />
+                <span className={templates.length > 0 ? 'font-medium' : ''}>
+                  Build ORBAT
+                </span>
+                {templates.length > 0 && (
+                  <ChevronRight size={14} className="ml-auto text-chrome" />
+                )}
+              </button>
+            </li>
+          </ol>
         </div>
       )}
 
