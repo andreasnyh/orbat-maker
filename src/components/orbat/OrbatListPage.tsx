@@ -99,8 +99,6 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
     return map;
   }, [orbats, templateMap]);
 
-  const canCreate = newName.trim().length > 0 && newTemplateId.length > 0;
-
   // ---- Render --------------------------------------------------------------
 
   return (
@@ -327,7 +325,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && canCreate) handleCreateOrbat();
+              if (e.key === 'Enter') handleCreateOrbat();
             }}
             error={newNameError}
             autoFocus
@@ -370,11 +368,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
             <Button variant="secondary" onClick={handleCloseNewModal}>
               Cancel
             </Button>
-            <Button
-              variant="primary"
-              onClick={handleCreateOrbat}
-              disabled={!canCreate}
-            >
+            <Button variant="primary" onClick={handleCreateOrbat}>
               Create & Open
             </Button>
           </div>

@@ -13,16 +13,30 @@ function RankForm({
   onSubmit,
   onCancel,
   initialName = '',
+  existingNames = [],
 }: {
   onSubmit: (name: string) => void;
   onCancel: () => void;
   initialName?: string;
+  existingNames?: string[];
 }) {
   const [name, setName] = useState(initialName);
   const [touched, setTouched] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const isEdit = initialName !== '';
-  const nameError = touched && !name.trim() ? 'Name is required' : undefined;
+
+  const trimmed = name.trim();
+  const isDuplicate =
+    trimmed !== '' &&
+    trimmed.toLowerCase() !== initialName.toLowerCase() &&
+    existingNames.some((n) => n.toLowerCase() === trimmed.toLowerCase());
+  const nameError = touched
+    ? !trimmed
+      ? 'Name is required'
+      : isDuplicate
+        ? 'Rank already exists'
+        : undefined
+    : undefined;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -31,8 +45,7 @@ function RankForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setTouched(true);
-    const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!trimmed || isDuplicate) return;
     onSubmit(trimmed);
   };
 
@@ -52,7 +65,7 @@ function RankForm({
         <Button type="button" variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" variant="primary" disabled={!name.trim()}>
+        <Button type="submit" variant="primary">
           {isEdit ? 'Save Changes' : 'Add Rank'}
         </Button>
       </div>
@@ -64,6 +77,7 @@ export function RanksPage() {
   const { ranks, addRank, updateRank, deleteRank, setRanks } = useRanksState();
   const toast = useToast();
 
+  const rankNames = ranks.map((r) => r.name);
   const [isAddOpen, , setIsAddOpen] = useToggle();
   const [isBulkAddOpen, , setIsBulkAddOpen] = useToggle();
   const [editTarget, setEditTarget] = useState<Rank | null>(null);
@@ -162,7 +176,11 @@ export function RanksPage() {
         title="Add Rank"
       >
         {isAddOpen && (
-          <RankForm onSubmit={handleAdd} onCancel={() => setIsAddOpen(false)} />
+          <RankForm
+            onSubmit={handleAdd}
+            onCancel={() => setIsAddOpen(false)}
+            existingNames={rankNames}
+          />
         )}
       </Modal>
 
@@ -178,6 +196,7 @@ export function RanksPage() {
             initialName={editTarget.name}
             onSubmit={handleEditSubmit}
             onCancel={() => setEditTarget(null)}
+            existingNames={rankNames}
           />
         )}
       </Modal>

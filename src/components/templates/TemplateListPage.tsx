@@ -196,11 +196,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
             <Button variant="secondary" onClick={handleCloseNewModal}>
               Cancel
             </Button>
-            <Button
-              variant="primary"
-              onClick={handleCreateTemplate}
-              disabled={!newName.trim()}
-            >
+            <Button variant="primary" onClick={handleCreateTemplate}>
               Create & Edit
             </Button>
           </div>

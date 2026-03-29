@@ -114,7 +114,7 @@ export function PersonForm({
         <Button type="button" variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" variant="primary" disabled={!name.trim()}>
+        <Button type="submit" variant="primary">
           {isEditMode ? 'Save Changes' : 'Add Personnel'}
         </Button>
       </div>
