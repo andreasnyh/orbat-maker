@@ -58,6 +58,7 @@ export function OrbatBuilderPage({
     reorderSlotsInGroup,
     moveSlotBetweenGroups,
     updateSlot,
+    updateGroupSlots,
   } = useTemplatesState();
   const {
     orbats,
@@ -170,10 +171,41 @@ export function OrbatBuilderPage({
   const handleRemoveSlot = useCallback(
     (groupId: string, slotId: string) =>
       withOwnTemplate((tid) => {
+        // Snapshot slot and its index for undo
+        const group = templates
+          .find((t) => t.id === tid)
+          ?.groups.find((g) => g.id === groupId);
+        const slotIndex = group?.slots.findIndex((s) => s.id === slotId) ?? -1;
+        const slot = group?.slots[slotIndex];
+        const assignment = orbat?.assignments.find((a) => a.slotId === slotId);
+
         unassignSlot(orbatId, slotId);
         removeSlotFromGroup(tid, groupId, slotId);
+
+        if (slot) {
+          toast.undo(`Removed "${slot.roleLabel}" slot`, () => {
+            updateGroupSlots(tid, groupId, (slots) => {
+              const restored = [...slots];
+              restored.splice(slotIndex, 0, slot);
+              return restored;
+            });
+            if (assignment) {
+              assignPersonToSlot(orbatId, slotId, assignment.personId);
+            }
+          });
+        }
       }),
-    [withOwnTemplate, orbatId, removeSlotFromGroup, unassignSlot],
+    [
+      withOwnTemplate,
+      templates,
+      orbat,
+      orbatId,
+      removeSlotFromGroup,
+      unassignSlot,
+      updateGroupSlots,
+      assignPersonToSlot,
+      toast,
+    ],
   );
 
   const handleReorderSlots = useCallback(

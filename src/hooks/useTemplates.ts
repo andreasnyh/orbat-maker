@@ -212,6 +212,7 @@ export function useTemplates() {
     reorderSlotsInGroup,
     moveSlotBetweenGroups,
     updateSlot,
+    updateGroupSlots,
     setTemplates,
   };
 }

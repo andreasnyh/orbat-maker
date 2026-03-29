@@ -27,10 +27,15 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
   const [showNewModal, , setShowNewModal] = useToggle();
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
+  const [newTouched, setNewTouched] = useState(false);
+
+  const newNameError =
+    newTouched && !newName.trim() ? 'Name is required' : undefined;
 
   // ---- Handlers -------------------------------------------------------------
 
   function handleCreateTemplate() {
+    setNewTouched(true);
     const trimmedName = newName.trim();
     if (!trimmedName) return;
     const created = addTemplate(trimmedName, newDesc.trim() || undefined);
@@ -45,6 +50,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
     setShowNewModal(false);
     setNewName('');
     setNewDesc('');
+    setNewTouched(false);
   }
 
   function handleDuplicate(id: string) {
@@ -174,6 +180,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleCreateTemplate();
             }}
+            error={newNameError}
             autoFocus
           />
           <TextInput

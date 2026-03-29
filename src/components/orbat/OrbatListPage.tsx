@@ -39,6 +39,10 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
   const [showNewModal, , setShowNewModal] = useToggle();
   const [newName, setNewName] = useState('');
   const [newTemplateId, setNewTemplateId] = useState<string>('');
+  const [newTouched, setNewTouched] = useState(false);
+
+  const newNameError =
+    newTouched && !newName.trim() ? 'Name is required' : undefined;
 
   // ---- Handlers ------------------------------------------------------------
 
@@ -52,9 +56,11 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
     setShowNewModal(false);
     setNewName('');
     setNewTemplateId('');
+    setNewTouched(false);
   }
 
   function handleCreateOrbat() {
+    setNewTouched(true);
     const trimmedName = newName.trim();
     if (!trimmedName || !newTemplateId) return;
     const template = templateMap.get(newTemplateId);
@@ -323,6 +329,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
             onKeyDown={(e) => {
               if (e.key === 'Enter' && canCreate) handleCreateOrbat();
             }}
+            error={newNameError}
             autoFocus
           />
 

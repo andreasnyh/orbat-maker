@@ -1,10 +1,10 @@
 import { ChevronsUp, Pencil, Plus, Trash2, UsersRound } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useRanksState } from '../../context/AppStateContext';
+import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
 import type { Rank } from '../../types';
 import { Button } from '../common/Button';
-import { ConfirmDialog } from '../common/ConfirmDialog';
 import { Modal } from '../common/Modal';
 import { TextInput } from '../common/TextInput';
 import { BulkAddRanksForm } from './BulkAddRanksForm';
@@ -19,8 +19,10 @@ function RankForm({
   initialName?: string;
 }) {
   const [name, setName] = useState(initialName);
+  const [touched, setTouched] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const isEdit = initialName !== '';
+  const nameError = touched && !name.trim() ? 'Name is required' : undefined;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -28,6 +30,7 @@ function RankForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setTouched(true);
     const trimmed = name.trim();
     if (!trimmed) return;
     onSubmit(trimmed);
@@ -41,6 +44,7 @@ function RankForm({
         placeholder="e.g. Sgt., Cpl., LCpl."
         value={name}
         onChange={(e) => setName(e.target.value)}
+        error={nameError}
         required
         autoComplete="off"
       />
@@ -57,12 +61,12 @@ function RankForm({
 }
 
 export function RanksPage() {
-  const { ranks, addRank, updateRank, deleteRank } = useRanksState();
+  const { ranks, addRank, updateRank, deleteRank, setRanks } = useRanksState();
+  const toast = useToast();
 
   const [isAddOpen, , setIsAddOpen] = useToggle();
   const [isBulkAddOpen, , setIsBulkAddOpen] = useToggle();
   const [editTarget, setEditTarget] = useState<Rank | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Rank | null>(null);
 
   const handleAdd = (name: string) => {
     addRank(name);
@@ -82,10 +86,12 @@ export function RanksPage() {
     setEditTarget(null);
   };
 
-  const handleDeleteConfirm = () => {
-    if (!deleteTarget) return;
-    deleteRank(deleteTarget.id);
-    setDeleteTarget(null);
+  const handleDelete = (rank: Rank) => {
+    const snapshot = rank;
+    deleteRank(rank.id);
+    toast.undo(`Deleted "${rank.name}"`, () => {
+      setRanks((prev) => [...prev, snapshot]);
+    });
   };
 
   return (
@@ -137,7 +143,7 @@ export function RanksPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setDeleteTarget(rank)}
+                  onClick={() => handleDelete(rank)}
                   className="p-1.5 rounded-md text-dim hover:text-red-400 hover:bg-overlay transition-colors"
                   aria-label={`Delete ${rank.name}`}
                 >
@@ -185,21 +191,6 @@ export function RanksPage() {
           onCancel={() => setIsBulkAddOpen(false)}
         />
       </Modal>
-
-      {/* Delete confirmation */}
-      <ConfirmDialog
-        open={deleteTarget !== null}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Rank"
-        message={
-          deleteTarget
-            ? `Delete "${deleteTarget.name}"?\nThis cannot be undone.`
-            : ''
-        }
-        confirmLabel="Delete Rank"
-        variant="danger"
-      />
     </div>
   );
 }

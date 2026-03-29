@@ -6,11 +6,13 @@ export const inputBaseClass =
 
 interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  error?: string;
   ref?: Ref<HTMLInputElement>;
 }
 
 export function TextInput({
   label,
+  error,
   className,
   id,
   ref,
@@ -28,9 +30,21 @@ export function TextInput({
       <input
         ref={ref}
         id={inputId}
-        className={clsx(inputBaseClass, className)}
+        className={clsx(
+          inputBaseClass,
+          error &&
+            'border-red-500/50 focus-visible:border-red-500/50 focus-visible:ring-red-500/25',
+          className,
+        )}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${inputId}-error` : undefined}
         {...props}
       />
+      {error && (
+        <p id={`${inputId}-error`} className="text-xs text-red-400">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
