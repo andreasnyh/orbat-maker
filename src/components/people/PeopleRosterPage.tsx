@@ -6,6 +6,7 @@ import { useToggle } from '../../hooks/useToggle';
 import type { Person } from '../../types';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
+import { PageHeader } from '../common/PageHeader';
 import { TextInput } from '../common/TextInput';
 import { BulkAddForm } from './BulkAddForm';
 import { PersonForm } from './PersonForm';
@@ -64,27 +65,16 @@ export function PeopleRosterPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Page header */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <h1 className="font-display text-xl font-bold text-strong uppercase tracking-wide">
-          Personnel
-          {people.length > 0 && (
-            <span className="ml-2 text-sm font-data text-dim font-normal normal-case tracking-normal">
-              {people.length}
-            </span>
-          )}
-        </h1>
-        <div className="ml-auto flex items-center gap-3">
-          <Button variant="secondary" onClick={() => setIsBulkAddOpen(true)}>
-            <UsersRound size={16} />
-            Bulk Add
-          </Button>
-          <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
-            <UserPlus size={16} />
-            Add Personnel
-          </Button>
-        </div>
-      </div>
+      <PageHeader title="Personnel" count={people.length}>
+        <Button variant="secondary" onClick={() => setIsBulkAddOpen(true)}>
+          <UsersRound size={16} />
+          Bulk Add
+        </Button>
+        <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
+          <UserPlus size={16} />
+          Add Personnel
+        </Button>
+      </PageHeader>
 
       {/* Search bar — only show once there are people to filter */}
       {people.length > 0 && (

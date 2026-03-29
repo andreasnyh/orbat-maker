@@ -7,6 +7,7 @@ import type { Page, Template } from '../../types';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
+import { PageHeader } from '../common/PageHeader';
 import { TextInput } from '../common/TextInput';
 
 interface TemplateListPageProps {
@@ -78,26 +79,16 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
 
   return (
     <div>
-      {/* Page header */}
-      <div className="flex items-center gap-3 mb-6">
-        <h1 className="font-display text-xl font-bold text-strong uppercase tracking-wide">
-          Templates
-          {templates.length > 0 && (
-            <span className="ml-2 text-sm font-data text-dim font-normal normal-case tracking-normal">
-              {templates.length}
-            </span>
-          )}
-        </h1>
+      <PageHeader title="Templates" count={templates.length} className="mb-6">
         <Button
           onClick={() => setShowNewModal(true)}
           variant="primary"
           size="md"
-          className="ml-auto"
         >
           <Plus size={16} />
           New Template
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Template grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

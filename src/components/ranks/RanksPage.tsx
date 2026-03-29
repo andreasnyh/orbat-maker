@@ -6,6 +6,7 @@ import { useToggle } from '../../hooks/useToggle';
 import type { Rank } from '../../types';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
+import { PageHeader } from '../common/PageHeader';
 import { TextInput } from '../common/TextInput';
 import { BulkAddRanksForm } from './BulkAddRanksForm';
 
@@ -112,27 +113,16 @@ export function RanksPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Page header */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <h1 className="font-display text-xl font-bold text-strong uppercase tracking-wide">
-          Ranks
-          {ranks.length > 0 && (
-            <span className="ml-2 text-sm font-data text-dim font-normal normal-case tracking-normal">
-              {ranks.length}
-            </span>
-          )}
-        </h1>
-        <div className="ml-auto flex items-center gap-3">
-          <Button variant="secondary" onClick={() => setIsBulkAddOpen(true)}>
-            <UsersRound size={16} />
-            Bulk Add
-          </Button>
-          <Button variant="primary" onClick={() => setIsAddOpen(true)}>
-            <Plus size={16} />
-            Add Rank
-          </Button>
-        </div>
-      </div>
+      <PageHeader title="Ranks" count={ranks.length}>
+        <Button variant="secondary" onClick={() => setIsBulkAddOpen(true)}>
+          <UsersRound size={16} />
+          Bulk Add
+        </Button>
+        <Button variant="primary" onClick={() => setIsAddOpen(true)}>
+          <Plus size={16} />
+          Add Rank
+        </Button>
+      </PageHeader>
 
       {/* Content */}
       {ranks.length === 0 ? (

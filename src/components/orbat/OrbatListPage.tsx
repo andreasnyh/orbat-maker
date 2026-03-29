@@ -22,6 +22,7 @@ import { useToggle } from '../../hooks/useToggle';
 import type { ORBAT, Page } from '../../types';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
+import { PageHeader } from '../common/PageHeader';
 import { TextInput } from '../common/TextInput';
 
 interface OrbatListPageProps {
@@ -103,28 +104,18 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
 
   return (
     <div>
-      {/* Page header */}
-      <div className="flex items-center gap-3 mb-6">
-        <h1 className="font-display text-xl font-bold text-strong uppercase tracking-wide">
-          ORBATs
-          {orbats.length > 0 && (
-            <span className="ml-2 text-sm font-data text-dim font-normal normal-case tracking-normal">
-              {orbats.length}
-            </span>
-          )}
-        </h1>
+      <PageHeader title="ORBATs" count={orbats.length} className="mb-6">
         <Button
           onClick={handleOpenNewModal}
           variant="primary"
           size="md"
-          className="ml-auto"
           disabled={templates.length === 0}
           title={templates.length === 0 ? 'Create a template first' : undefined}
         >
           <Plus size={16} />
           New ORBAT
         </Button>
-      </div>
+      </PageHeader>
 
       {/* No templates warning */}
       {templates.length === 0 && (
