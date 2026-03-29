@@ -85,6 +85,7 @@ export function RanksPage() {
   const handleAdd = (name: string) => {
     addRank(name);
     setIsAddOpen(false);
+    toast.success(`Added ${name}`);
   };
 
   const handleBulkAdd = (names: string[]) => {
@@ -92,6 +93,7 @@ export function RanksPage() {
       addRank(name);
     }
     setIsBulkAddOpen(false);
+    toast.success(`Added ${names.length} ranks`);
   };
 
   const handleEditSubmit = (name: string) => {

@@ -32,6 +32,7 @@ export function PeopleRosterPage() {
   const handleAdd = (name: string, rank?: string) => {
     addPerson(name, rank);
     setIsAddModalOpen(false);
+    toast.success(`Added ${name}`);
   };
 
   const handleBulkAdd = (entries: { name: string; rank?: string }[]) => {
@@ -39,6 +40,7 @@ export function PeopleRosterPage() {
       addPerson(entry.name, entry.rank);
     }
     setIsBulkAddOpen(false);
+    toast.success(`Added ${entries.length} personnel`);
   };
 
   const handleEditOpen = (person: Person) => {

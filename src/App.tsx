@@ -53,8 +53,21 @@ const AboutPage = lazy(() =>
 
 function PageSkeleton() {
   return (
-    <div className="flex items-center justify-center py-24">
-      <div className="w-6 h-6 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+    <div className="animate-pulse space-y-4 py-2">
+      {/* Header row */}
+      <div className="flex items-center justify-between">
+        <div className="h-7 w-40 rounded bg-trim/40" />
+        <div className="h-8 w-24 rounded bg-trim/40" />
+      </div>
+      {/* Content cards */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="h-28 rounded-lg border border-trim bg-panel"
+          />
+        ))}
+      </div>
     </div>
   );
 }
