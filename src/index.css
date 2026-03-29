@@ -25,6 +25,10 @@
   --th-equip: #fcd34d;
   --th-equip-muted: rgba(252, 211, 77, 0.5);
   --th-equip-bg: rgba(251, 191, 36, 0.15);
+  --th-success: #22c55e;
+  --th-success-dim: rgba(34, 197, 94, 0.15);
+  --th-warning: #eab308;
+  --th-warning-dim: rgba(234, 179, 8, 0.15);
   --th-overlay: rgba(255, 255, 255, 0.05);
   --th-shadow: rgba(0, 0, 0, 0.2);
 }
@@ -48,6 +52,10 @@
   --th-equip: #fcd34d;
   --th-equip-muted: rgba(252, 211, 77, 0.5);
   --th-equip-bg: rgba(251, 191, 36, 0.15);
+  --th-success: #4ade80;
+  --th-success-dim: rgba(74, 222, 128, 0.15);
+  --th-warning: #facc15;
+  --th-warning-dim: rgba(250, 204, 21, 0.15);
   --th-overlay: rgba(255, 255, 255, 0.05);
   --th-shadow: rgba(0, 0, 0, 0.2);
 }
@@ -71,6 +79,10 @@
   --th-equip: #92400e;
   --th-equip-muted: rgba(146, 64, 14, 0.5);
   --th-equip-bg: rgba(180, 83, 9, 0.12);
+  --th-success: #16a34a;
+  --th-success-dim: rgba(22, 163, 74, 0.12);
+  --th-warning: #a16207;
+  --th-warning-dim: rgba(161, 98, 7, 0.12);
   --th-overlay: rgba(0, 0, 0, 0.04);
   --th-shadow: rgba(0, 0, 0, 0.06);
 }
@@ -99,6 +111,10 @@
   --color-equip: var(--th-equip);
   --color-equip-muted: var(--th-equip-muted);
   --color-equip-bg: var(--th-equip-bg);
+  --color-success: var(--th-success);
+  --color-success-dim: var(--th-success-dim);
+  --color-warning: var(--th-warning);
+  --color-warning-dim: var(--th-warning-dim);
   --color-overlay: var(--th-overlay);
   --color-shadow: var(--th-shadow);
 }

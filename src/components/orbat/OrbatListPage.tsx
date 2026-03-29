@@ -157,9 +157,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                     {template ? (
                       template.name
                     ) : (
-                      <span className="text-yellow-400/80">
-                        Template missing
-                      </span>
+                      <span className="text-warning">Template missing</span>
                     )}
                   </span>
                 </div>
@@ -181,7 +179,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                   {total > 0 && (
                     <div className="h-1.5 bg-page rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-green-600 rounded-full transition-all"
+                        className="h-full bg-success rounded-full transition-all"
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
@@ -249,12 +247,12 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                   type="button"
                   onClick={() => onNavigate(step.page)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm transition-colors
-                    ${step.done ? 'text-dim' : 'text-body hover:bg-panel-hover'}`}
+                    ${step.done ? 'text-dim' : 'text-body hover:bg-trim/30'}`}
                 >
                   {/* Step number / check */}
                   <span
                     className={`shrink-0 flex items-center justify-center w-6 h-6 rounded-full text-xs font-data font-semibold
-                      ${step.done ? 'bg-green-600/20 text-green-400' : 'bg-panel border border-trim text-dim'}`}
+                      ${step.done ? 'bg-success-dim text-success' : 'bg-panel border border-trim text-dim'}`}
                   >
                     {step.done ? <Check size={13} /> : i + 1}
                   </span>
@@ -286,7 +284,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                 onClick={templates.length > 0 ? handleOpenNewModal : undefined}
                 disabled={templates.length === 0}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm transition-colors
-                  ${templates.length > 0 ? 'text-body hover:bg-panel-hover' : 'text-chrome cursor-not-allowed'}`}
+                  ${templates.length > 0 ? 'text-body hover:bg-trim/30' : 'text-chrome cursor-not-allowed'}`}
               >
                 <span
                   className={`shrink-0 flex items-center justify-center w-6 h-6 rounded-full text-xs font-data font-semibold

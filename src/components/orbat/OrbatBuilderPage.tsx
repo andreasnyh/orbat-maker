@@ -422,7 +422,7 @@ export function OrbatBuilderPage({
   if (!orbat) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-        <AlertTriangle size={40} className="text-yellow-400" />
+        <AlertTriangle size={40} className="text-warning" />
         <p className="text-dim">ORBAT not found.</p>
         <Button variant="secondary" onClick={() => onNavigate('orbats')}>
           <ArrowLeft size={14} />
