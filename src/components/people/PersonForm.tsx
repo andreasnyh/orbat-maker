@@ -21,8 +21,10 @@ export function PersonForm({
 }: PersonFormProps) {
   const { ranks, addRank } = useRanksState();
   const [name, setName] = useState(initialName);
+  const [touched, setTouched] = useState(false);
 
   const isEditMode = initialName !== '';
+  const nameError = touched && !name.trim() ? 'Name is required' : undefined;
 
   // Determine initial select value
   const initialIsDefinedRank =
@@ -42,6 +44,7 @@ export function PersonForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setTouched(true);
     const trimmedName = name.trim();
     if (!trimmedName) return;
     if (
@@ -89,7 +92,7 @@ export function PersonForm({
                 type="checkbox"
                 checked={saveCustomRank}
                 onChange={(e) => setSaveCustomRank(e.target.checked)}
-                className="accent-green-500"
+                className="accent-success"
               />
               Save to ranks list
             </label>
@@ -102,6 +105,7 @@ export function PersonForm({
         placeholder="e.g. John Smith…"
         value={name}
         onChange={(e) => setName(e.target.value)}
+        error={nameError}
         required
         autoComplete="off"
       />
@@ -110,7 +114,7 @@ export function PersonForm({
         <Button type="button" variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" variant="primary" disabled={!name.trim()}>
+        <Button type="submit" variant="primary">
           {isEditMode ? 'Save Changes' : 'Add Personnel'}
         </Button>
       </div>

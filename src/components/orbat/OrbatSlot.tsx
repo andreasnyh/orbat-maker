@@ -4,9 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
 import { GripVertical, Trash2, X } from 'lucide-react';
 import { memo } from 'react';
-import { useToggle } from '../../hooks/useToggle';
 import type { Assignment, Person, Slot } from '../../types';
-import { ConfirmDialog } from '../common/ConfirmDialog';
 import { EquipmentPills } from '../common/EquipmentPills';
 
 interface OrbatSlotProps {
@@ -126,8 +124,6 @@ const OrbatSlotContent = memo(
     dragAttrs,
     dragListeners,
   }: OrbatSlotContentProps) {
-    const [confirmRemove, , setConfirmRemove] = useToggle();
-
     function handleUnassign(e: React.MouseEvent) {
       e.stopPropagation();
       onUnassign?.(slot.id);
@@ -135,7 +131,7 @@ const OrbatSlotContent = memo(
 
     function handleRemoveSlot(e: React.MouseEvent) {
       e.stopPropagation();
-      setConfirmRemove(true);
+      onRemoveSlot?.(slot.id);
     }
 
     function handleRemoveEquipment(tag: string) {
@@ -171,7 +167,7 @@ const OrbatSlotContent = memo(
         type="button"
         onClick={handleUnassign}
         onPointerDown={(e) => e.stopPropagation()}
-        className="shrink-0 text-faint hover:text-red-400 transition-colors p-2 md:p-1 rounded"
+        className="shrink-0 text-faint hover:text-danger transition-colors p-2 md:p-1 rounded"
         aria-label={`Remove ${person?.name ?? 'personnel'} from ${slot.roleLabel}`}
         title="Remove assignment"
       >
@@ -184,7 +180,7 @@ const OrbatSlotContent = memo(
         type="button"
         onClick={handleRemoveSlot}
         onPointerDown={(e) => e.stopPropagation()}
-        className="shrink-0 text-faint hover:text-red-400 transition-colors p-2 md:p-1 rounded"
+        className="shrink-0 text-faint hover:text-danger transition-colors p-2 md:p-1 rounded"
         aria-label={`Delete ${slot.roleLabel} slot`}
         title="Delete slot"
       >
@@ -262,7 +258,7 @@ const OrbatSlotContent = memo(
               ) : (
                 <>
                   <span className="w-3.5 shrink-0" />
-                  [EMPTY]
+                  <span className="italic text-faint">Unassigned</span>
                 </>
               )}
             </span>
@@ -319,17 +315,6 @@ const OrbatSlotContent = memo(
               )}
             </button>
           </div>
-        )}
-
-        {confirmRemove && (
-          <ConfirmDialog
-            open={confirmRemove}
-            title={`Delete "${slot.roleLabel}" slot?`}
-            message="This will permanently remove the slot from this group."
-            confirmLabel="Delete Slot"
-            onConfirm={() => onRemoveSlot?.(slot.id)}
-            onClose={() => setConfirmRemove(false)}
-          />
         )}
       </>
     );

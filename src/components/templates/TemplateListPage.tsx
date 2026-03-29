@@ -1,12 +1,13 @@
 import { Copy, LayoutTemplate, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTemplatesState } from '../../context/AppStateContext';
+import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
-import type { Page } from '../../types';
+import type { Page, Template } from '../../types';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
-import { ConfirmDialog } from '../common/ConfirmDialog';
 import { Modal } from '../common/Modal';
+import { PageHeader } from '../common/PageHeader';
 import { TextInput } from '../common/TextInput';
 
 interface TemplateListPageProps {
@@ -14,23 +15,28 @@ interface TemplateListPageProps {
 }
 
 export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
-  const { templates, addTemplate, deleteTemplate, duplicateTemplate } =
-    useTemplatesState();
+  const {
+    templates,
+    addTemplate,
+    deleteTemplate,
+    duplicateTemplate,
+    setTemplates,
+  } = useTemplatesState();
+  const toast = useToast();
 
   // ---- New template modal state ---------------------------------------------
   const [showNewModal, , setShowNewModal] = useToggle();
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
+  const [newTouched, setNewTouched] = useState(false);
 
-  // ---- Delete confirmation state --------------------------------------------
-  const [deleteTarget, setDeleteTarget] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
+  const newNameError =
+    newTouched && !newName.trim() ? 'Name is required' : undefined;
 
   // ---- Handlers -------------------------------------------------------------
 
   function handleCreateTemplate() {
+    setNewTouched(true);
     const trimmedName = newName.trim();
     if (!trimmedName) return;
     const created = addTemplate(trimmedName, newDesc.trim() || undefined);
@@ -45,17 +51,24 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
     setShowNewModal(false);
     setNewName('');
     setNewDesc('');
+    setNewTouched(false);
   }
 
   function handleDuplicate(id: string) {
     duplicateTemplate(id);
   }
 
-  function handleDeleteConfirm() {
-    if (deleteTarget) {
-      deleteTemplate(deleteTarget.id);
-      setDeleteTarget(null);
-    }
+  function handleDelete(template: Template) {
+    const snapshot = template;
+    const index = templates.indexOf(template);
+    deleteTemplate(template.id);
+    toast.undo(`Deleted "${template.name}"`, () => {
+      setTemplates((prev) => {
+        const restored = [...prev];
+        restored.splice(Math.min(index, restored.length), 0, snapshot);
+        return restored;
+      });
+    });
   }
 
   // ---- Derived stats --------------------------------------------------------
@@ -71,8 +84,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
 
   return (
     <div>
-      {/* Page header */}
-      <div className="flex items-center justify-end mb-6">
+      <PageHeader title="Templates" count={templates.length} className="mb-6">
         <Button
           onClick={() => setShowNewModal(true)}
           variant="primary"
@@ -81,7 +93,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
           <Plus size={16} />
           New Template
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Template grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -94,7 +106,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
                 <div className="flex items-center gap-2 min-w-0">
                   <LayoutTemplate
                     size={16}
-                    className="text-indigo-400 shrink-0 mt-0.5"
+                    className="text-accent shrink-0 mt-0.5"
                   />
                   <span className="font-display font-semibold text-body truncate">
                     {template.name}
@@ -145,9 +157,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
                   <Button
                     variant="danger"
                     size="sm"
-                    onClick={() =>
-                      setDeleteTarget({ id: template.id, name: template.name })
-                    }
+                    onClick={() => handleDelete(template)}
                     title="Delete template"
                     aria-label="Delete template"
                   >
@@ -175,6 +185,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleCreateTemplate();
             }}
+            error={newNameError}
             autoFocus
           />
           <TextInput
@@ -190,26 +201,12 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
             <Button variant="secondary" onClick={handleCloseNewModal}>
               Cancel
             </Button>
-            <Button
-              variant="primary"
-              onClick={handleCreateTemplate}
-              disabled={!newName.trim()}
-            >
+            <Button variant="primary" onClick={handleCreateTemplate}>
               Create & Edit
             </Button>
           </div>
         </div>
       </Modal>
-
-      {/* Delete confirmation */}
-      <ConfirmDialog
-        open={deleteTarget !== null}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Template"
-        message={`Delete "${deleteTarget?.name}"?\nThis cannot be undone.`}
-        confirmLabel="Delete Template"
-      />
     </div>
   );
 }

@@ -1,20 +1,29 @@
 import {
+  Check,
   ChevronDown,
+  ChevronRight,
+  ChevronsUp,
   ClipboardList,
   FolderOpen,
+  LayoutTemplate,
   Plus,
   Trash2,
+  Users,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import {
   useOrbatsState,
+  usePeopleState,
+  useRanksState,
   useTemplatesState,
 } from '../../context/AppStateContext';
+import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
-import type { Page } from '../../types';
+import type { ORBAT, Page } from '../../types';
+import { AlertBanner } from '../common/AlertBanner';
 import { Button } from '../common/Button';
-import { ConfirmDialog } from '../common/ConfirmDialog';
 import { Modal } from '../common/Modal';
+import { PageHeader } from '../common/PageHeader';
 import { TextInput } from '../common/TextInput';
 
 interface OrbatListPageProps {
@@ -22,18 +31,20 @@ interface OrbatListPageProps {
 }
 
 export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
-  const { orbats, createOrbat, deleteOrbat } = useOrbatsState();
+  const { orbats, createOrbat, deleteOrbat, setOrbats } = useOrbatsState();
   const { templates } = useTemplatesState();
+  const { ranks } = useRanksState();
+  const { people } = usePeopleState();
+  const toast = useToast();
 
   // ---- New ORBAT modal state -----------------------------------------------
   const [showNewModal, , setShowNewModal] = useToggle();
   const [newName, setNewName] = useState('');
   const [newTemplateId, setNewTemplateId] = useState<string>('');
-  // ---- Delete confirmation state -------------------------------------------
-  const [deleteTarget, setDeleteTarget] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
+  const [newTouched, setNewTouched] = useState(false);
+
+  const newNameError =
+    newTouched && !newName.trim() ? 'Name is required' : undefined;
 
   // ---- Handlers ------------------------------------------------------------
 
@@ -47,9 +58,11 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
     setShowNewModal(false);
     setNewName('');
     setNewTemplateId('');
+    setNewTouched(false);
   }
 
   function handleCreateOrbat() {
+    setNewTouched(true);
     const trimmedName = newName.trim();
     if (!trimmedName || !newTemplateId) return;
     const template = templateMap.get(newTemplateId);
@@ -59,11 +72,17 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
     onNavigate('orbat-builder', created.id);
   }
 
-  function handleDeleteConfirm() {
-    if (deleteTarget) {
-      deleteOrbat(deleteTarget.id);
-      setDeleteTarget(null);
-    }
+  function handleDelete(orbat: ORBAT) {
+    const snapshot = orbat;
+    const index = orbats.indexOf(orbat);
+    deleteOrbat(orbat.id);
+    toast.undo(`Deleted "${orbat.name}"`, () => {
+      setOrbats((prev) => {
+        const restored = [...prev];
+        restored.splice(Math.min(index, restored.length), 0, snapshot);
+        return restored;
+      });
+    });
   }
 
   // ---- Derived helpers (memoized) -------------------------------------------
@@ -87,14 +106,11 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
     return map;
   }, [orbats, templateMap]);
 
-  const canCreate = newName.trim().length > 0 && newTemplateId.length > 0;
-
   // ---- Render --------------------------------------------------------------
 
   return (
     <div>
-      {/* Page header */}
-      <div className="flex items-center justify-end mb-6">
+      <PageHeader title="ORBATs" count={orbats.length} className="mb-6">
         <Button
           onClick={handleOpenNewModal}
           variant="primary"
@@ -105,13 +121,13 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
           <Plus size={16} />
           New ORBAT
         </Button>
-      </div>
+      </PageHeader>
 
       {/* No templates warning */}
       {templates.length === 0 && (
-        <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-4 mb-6 text-yellow-300 text-sm">
+        <AlertBanner variant="warning" className="mb-6">
           No templates available. Create a template before building an ORBAT.
-        </div>
+        </AlertBanner>
       )}
 
       {/* ORBAT grid */}
@@ -147,9 +163,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                     {template ? (
                       template.name
                     ) : (
-                      <span className="text-yellow-400/80">
-                        Template missing
-                      </span>
+                      <span className="text-warning">Template missing</span>
                     )}
                   </span>
                 </div>
@@ -171,7 +185,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                   {total > 0 && (
                     <div className="h-1.5 bg-page rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-green-600 rounded-full transition-all"
+                        className="h-full bg-success rounded-full transition-all motion-reduce:transition-none"
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
@@ -192,9 +206,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                   <Button
                     variant="danger"
                     size="sm"
-                    onClick={() =>
-                      setDeleteTarget({ id: orbat.id, name: orbat.name })
-                    }
+                    onClick={() => handleDelete(orbat)}
                     title="Delete ORBAT"
                     aria-label="Delete ORBAT"
                   >
@@ -206,20 +218,101 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
           })}
         </div>
       ) : (
-        /* Empty state */
-        <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-          <ClipboardList size={48} className="text-chrome" />
-          <p className="text-dim text-lg font-medium">No ORBATs yet</p>
-          <p className="text-dim text-sm max-w-xs">
-            Create an ORBAT to start assigning personnel to roles from a
-            template.
+        /* Empty state — workflow checklist */
+        <div className="max-w-md mx-auto py-16">
+          <p className="text-dim text-sm mb-5 text-center">
+            Set up your data, then build an ORBAT.
           </p>
-          {templates.length > 0 && (
-            <Button variant="primary" size="md" onClick={handleOpenNewModal}>
-              <Plus size={16} />
-              New ORBAT
-            </Button>
-          )}
+
+          <ol className="flex flex-col gap-1">
+            {[
+              {
+                label: 'Define ranks',
+                page: 'ranks' as Page,
+                icon: ChevronsUp,
+                done: ranks.length > 0,
+                optional: true,
+              },
+              {
+                label: 'Add personnel',
+                page: 'people' as Page,
+                icon: Users,
+                done: people.length > 0,
+                optional: false,
+              },
+              {
+                label: 'Customize a template',
+                page: 'templates' as Page,
+                icon: LayoutTemplate,
+                done: templates.some((t) => !t.isDefault),
+                optional: false,
+              },
+            ].map((step, i) => (
+              <li key={step.page}>
+                <button
+                  type="button"
+                  onClick={() => onNavigate(step.page)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm transition-colors
+                    ${step.done ? 'text-dim' : 'text-body hover:bg-trim/30'}`}
+                >
+                  {/* Step number / check */}
+                  <span
+                    className={`shrink-0 flex items-center justify-center w-6 h-6 rounded-full text-xs font-data font-semibold
+                      ${step.done ? 'bg-success-dim text-success' : 'bg-panel border border-trim text-dim'}`}
+                  >
+                    {step.done ? <Check size={13} /> : i + 1}
+                  </span>
+
+                  <step.icon
+                    size={15}
+                    className={step.done ? 'text-chrome' : 'text-accent'}
+                  />
+                  <span
+                    className={
+                      step.done ? 'line-through decoration-trim' : 'font-medium'
+                    }
+                  >
+                    {step.label}
+                  </span>
+                  {step.optional && !step.done && (
+                    <span className="text-xs text-dim italic">Optional</span>
+                  )}
+
+                  <ChevronRight size={14} className="ml-auto text-chrome" />
+                </button>
+              </li>
+            ))}
+
+            {/* Final step: Build ORBAT — only active when prerequisites met */}
+            <li className="mt-2 pt-2 border-t border-trim">
+              <button
+                type="button"
+                onClick={templates.length > 0 ? handleOpenNewModal : undefined}
+                disabled={templates.length === 0}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left text-sm transition-colors
+                  ${templates.length > 0 ? 'text-body hover:bg-trim/30' : 'text-chrome cursor-not-allowed'}`}
+              >
+                <span
+                  className={`shrink-0 flex items-center justify-center w-6 h-6 rounded-full text-xs font-data font-semibold
+                    ${templates.length > 0 ? 'bg-accent/20 text-accent' : 'bg-panel border border-trim text-chrome'}`}
+                >
+                  4
+                </span>
+                <ClipboardList
+                  size={15}
+                  className={
+                    templates.length > 0 ? 'text-accent' : 'text-chrome'
+                  }
+                />
+                <span className={templates.length > 0 ? 'font-medium' : ''}>
+                  Build ORBAT
+                </span>
+                {templates.length > 0 && (
+                  <ChevronRight size={14} className="ml-auto text-chrome" />
+                )}
+              </button>
+            </li>
+          </ol>
         </div>
       )}
 
@@ -236,8 +329,9 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && canCreate) handleCreateOrbat();
+              if (e.key === 'Enter') handleCreateOrbat();
             }}
+            error={newNameError}
             autoFocus
           />
 
@@ -278,26 +372,12 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
             <Button variant="secondary" onClick={handleCloseNewModal}>
               Cancel
             </Button>
-            <Button
-              variant="primary"
-              onClick={handleCreateOrbat}
-              disabled={!canCreate}
-            >
+            <Button variant="primary" onClick={handleCreateOrbat}>
               Create & Open
             </Button>
           </div>
         </div>
       </Modal>
-
-      {/* Delete confirmation */}
-      <ConfirmDialog
-        open={deleteTarget !== null}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete ORBAT"
-        message={`Delete "${deleteTarget?.name}"? All assignments will be lost.\nThis cannot be undone.`}
-        confirmLabel="Delete ORBAT"
-      />
     </div>
   );
 }

@@ -101,17 +101,24 @@ export const OrbatToolbar = memo(function OrbatToolbar({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Row 1: Back button + ORBAT name */}
-      <div className="flex items-center gap-4">
+      {/* Row 1: Back + breadcrumb + ORBAT name */}
+      <div className="flex items-center gap-2 sm:gap-4">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => onNavigate('orbats')}
+          aria-label="Back to ORBATs"
           className="shrink-0"
         >
           <ArrowLeft size={14} />
-          <span className="hidden sm:inline">ORBATs</span>
         </Button>
+        <nav
+          className="hidden sm:flex items-center gap-1.5 text-sm shrink-0"
+          aria-label="Breadcrumb"
+        >
+          <span className="text-dim">ORBATs</span>
+          <span className="text-chrome">/</span>
+        </nav>
 
         {/* Editable ORBAT name */}
         <div className="flex-1 min-w-0">

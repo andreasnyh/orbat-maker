@@ -1,6 +1,6 @@
 import { ArrowLeft, Pencil } from 'lucide-react';
 import { type KeyboardEvent, useCallback, useMemo, useState } from 'react';
-import { useAARsState } from '../../context/AppStateContext';
+import { useAARsState, useOrbatsState } from '../../context/AppStateContext';
 import { aarHtmlToPlainText } from '../../lib/aar';
 import type { Page } from '../../types';
 import { Button } from '../common/Button';
@@ -15,7 +15,12 @@ interface AAREditorPageProps {
 
 export function AAREditorPage({ aarId, onNavigate }: AAREditorPageProps) {
   const { aars, updateAAR } = useAARsState();
+  const { orbats } = useOrbatsState();
   const aar = useMemo(() => aars.find((a) => a.id === aarId), [aars, aarId]);
+  const orbat = useMemo(
+    () => (aar ? orbats.find((o) => o.id === aar.orbatId) : undefined),
+    [orbats, aar],
+  );
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
@@ -77,16 +82,29 @@ export function AAREditorPage({ aarId, onNavigate }: AAREditorPageProps) {
   return (
     <div className="flex flex-col gap-4">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => onNavigate('aar-list', aar.orbatId)}
+          aria-label="Back to AARs"
           className="shrink-0"
         >
           <ArrowLeft size={14} />
-          <span className="hidden sm:inline">AARs</span>
         </Button>
+        {orbat && (
+          <nav
+            className="hidden sm:flex items-center gap-1.5 text-sm shrink-0"
+            aria-label="Breadcrumb"
+          >
+            <span className="text-dim">ORBATs</span>
+            <span className="text-chrome">/</span>
+            <span className="text-sub truncate max-w-32">{orbat.name}</span>
+            <span className="text-chrome">/</span>
+            <span className="text-dim">AARs</span>
+            <span className="text-chrome">/</span>
+          </nav>
+        )}
 
         <div className="flex-1 min-w-0">
           {editingTitle ? (

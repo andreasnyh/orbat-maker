@@ -28,9 +28,9 @@ import {
   formatOrbatForTeamspeak,
 } from '../../lib/clipboard';
 import type { Page, Person, Slot } from '../../types';
+import { AlertBanner } from '../common/AlertBanner';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
-import { ConfirmDialog } from '../common/ConfirmDialog';
 import { MobileRosterSheet } from './MobileRosterSheet';
 import { OrbatGroup } from './OrbatGroup';
 import { OrbatToolbar } from './OrbatToolbar';
@@ -59,6 +59,7 @@ export function OrbatBuilderPage({
     reorderSlotsInGroup,
     moveSlotBetweenGroups,
     updateSlot,
+    updateGroupSlots,
   } = useTemplatesState();
   const {
     orbats,
@@ -91,7 +92,6 @@ export function OrbatBuilderPage({
   const [nameValue, setNameValue] = useState(orbat?.name ?? '');
   const [showRoster, , setShowRoster] = useToggle();
   const [showEquipment, , setShowEquipment] = useToggle(true);
-  const [confirmClear, , setConfirmClear] = useToggle();
   const [tapTargetSlotId, setTapTargetSlotId] = useState<string | null>(null);
   const [copiedTarget, setCopiedTarget] = useState<
     'discord' | 'teamspeak' | null
@@ -172,10 +172,48 @@ export function OrbatBuilderPage({
   const handleRemoveSlot = useCallback(
     (groupId: string, slotId: string) =>
       withOwnTemplate((tid) => {
+        // Snapshot slot, its neighbours, and assignment for undo
+        const group = templates
+          .find((t) => t.id === tid)
+          ?.groups.find((g) => g.id === groupId);
+        const slotIndex = group?.slots.findIndex((s) => s.id === slotId) ?? -1;
+        const slot = group?.slots[slotIndex];
+        const prevSlotId =
+          slotIndex > 0 ? group?.slots[slotIndex - 1]?.id : undefined;
+        const assignment = orbat?.assignments.find((a) => a.slotId === slotId);
+
         unassignSlot(orbatId, slotId);
         removeSlotFromGroup(tid, groupId, slotId);
+
+        if (slot) {
+          toast.undo(`Removed "${slot.roleLabel}" slot`, () => {
+            updateGroupSlots(tid, groupId, (slots) => {
+              const restored = [...slots];
+              // Re-insert after the slot that was previously before this one,
+              // falling back to the start if that neighbour was also removed.
+              const insertAt = prevSlotId
+                ? restored.findIndex((s) => s.id === prevSlotId) + 1
+                : 0;
+              restored.splice(insertAt, 0, slot);
+              return restored;
+            });
+            if (assignment) {
+              assignPersonToSlot(orbatId, slotId, assignment.personId);
+            }
+          });
+        }
       }),
-    [withOwnTemplate, orbatId, removeSlotFromGroup, unassignSlot],
+    [
+      withOwnTemplate,
+      templates,
+      orbat,
+      orbatId,
+      removeSlotFromGroup,
+      unassignSlot,
+      updateGroupSlots,
+      assignPersonToSlot,
+      toast,
+    ],
   );
 
   const handleReorderSlots = useCallback(
@@ -324,10 +362,14 @@ export function OrbatBuilderPage({
     }
   }
 
-  const handleClearClick = useCallback(
-    () => setConfirmClear(true),
-    [setConfirmClear],
-  );
+  const handleClearClick = useCallback(() => {
+    if (!orbat || orbat.assignments.length === 0) return;
+    const snapshot = orbat.assignments;
+    clearAssignments(orbatId);
+    toast.undo('Assignments cleared', () => {
+      updateOrbat(orbatId, { assignments: snapshot });
+    });
+  }, [orbat, orbatId, clearAssignments, updateOrbat, toast]);
 
   const handleRosterClose = useCallback(() => {
     setShowRoster(false);
@@ -388,7 +430,7 @@ export function OrbatBuilderPage({
   if (!orbat) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-        <AlertTriangle size={40} className="text-yellow-400" />
+        <AlertTriangle size={40} className="text-warning" />
         <p className="text-dim">ORBAT not found.</p>
         <Button variant="secondary" onClick={() => onNavigate('orbats')}>
           <ArrowLeft size={14} />
@@ -433,15 +475,10 @@ export function OrbatBuilderPage({
 
           {/* Missing template warning */}
           {!template && (
-            <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-3 text-yellow-300 text-sm flex items-center gap-2">
-              <AlertTriangle
-                size={16}
-                className="shrink-0"
-                aria-hidden="true"
-              />
+            <AlertBanner variant="warning">
               The template for this ORBAT no longer exists. You can still view
               assignments but cannot add new slots.
-            </div>
+            </AlertBanner>
           )}
 
           {/* Main split layout */}
@@ -515,17 +552,6 @@ export function OrbatBuilderPage({
             </div>
           )}
         </div>
-
-        <ConfirmDialog
-          open={confirmClear}
-          title="Clear all assignments?"
-          message={
-            'This will unassign all personnel from this ORBAT.\nThe ORBAT structure and roster are kept.'
-          }
-          confirmLabel="Clear"
-          onConfirm={() => clearAssignments(orbatId)}
-          onClose={() => setConfirmClear(false)}
-        />
       </DndContext>
 
       {/* ---- Mobile roster bottom-sheet (outside DndContext so touch scroll works) ---- */}

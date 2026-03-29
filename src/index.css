@@ -25,6 +25,14 @@
   --th-equip: #fcd34d;
   --th-equip-muted: rgba(252, 211, 77, 0.5);
   --th-equip-bg: rgba(251, 191, 36, 0.15);
+  --th-success: #22c55e;
+  --th-success-dim: rgba(34, 197, 94, 0.15);
+  --th-warning: #eab308;
+  --th-warning-dim: rgba(234, 179, 8, 0.15);
+  --th-caution: #f59e0b;
+  --th-caution-dim: rgba(245, 158, 11, 0.15);
+  --th-danger: #ef4444;
+  --th-danger-dim: rgba(239, 68, 68, 0.15);
   --th-overlay: rgba(255, 255, 255, 0.05);
   --th-shadow: rgba(0, 0, 0, 0.2);
 }
@@ -48,6 +56,14 @@
   --th-equip: #fcd34d;
   --th-equip-muted: rgba(252, 211, 77, 0.5);
   --th-equip-bg: rgba(251, 191, 36, 0.15);
+  --th-success: #4ade80;
+  --th-success-dim: rgba(74, 222, 128, 0.15);
+  --th-warning: #facc15;
+  --th-warning-dim: rgba(250, 204, 21, 0.15);
+  --th-caution: #fbbf24;
+  --th-caution-dim: rgba(251, 191, 36, 0.15);
+  --th-danger: #f87171;
+  --th-danger-dim: rgba(248, 113, 113, 0.15);
   --th-overlay: rgba(255, 255, 255, 0.05);
   --th-shadow: rgba(0, 0, 0, 0.2);
 }
@@ -71,6 +87,14 @@
   --th-equip: #92400e;
   --th-equip-muted: rgba(146, 64, 14, 0.5);
   --th-equip-bg: rgba(180, 83, 9, 0.12);
+  --th-success: #16a34a;
+  --th-success-dim: rgba(22, 163, 74, 0.12);
+  --th-warning: #a16207;
+  --th-warning-dim: rgba(161, 98, 7, 0.12);
+  --th-caution: #d97706;
+  --th-caution-dim: rgba(217, 119, 6, 0.12);
+  --th-danger: #dc2626;
+  --th-danger-dim: rgba(220, 38, 38, 0.12);
   --th-overlay: rgba(0, 0, 0, 0.04);
   --th-shadow: rgba(0, 0, 0, 0.06);
 }
@@ -99,6 +123,14 @@
   --color-equip: var(--th-equip);
   --color-equip-muted: var(--th-equip-muted);
   --color-equip-bg: var(--th-equip-bg);
+  --color-success: var(--th-success);
+  --color-success-dim: var(--th-success-dim);
+  --color-warning: var(--th-warning);
+  --color-warning-dim: var(--th-warning-dim);
+  --color-caution: var(--th-caution);
+  --color-caution-dim: var(--th-caution-dim);
+  --color-danger: var(--th-danger);
+  --color-danger-dim: var(--th-danger-dim);
   --color-overlay: var(--th-overlay);
   --color-shadow: var(--th-shadow);
 }
@@ -189,11 +221,25 @@
   animation: fade-out 300ms ease-out both;
 }
 
+@keyframes shrink-bar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in,
   .animate-fade-out {
     animation: none;
     opacity: 1;
+  }
+  .shrink-bar {
+    /* biome-ignore lint/complexity/noImportantStyles: must override inline style for a11y */
+    animation: none !important;
+    transform: scaleX(1);
   }
 }
 

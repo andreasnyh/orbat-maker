@@ -35,7 +35,7 @@ export function Toggle({
           'relative rounded-full transition-colors border shrink-0',
           'peer-focus-visible:ring-2 peer-focus-visible:ring-accent/60 peer-focus-visible:ring-offset-1 peer-focus-visible:ring-offset-panel',
           size === 'sm' ? 'w-6 h-3.5' : 'w-8 h-4.5',
-          checked ? 'bg-green-600 border-green-500' : 'bg-page border-trim',
+          checked ? 'bg-success border-success' : 'bg-page border-trim',
         )}
       >
         <span

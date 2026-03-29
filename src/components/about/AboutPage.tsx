@@ -1,4 +1,14 @@
+import { type Theme, useTheme } from '../../hooks/useTheme';
+
+const THEMES: { id: Theme; label: string; dot: string }[] = [
+  { id: 'midnight', label: 'Midnight', dot: '#4ade80' },
+  { id: 'olive', label: 'Olive', dot: '#a3be8c' },
+  { id: 'sand', label: 'Sand', dot: '#a34d08' },
+];
+
 export function AboutPage() {
+  const { theme, setTheme } = useTheme();
+
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
@@ -38,6 +48,33 @@ export function AboutPage() {
             Works offline as a Progressive Web App
           </li>
         </ul>
+      </div>
+
+      <div className="bg-panel rounded-lg border border-trim p-6 space-y-4">
+        <h2 className="font-display text-lg font-semibold text-body uppercase">
+          Theme
+        </h2>
+        <div className="flex gap-2">
+          {THEMES.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTheme(t.id)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm border transition-colors ${
+                theme === t.id
+                  ? 'border-accent bg-accent/10 text-accent font-medium'
+                  : 'border-trim text-dim hover:text-body hover:border-trim-hover'
+              }`}
+            >
+              <span
+                className="block w-3 h-3 rounded-full border border-trim"
+                style={{ backgroundColor: t.dot }}
+                aria-hidden="true"
+              />
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="bg-panel rounded-lg border border-trim p-6 space-y-4">

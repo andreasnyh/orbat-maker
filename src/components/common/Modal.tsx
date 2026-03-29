@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { type ReactNode, useCallback, useEffect, useRef } from 'react';
+import { type ReactNode, useCallback, useEffect, useId, useRef } from 'react';
 
 interface ModalProps {
   open: boolean;
@@ -9,6 +9,7 @@ interface ModalProps {
 }
 
 export function Modal({ open, onClose, title, children }: ModalProps) {
+  const titleId = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -52,13 +53,13 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       ref={dialogRef}
       onClick={handleClick}
       onCancel={handleCancel}
-      aria-labelledby="modal-title"
+      aria-labelledby={titleId}
       className="backdrop:bg-black/60 bg-transparent p-0 max-w-lg w-full m-auto outline-none animate-fade-in backdrop:animate-fade-in"
     >
       <div className="bg-panel border border-trim rounded-lg shadow-xl max-h-[85vh] overflow-y-auto overscroll-contain mx-4">
         <div className="flex items-center justify-between px-5 py-4 border-b border-trim">
           <h2
-            id="modal-title"
+            id={titleId}
             className="font-display text-lg font-semibold text-body uppercase"
           >
             {title}

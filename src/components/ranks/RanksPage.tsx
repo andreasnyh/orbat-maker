@@ -1,11 +1,13 @@
 import { ChevronsUp, Pencil, Plus, Trash2, UsersRound } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useRanksState } from '../../context/AppStateContext';
+import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
 import type { Rank } from '../../types';
 import { Button } from '../common/Button';
-import { ConfirmDialog } from '../common/ConfirmDialog';
+import { EmptyState } from '../common/EmptyState';
 import { Modal } from '../common/Modal';
+import { PageHeader } from '../common/PageHeader';
 import { TextInput } from '../common/TextInput';
 import { BulkAddRanksForm } from './BulkAddRanksForm';
 
@@ -13,14 +15,30 @@ function RankForm({
   onSubmit,
   onCancel,
   initialName = '',
+  existingNames = [],
 }: {
   onSubmit: (name: string) => void;
   onCancel: () => void;
   initialName?: string;
+  existingNames?: string[];
 }) {
   const [name, setName] = useState(initialName);
+  const [touched, setTouched] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const isEdit = initialName !== '';
+
+  const trimmed = name.trim();
+  const isDuplicate =
+    trimmed !== '' &&
+    trimmed.toLowerCase() !== initialName.toLowerCase() &&
+    existingNames.some((n) => n.toLowerCase() === trimmed.toLowerCase());
+  const nameError = touched
+    ? !trimmed
+      ? 'Name is required'
+      : isDuplicate
+        ? 'Rank already exists'
+        : undefined
+    : undefined;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -28,8 +46,8 @@ function RankForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = name.trim();
-    if (!trimmed) return;
+    setTouched(true);
+    if (!trimmed || isDuplicate) return;
     onSubmit(trimmed);
   };
 
@@ -41,6 +59,7 @@ function RankForm({
         placeholder="e.g. Sgt., Cpl., LCpl."
         value={name}
         onChange={(e) => setName(e.target.value)}
+        error={nameError}
         required
         autoComplete="off"
       />
@@ -48,7 +67,7 @@ function RankForm({
         <Button type="button" variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" variant="primary" disabled={!name.trim()}>
+        <Button type="submit" variant="primary">
           {isEdit ? 'Save Changes' : 'Add Rank'}
         </Button>
       </div>
@@ -57,16 +76,18 @@ function RankForm({
 }
 
 export function RanksPage() {
-  const { ranks, addRank, updateRank, deleteRank } = useRanksState();
+  const { ranks, addRank, updateRank, deleteRank, setRanks } = useRanksState();
+  const toast = useToast();
 
+  const rankNames = ranks.map((r) => r.name);
   const [isAddOpen, , setIsAddOpen] = useToggle();
   const [isBulkAddOpen, , setIsBulkAddOpen] = useToggle();
   const [editTarget, setEditTarget] = useState<Rank | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Rank | null>(null);
 
   const handleAdd = (name: string) => {
     addRank(name);
     setIsAddOpen(false);
+    toast.success(`Added ${name}`);
   };
 
   const handleBulkAdd = (names: string[]) => {
@@ -74,6 +95,7 @@ export function RanksPage() {
       addRank(name);
     }
     setIsBulkAddOpen(false);
+    toast.success(`Added ${names.length} ranks`);
   };
 
   const handleEditSubmit = (name: string) => {
@@ -82,16 +104,22 @@ export function RanksPage() {
     setEditTarget(null);
   };
 
-  const handleDeleteConfirm = () => {
-    if (!deleteTarget) return;
-    deleteRank(deleteTarget.id);
-    setDeleteTarget(null);
+  const handleDelete = (rank: Rank) => {
+    const snapshot = rank;
+    const index = ranks.indexOf(rank);
+    deleteRank(rank.id);
+    toast.undo(`Deleted "${rank.name}"`, () => {
+      setRanks((prev) => {
+        const restored = [...prev];
+        restored.splice(Math.min(index, restored.length), 0, snapshot);
+        return restored;
+      });
+    });
   };
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Page header */}
-      <div className="flex items-center justify-end gap-3 flex-wrap">
+      <PageHeader title="Ranks" count={ranks.length}>
         <Button variant="secondary" onClick={() => setIsBulkAddOpen(true)}>
           <UsersRound size={16} />
           Bulk Add
@@ -100,24 +128,20 @@ export function RanksPage() {
           <Plus size={16} />
           Add Rank
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Content */}
       {ranks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-          <ChevronsUp size={48} className="text-faint" />
-          <div className="flex flex-col gap-1">
-            <p className="text-sub font-medium">No ranks defined</p>
-            <p className="text-dim text-sm max-w-xs">
-              Define your unit's ranks once and select them when adding
-              personnel.
-            </p>
-          </div>
+        <EmptyState
+          icon={ChevronsUp}
+          title="No ranks defined"
+          description="Define your unit's ranks once and select them when adding personnel."
+        >
           <Button variant="primary" onClick={() => setIsAddOpen(true)}>
             <Plus size={16} />
             Add First Rank
           </Button>
-        </div>
+        </EmptyState>
       ) : (
         <div className="border border-trim rounded-md divide-y divide-trim bg-panel/50">
           {ranks.map((rank) => (
@@ -137,8 +161,8 @@ export function RanksPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setDeleteTarget(rank)}
-                  className="p-1.5 rounded-md text-dim hover:text-red-400 hover:bg-overlay transition-colors"
+                  onClick={() => handleDelete(rank)}
+                  className="p-1.5 rounded-md text-dim hover:text-danger hover:bg-overlay transition-colors"
                   aria-label={`Delete ${rank.name}`}
                 >
                   <Trash2 size={14} />
@@ -155,7 +179,13 @@ export function RanksPage() {
         onClose={() => setIsAddOpen(false)}
         title="Add Rank"
       >
-        <RankForm onSubmit={handleAdd} onCancel={() => setIsAddOpen(false)} />
+        {isAddOpen && (
+          <RankForm
+            onSubmit={handleAdd}
+            onCancel={() => setIsAddOpen(false)}
+            existingNames={rankNames}
+          />
+        )}
       </Modal>
 
       {/* Edit modal */}
@@ -170,6 +200,7 @@ export function RanksPage() {
             initialName={editTarget.name}
             onSubmit={handleEditSubmit}
             onCancel={() => setEditTarget(null)}
+            existingNames={rankNames}
           />
         )}
       </Modal>
@@ -185,21 +216,6 @@ export function RanksPage() {
           onCancel={() => setIsBulkAddOpen(false)}
         />
       </Modal>
-
-      {/* Delete confirmation */}
-      <ConfirmDialog
-        open={deleteTarget !== null}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Rank"
-        message={
-          deleteTarget
-            ? `Delete "${deleteTarget.name}"?\nThis cannot be undone.`
-            : ''
-        }
-        confirmLabel="Delete Rank"
-        variant="danger"
-      />
     </div>
   );
 }

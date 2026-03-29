@@ -1,24 +1,27 @@
 import { UserPlus, Users, UsersRound } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { usePeopleState } from '../../context/AppStateContext';
+import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
 import type { Person } from '../../types';
 import { Button } from '../common/Button';
-import { ConfirmDialog } from '../common/ConfirmDialog';
+import { EmptyState } from '../common/EmptyState';
 import { Modal } from '../common/Modal';
+import { PageHeader } from '../common/PageHeader';
 import { TextInput } from '../common/TextInput';
 import { BulkAddForm } from './BulkAddForm';
 import { PersonForm } from './PersonForm';
 import { PersonList } from './PersonList';
 
 export function PeopleRosterPage() {
-  const { people, addPerson, updatePerson, deletePerson } = usePeopleState();
+  const { people, addPerson, updatePerson, deletePerson, setPeople } =
+    usePeopleState();
+  const toast = useToast();
 
   const [search, setSearch] = useState('');
   const [isAddModalOpen, , setIsAddModalOpen] = useToggle();
   const [isBulkAddOpen, , setIsBulkAddOpen] = useToggle();
   const [editTarget, setEditTarget] = useState<Person | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Person | null>(null);
 
   const filteredPeople = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -31,6 +34,7 @@ export function PeopleRosterPage() {
   const handleAdd = (name: string, rank?: string) => {
     addPerson(name, rank);
     setIsAddModalOpen(false);
+    toast.success(`Added ${name}`);
   };
 
   const handleBulkAdd = (entries: { name: string; rank?: string }[]) => {
@@ -38,6 +42,7 @@ export function PeopleRosterPage() {
       addPerson(entry.name, entry.rank);
     }
     setIsBulkAddOpen(false);
+    toast.success(`Added ${entries.length} personnel`);
   };
 
   const handleEditOpen = (person: Person) => {
@@ -51,19 +56,22 @@ export function PeopleRosterPage() {
   };
 
   const handleDeleteOpen = (person: Person) => {
-    setDeleteTarget(person);
-  };
-
-  const handleDeleteConfirm = () => {
-    if (!deleteTarget) return;
-    deletePerson(deleteTarget.id);
-    setDeleteTarget(null);
+    const snapshot = person;
+    const index = people.indexOf(person);
+    deletePerson(person.id);
+    const label = [snapshot.rank, snapshot.name].filter(Boolean).join(' ');
+    toast.undo(`Deleted ${label}`, () => {
+      setPeople((prev) => {
+        const restored = [...prev];
+        restored.splice(Math.min(index, restored.length), 0, snapshot);
+        return restored;
+      });
+    });
   };
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Page header */}
-      <div className="flex items-center justify-end gap-3 flex-wrap">
+      <PageHeader title="Personnel" count={people.length}>
         <Button variant="secondary" onClick={() => setIsBulkAddOpen(true)}>
           <UsersRound size={16} />
           Bulk Add
@@ -72,7 +80,7 @@ export function PeopleRosterPage() {
           <UserPlus size={16} />
           Add Personnel
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Search bar — only show once there are people to filter */}
       {people.length > 0 && (
@@ -86,21 +94,16 @@ export function PeopleRosterPage() {
 
       {/* Content */}
       {people.length === 0 ? (
-        /* Empty state */
-        <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-          <Users size={48} className="text-faint" />
-          <div className="flex flex-col gap-1">
-            <p className="text-sub font-medium">No personnel yet</p>
-            <p className="text-dim text-sm max-w-xs">
-              Add personnel to the roster and they will be available to assign
-              to ORBAT slots.
-            </p>
-          </div>
+        <EmptyState
+          icon={Users}
+          title="No personnel yet"
+          description="Add personnel to the roster and they will be available to assign to ORBAT slots."
+        >
           <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
             <UserPlus size={16} />
             Add First Personnel
           </Button>
-        </div>
+        </EmptyState>
       ) : filteredPeople.length === 0 ? (
         /* Search no-results state */
         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
@@ -161,21 +164,6 @@ export function PeopleRosterPage() {
           />
         )}
       </Modal>
-
-      {/* Delete confirmation */}
-      <ConfirmDialog
-        open={deleteTarget !== null}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Personnel"
-        message={
-          deleteTarget
-            ? `Delete ${deleteTarget.rank ? `${deleteTarget.rank} ` : ''}${deleteTarget.name}?\nThis cannot be undone.`
-            : ''
-        }
-        confirmLabel="Delete Personnel"
-        variant="danger"
-      />
     </div>
   );
 }

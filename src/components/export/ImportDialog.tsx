@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle, Upload } from 'lucide-react';
+import { CheckCircle, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
 import {
   useAARsState,
@@ -13,6 +13,7 @@ import {
   parseImportFile,
 } from '../../lib/exportImport';
 import type { ExportBundle, Person, Rank, Template } from '../../types';
+import { AlertBanner } from '../common/AlertBanner';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
 
@@ -70,7 +71,7 @@ function ConflictSection<T extends { id: string; name: string }>({
               onClick={() => onToggle(i, 'skip')}
               className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
                 conflict.resolution === 'skip'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                  ? 'bg-caution-dim text-caution border border-caution/40'
                   : 'bg-panel text-dim border border-trim hover:text-sub'
               }`}
             >
@@ -81,7 +82,7 @@ function ConflictSection<T extends { id: string; name: string }>({
               onClick={() => onToggle(i, 'add')}
               className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
                 conflict.resolution === 'add'
-                  ? 'bg-green-500/20 text-green-300 border border-green-500/40'
+                  ? 'bg-success-dim text-success border border-success/40'
                   : 'bg-panel text-dim border border-trim hover:text-sub'
               }`}
             >
@@ -288,14 +289,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
             </p>
 
             {state.phase === 'error' && (
-              <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded-md p-3 text-red-400 text-sm">
-                <AlertTriangle
-                  size={16}
-                  className="shrink-0 mt-0.5"
-                  aria-hidden="true"
-                />
-                <span>{state.message}</span>
-              </div>
+              <AlertBanner variant="danger">{state.message}</AlertBanner>
             )}
 
             {/* Drop-zone style button */}
@@ -366,7 +360,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
                             [key]: e.target.checked,
                           }))
                         }
-                        className="accent-green-500"
+                        className="accent-success"
                       />
                       {label} <span className="text-faint">({count})</span>
                     </label>
@@ -404,17 +398,10 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         {/* Conflicts */}
         {state.phase === 'conflicts' && (
           <>
-            <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-md p-3 text-amber-300 text-sm">
-              <AlertTriangle
-                size={16}
-                className="shrink-0 mt-0.5"
-                aria-hidden="true"
-              />
-              <span>
-                {totalConflicts} name{' '}
-                {totalConflicts === 1 ? 'conflict' : 'conflicts'} found
-              </span>
-            </div>
+            <AlertBanner variant="caution">
+              {totalConflicts} name{' '}
+              {totalConflicts === 1 ? 'conflict' : 'conflicts'} found
+            </AlertBanner>
 
             <p className="text-xs text-dim">
               The following imported items have the same name as existing
