@@ -113,15 +113,25 @@ export function RanksPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Page header */}
-      <div className="flex items-center justify-end gap-3 flex-wrap">
-        <Button variant="secondary" onClick={() => setIsBulkAddOpen(true)}>
-          <UsersRound size={16} />
-          Bulk Add
-        </Button>
-        <Button variant="primary" onClick={() => setIsAddOpen(true)}>
-          <Plus size={16} />
-          Add Rank
-        </Button>
+      <div className="flex items-center gap-3 flex-wrap">
+        <h1 className="font-display text-xl font-bold text-strong uppercase tracking-wide">
+          Ranks
+          {ranks.length > 0 && (
+            <span className="ml-2 text-sm font-data text-dim font-normal normal-case tracking-normal">
+              {ranks.length}
+            </span>
+          )}
+        </h1>
+        <div className="ml-auto flex items-center gap-3">
+          <Button variant="secondary" onClick={() => setIsBulkAddOpen(true)}>
+            <UsersRound size={16} />
+            Bulk Add
+          </Button>
+          <Button variant="primary" onClick={() => setIsAddOpen(true)}>
+            <Plus size={16} />
+            Add Rank
+          </Button>
+        </div>
       </div>
 
       {/* Content */}

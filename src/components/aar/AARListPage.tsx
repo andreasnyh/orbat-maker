@@ -80,6 +80,11 @@ export function AARListPage({ orbatId, onNavigate }: AARListPageProps) {
 
         <h1 className="font-display text-xl font-bold text-strong uppercase tracking-wide truncate">
           AARs
+          {orbatAARs.length > 0 && (
+            <span className="ml-2 text-sm font-data text-dim font-normal normal-case tracking-normal">
+              {orbatAARs.length}
+            </span>
+          )}
         </h1>
 
         <div className="ml-auto">

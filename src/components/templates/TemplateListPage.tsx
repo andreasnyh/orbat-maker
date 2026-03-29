@@ -79,11 +79,20 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
   return (
     <div>
       {/* Page header */}
-      <div className="flex items-center justify-end mb-6">
+      <div className="flex items-center gap-3 mb-6">
+        <h1 className="font-display text-xl font-bold text-strong uppercase tracking-wide">
+          Templates
+          {templates.length > 0 && (
+            <span className="ml-2 text-sm font-data text-dim font-normal normal-case tracking-normal">
+              {templates.length}
+            </span>
+          )}
+        </h1>
         <Button
           onClick={() => setShowNewModal(true)}
           variant="primary"
           size="md"
+          className="ml-auto"
         >
           <Plus size={16} />
           New Template
