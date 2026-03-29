@@ -82,28 +82,29 @@ export function AAREditorPage({ aarId, onNavigate }: AAREditorPageProps) {
   return (
     <div className="flex flex-col gap-4">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <nav
-          className="flex items-center gap-1.5 text-sm shrink-0"
-          aria-label="Breadcrumb"
+      <div className="flex items-center gap-2 sm:gap-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onNavigate('aar-list', aar.orbatId)}
+          aria-label="Back to AARs"
+          className="shrink-0"
         >
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onNavigate('aar-list', aar.orbatId)}
+          <ArrowLeft size={14} />
+        </Button>
+        {orbat && (
+          <nav
+            className="hidden sm:flex items-center gap-1.5 text-sm shrink-0"
+            aria-label="Breadcrumb"
           >
-            <ArrowLeft size={14} />
-            <span className="hidden sm:inline">AARs</span>
-          </Button>
-          {orbat && (
-            <>
-              <span className="text-chrome hidden sm:inline">/</span>
-              <span className="text-sub truncate max-w-32 hidden sm:inline">
-                {orbat.name}
-              </span>
-            </>
-          )}
-        </nav>
+            <span className="text-dim">ORBATs</span>
+            <span className="text-chrome">/</span>
+            <span className="text-sub truncate max-w-32">{orbat.name}</span>
+            <span className="text-chrome">/</span>
+            <span className="text-dim">AARs</span>
+            <span className="text-chrome">/</span>
+          </nav>
+        )}
 
         <div className="flex-1 min-w-0">
           {editingTitle ? (

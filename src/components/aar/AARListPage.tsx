@@ -56,29 +56,27 @@ export function AARListPage({ orbatId, onNavigate }: AARListPageProps) {
   return (
     <div className="flex flex-col gap-4">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <nav
-          className="flex items-center gap-1.5 text-sm shrink-0"
-          aria-label="Breadcrumb"
+      <div className="flex items-center gap-2 sm:gap-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onNavigate('orbat-builder', orbatId)}
+          aria-label="Back to ORBAT"
+          className="shrink-0"
         >
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onNavigate('orbat-builder', orbatId)}
+          <ArrowLeft size={14} />
+        </Button>
+        {orbat && (
+          <nav
+            className="hidden sm:flex items-center gap-1.5 text-sm shrink-0"
+            aria-label="Breadcrumb"
           >
-            <ArrowLeft size={14} />
-            <span className="hidden sm:inline">ORBATs</span>
-          </Button>
-          {orbat && (
-            <>
-              <span className="text-chrome hidden sm:inline">/</span>
-              <span className="text-sub truncate max-w-32 hidden sm:inline">
-                {orbat.name}
-              </span>
-              <span className="text-chrome hidden sm:inline">/</span>
-            </>
-          )}
-        </nav>
+            <span className="text-dim">ORBATs</span>
+            <span className="text-chrome">/</span>
+            <span className="text-sub truncate max-w-32">{orbat.name}</span>
+            <span className="text-chrome">/</span>
+          </nav>
+        )}
 
         <h1 className="font-display text-xl font-bold text-strong uppercase tracking-wide truncate">
           AARs
