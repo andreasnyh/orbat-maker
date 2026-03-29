@@ -28,6 +28,7 @@ import {
   formatOrbatForTeamspeak,
 } from '../../lib/clipboard';
 import type { Page, Person, Slot } from '../../types';
+import { AlertBanner } from '../common/AlertBanner';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
 import { MobileRosterSheet } from './MobileRosterSheet';
@@ -467,15 +468,10 @@ export function OrbatBuilderPage({
 
           {/* Missing template warning */}
           {!template && (
-            <div className="bg-warning-dim border border-warning/30 rounded-lg p-3 text-warning text-sm flex items-center gap-2">
-              <AlertTriangle
-                size={16}
-                className="shrink-0"
-                aria-hidden="true"
-              />
+            <AlertBanner variant="warning">
               The template for this ORBAT no longer exists. You can still view
               assignments but cannot add new slots.
-            </div>
+            </AlertBanner>
           )}
 
           {/* Main split layout */}

@@ -20,6 +20,7 @@ import {
 import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
 import type { ORBAT, Page } from '../../types';
+import { AlertBanner } from '../common/AlertBanner';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
 import { PageHeader } from '../common/PageHeader';
@@ -119,9 +120,9 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
 
       {/* No templates warning */}
       {templates.length === 0 && (
-        <div className="bg-warning-dim border border-warning/30 rounded-lg p-4 mb-6 text-warning text-sm">
+        <AlertBanner variant="warning" className="mb-6">
           No templates available. Create a template before building an ORBAT.
-        </div>
+        </AlertBanner>
       )}
 
       {/* ORBAT grid */}

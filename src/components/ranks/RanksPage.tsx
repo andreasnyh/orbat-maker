@@ -5,6 +5,7 @@ import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
 import type { Rank } from '../../types';
 import { Button } from '../common/Button';
+import { EmptyState } from '../common/EmptyState';
 import { Modal } from '../common/Modal';
 import { PageHeader } from '../common/PageHeader';
 import { TextInput } from '../common/TextInput';
@@ -126,20 +127,16 @@ export function RanksPage() {
 
       {/* Content */}
       {ranks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-          <ChevronsUp size={48} className="text-faint" />
-          <div className="flex flex-col gap-1">
-            <p className="text-sub font-medium">No ranks defined</p>
-            <p className="text-dim text-sm max-w-xs">
-              Define your unit's ranks once and select them when adding
-              personnel.
-            </p>
-          </div>
+        <EmptyState
+          icon={ChevronsUp}
+          title="No ranks defined"
+          description="Define your unit's ranks once and select them when adding personnel."
+        >
           <Button variant="primary" onClick={() => setIsAddOpen(true)}>
             <Plus size={16} />
             Add First Rank
           </Button>
-        </div>
+        </EmptyState>
       ) : (
         <div className="border border-trim rounded-md divide-y divide-trim bg-panel/50">
           {ranks.map((rank) => (

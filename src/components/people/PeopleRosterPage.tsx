@@ -5,6 +5,7 @@ import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
 import type { Person } from '../../types';
 import { Button } from '../common/Button';
+import { EmptyState } from '../common/EmptyState';
 import { Modal } from '../common/Modal';
 import { PageHeader } from '../common/PageHeader';
 import { TextInput } from '../common/TextInput';
@@ -88,21 +89,16 @@ export function PeopleRosterPage() {
 
       {/* Content */}
       {people.length === 0 ? (
-        /* Empty state */
-        <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-          <Users size={48} className="text-faint" />
-          <div className="flex flex-col gap-1">
-            <p className="text-sub font-medium">No personnel yet</p>
-            <p className="text-dim text-sm max-w-xs">
-              Add personnel to the roster and they will be available to assign
-              to ORBAT slots.
-            </p>
-          </div>
+        <EmptyState
+          icon={Users}
+          title="No personnel yet"
+          description="Add personnel to the roster and they will be available to assign to ORBAT slots."
+        >
           <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
             <UserPlus size={16} />
             Add First Personnel
           </Button>
-        </div>
+        </EmptyState>
       ) : filteredPeople.length === 0 ? (
         /* Search no-results state */
         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
