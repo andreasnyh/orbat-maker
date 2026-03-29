@@ -337,15 +337,22 @@ export function TemplateEditorPage({
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Back navigation */}
-      <button
-        onClick={() => onNavigate('templates')}
-        className="flex items-center gap-1.5 text-sm text-dim hover:text-body transition-colors mb-6 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent"
-        type="button"
+      {/* Breadcrumb navigation */}
+      <nav
+        className="flex items-center gap-1.5 text-sm mb-6"
+        aria-label="Breadcrumb"
       >
-        <ArrowLeft size={16} />
-        Templates
-      </button>
+        <button
+          onClick={() => onNavigate('templates')}
+          className="flex items-center gap-1.5 text-dim hover:text-body transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:text-accent"
+          type="button"
+        >
+          <ArrowLeft size={16} />
+          Templates
+        </button>
+        <span className="text-chrome">/</span>
+        <span className="text-sub truncate max-w-48">{template.name}</span>
+      </nav>
 
       {/* Template header */}
       <div className="mb-6">

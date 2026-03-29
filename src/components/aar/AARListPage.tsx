@@ -57,18 +57,31 @@ export function AARListPage({ orbatId, onNavigate }: AARListPageProps) {
     <div className="flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onNavigate('orbat-builder', orbatId)}
-          className="shrink-0"
+        <nav
+          className="flex items-center gap-1.5 text-sm shrink-0"
+          aria-label="Breadcrumb"
         >
-          <ArrowLeft size={14} />
-          <span className="hidden sm:inline">ORBAT</span>
-        </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onNavigate('orbat-builder', orbatId)}
+          >
+            <ArrowLeft size={14} />
+            <span className="hidden sm:inline">ORBATs</span>
+          </Button>
+          {orbat && (
+            <>
+              <span className="text-chrome hidden sm:inline">/</span>
+              <span className="text-sub truncate max-w-32 hidden sm:inline">
+                {orbat.name}
+              </span>
+              <span className="text-chrome hidden sm:inline">/</span>
+            </>
+          )}
+        </nav>
 
         <h1 className="font-display text-xl font-bold text-strong uppercase tracking-wide truncate">
-          AARs{orbat ? ` — ${orbat.name}` : ''}
+          AARs
         </h1>
 
         <div className="ml-auto">
