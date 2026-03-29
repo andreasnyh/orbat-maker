@@ -1,11 +1,11 @@
 import { Copy, LayoutTemplate, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTemplatesState } from '../../context/AppStateContext';
+import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
-import type { Page } from '../../types';
+import type { Page, Template } from '../../types';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
-import { ConfirmDialog } from '../common/ConfirmDialog';
 import { Modal } from '../common/Modal';
 import { TextInput } from '../common/TextInput';
 
@@ -14,19 +14,19 @@ interface TemplateListPageProps {
 }
 
 export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
-  const { templates, addTemplate, deleteTemplate, duplicateTemplate } =
-    useTemplatesState();
+  const {
+    templates,
+    addTemplate,
+    deleteTemplate,
+    duplicateTemplate,
+    setTemplates,
+  } = useTemplatesState();
+  const toast = useToast();
 
   // ---- New template modal state ---------------------------------------------
   const [showNewModal, , setShowNewModal] = useToggle();
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
-
-  // ---- Delete confirmation state --------------------------------------------
-  const [deleteTarget, setDeleteTarget] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
 
   // ---- Handlers -------------------------------------------------------------
 
@@ -51,11 +51,12 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
     duplicateTemplate(id);
   }
 
-  function handleDeleteConfirm() {
-    if (deleteTarget) {
-      deleteTemplate(deleteTarget.id);
-      setDeleteTarget(null);
-    }
+  function handleDelete(template: Template) {
+    const snapshot = template;
+    deleteTemplate(template.id);
+    toast.undo(`Deleted "${template.name}"`, () => {
+      setTemplates((prev) => [...prev, snapshot]);
+    });
   }
 
   // ---- Derived stats --------------------------------------------------------
@@ -145,9 +146,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
                   <Button
                     variant="danger"
                     size="sm"
-                    onClick={() =>
-                      setDeleteTarget({ id: template.id, name: template.name })
-                    }
+                    onClick={() => handleDelete(template)}
                     title="Delete template"
                     aria-label="Delete template"
                   >
@@ -200,16 +199,6 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
           </div>
         </div>
       </Modal>
-
-      {/* Delete confirmation */}
-      <ConfirmDialog
-        open={deleteTarget !== null}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Template"
-        message={`Delete "${deleteTarget?.name}"?\nThis cannot be undone.`}
-        confirmLabel="Delete Template"
-      />
     </div>
   );
 }

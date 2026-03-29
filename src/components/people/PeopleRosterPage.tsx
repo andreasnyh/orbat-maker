@@ -1,10 +1,10 @@
 import { UserPlus, Users, UsersRound } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { usePeopleState } from '../../context/AppStateContext';
+import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
 import type { Person } from '../../types';
 import { Button } from '../common/Button';
-import { ConfirmDialog } from '../common/ConfirmDialog';
 import { Modal } from '../common/Modal';
 import { TextInput } from '../common/TextInput';
 import { BulkAddForm } from './BulkAddForm';
@@ -12,13 +12,14 @@ import { PersonForm } from './PersonForm';
 import { PersonList } from './PersonList';
 
 export function PeopleRosterPage() {
-  const { people, addPerson, updatePerson, deletePerson } = usePeopleState();
+  const { people, addPerson, updatePerson, deletePerson, setPeople } =
+    usePeopleState();
+  const toast = useToast();
 
   const [search, setSearch] = useState('');
   const [isAddModalOpen, , setIsAddModalOpen] = useToggle();
   const [isBulkAddOpen, , setIsBulkAddOpen] = useToggle();
   const [editTarget, setEditTarget] = useState<Person | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Person | null>(null);
 
   const filteredPeople = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -51,13 +52,12 @@ export function PeopleRosterPage() {
   };
 
   const handleDeleteOpen = (person: Person) => {
-    setDeleteTarget(person);
-  };
-
-  const handleDeleteConfirm = () => {
-    if (!deleteTarget) return;
-    deletePerson(deleteTarget.id);
-    setDeleteTarget(null);
+    const snapshot = person;
+    deletePerson(person.id);
+    const label = [snapshot.rank, snapshot.name].filter(Boolean).join(' ');
+    toast.undo(`Deleted ${label}`, () => {
+      setPeople((prev) => [...prev, snapshot]);
+    });
   };
 
   return (
@@ -161,21 +161,6 @@ export function PeopleRosterPage() {
           />
         )}
       </Modal>
-
-      {/* Delete confirmation */}
-      <ConfirmDialog
-        open={deleteTarget !== null}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Personnel"
-        message={
-          deleteTarget
-            ? `Delete ${deleteTarget.rank ? `${deleteTarget.rank} ` : ''}${deleteTarget.name}?\nThis cannot be undone.`
-            : ''
-        }
-        confirmLabel="Delete Personnel"
-        variant="danger"
-      />
     </div>
   );
 }

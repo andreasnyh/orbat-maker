@@ -17,10 +17,10 @@ import {
   useRanksState,
   useTemplatesState,
 } from '../../context/AppStateContext';
+import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
-import type { Page } from '../../types';
+import type { ORBAT, Page } from '../../types';
 import { Button } from '../common/Button';
-import { ConfirmDialog } from '../common/ConfirmDialog';
 import { Modal } from '../common/Modal';
 import { TextInput } from '../common/TextInput';
 
@@ -29,20 +29,16 @@ interface OrbatListPageProps {
 }
 
 export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
-  const { orbats, createOrbat, deleteOrbat } = useOrbatsState();
+  const { orbats, createOrbat, deleteOrbat, setOrbats } = useOrbatsState();
   const { templates } = useTemplatesState();
   const { ranks } = useRanksState();
   const { people } = usePeopleState();
+  const toast = useToast();
 
   // ---- New ORBAT modal state -----------------------------------------------
   const [showNewModal, , setShowNewModal] = useToggle();
   const [newName, setNewName] = useState('');
   const [newTemplateId, setNewTemplateId] = useState<string>('');
-  // ---- Delete confirmation state -------------------------------------------
-  const [deleteTarget, setDeleteTarget] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
 
   // ---- Handlers ------------------------------------------------------------
 
@@ -68,11 +64,12 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
     onNavigate('orbat-builder', created.id);
   }
 
-  function handleDeleteConfirm() {
-    if (deleteTarget) {
-      deleteOrbat(deleteTarget.id);
-      setDeleteTarget(null);
-    }
+  function handleDelete(orbat: ORBAT) {
+    const snapshot = orbat;
+    deleteOrbat(orbat.id);
+    toast.undo(`Deleted "${orbat.name}"`, () => {
+      setOrbats((prev) => [...prev, snapshot]);
+    });
   }
 
   // ---- Derived helpers (memoized) -------------------------------------------
@@ -201,9 +198,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                   <Button
                     variant="danger"
                     size="sm"
-                    onClick={() =>
-                      setDeleteTarget({ id: orbat.id, name: orbat.name })
-                    }
+                    onClick={() => handleDelete(orbat)}
                     title="Delete ORBAT"
                     aria-label="Delete ORBAT"
                   >
@@ -378,16 +373,6 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
           </div>
         </div>
       </Modal>
-
-      {/* Delete confirmation */}
-      <ConfirmDialog
-        open={deleteTarget !== null}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete ORBAT"
-        message={`Delete "${deleteTarget?.name}"? All assignments will be lost.\nThis cannot be undone.`}
-        confirmLabel="Delete ORBAT"
-      />
     </div>
   );
 }

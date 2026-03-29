@@ -30,7 +30,6 @@ import {
 import type { Page, Person, Slot } from '../../types';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
-import { ConfirmDialog } from '../common/ConfirmDialog';
 import { MobileRosterSheet } from './MobileRosterSheet';
 import { OrbatGroup } from './OrbatGroup';
 import { OrbatToolbar } from './OrbatToolbar';
@@ -91,7 +90,6 @@ export function OrbatBuilderPage({
   const [nameValue, setNameValue] = useState(orbat?.name ?? '');
   const [showRoster, , setShowRoster] = useToggle();
   const [showEquipment, , setShowEquipment] = useToggle(true);
-  const [confirmClear, , setConfirmClear] = useToggle();
   const [tapTargetSlotId, setTapTargetSlotId] = useState<string | null>(null);
   const [copiedTarget, setCopiedTarget] = useState<
     'discord' | 'teamspeak' | null
@@ -324,10 +322,14 @@ export function OrbatBuilderPage({
     }
   }
 
-  const handleClearClick = useCallback(
-    () => setConfirmClear(true),
-    [setConfirmClear],
-  );
+  const handleClearClick = useCallback(() => {
+    if (!orbat || orbat.assignments.length === 0) return;
+    const snapshot = orbat.assignments;
+    clearAssignments(orbatId);
+    toast.undo('Assignments cleared', () => {
+      updateOrbat(orbatId, { assignments: snapshot });
+    });
+  }, [orbat, orbatId, clearAssignments, updateOrbat, toast]);
 
   const handleRosterClose = useCallback(() => {
     setShowRoster(false);
@@ -515,17 +517,6 @@ export function OrbatBuilderPage({
             </div>
           )}
         </div>
-
-        <ConfirmDialog
-          open={confirmClear}
-          title="Clear all assignments?"
-          message={
-            'This will unassign all personnel from this ORBAT.\nThe ORBAT structure and roster are kept.'
-          }
-          confirmLabel="Clear"
-          onConfirm={() => clearAssignments(orbatId)}
-          onClose={() => setConfirmClear(false)}
-        />
       </DndContext>
 
       {/* ---- Mobile roster bottom-sheet (outside DndContext so touch scroll works) ---- */}
