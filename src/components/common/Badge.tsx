@@ -15,8 +15,8 @@ export function Badge({ children, variant = 'default' }: BadgeProps) {
           'bg-trim text-sub': variant === 'default',
           'bg-success-dim text-success': variant === 'green',
           'bg-warning-dim text-warning': variant === 'yellow',
-          'bg-amber-400/15 text-amber-400': variant === 'amber',
-          'bg-indigo-400/15 text-indigo-400': variant === 'indigo',
+          'bg-caution-dim text-caution': variant === 'amber',
+          'bg-accent/15 text-accent': variant === 'indigo',
         },
       )}
     >

@@ -167,7 +167,7 @@ const OrbatSlotContent = memo(
         type="button"
         onClick={handleUnassign}
         onPointerDown={(e) => e.stopPropagation()}
-        className="shrink-0 text-faint hover:text-red-400 transition-colors p-2 md:p-1 rounded"
+        className="shrink-0 text-faint hover:text-danger transition-colors p-2 md:p-1 rounded"
         aria-label={`Remove ${person?.name ?? 'personnel'} from ${slot.roleLabel}`}
         title="Remove assignment"
       >
@@ -180,7 +180,7 @@ const OrbatSlotContent = memo(
         type="button"
         onClick={handleRemoveSlot}
         onPointerDown={(e) => e.stopPropagation()}
-        className="shrink-0 text-faint hover:text-red-400 transition-colors p-2 md:p-1 rounded"
+        className="shrink-0 text-faint hover:text-danger transition-colors p-2 md:p-1 rounded"
         aria-label={`Delete ${slot.roleLabel} slot`}
         title="Delete slot"
       >

@@ -70,7 +70,7 @@ function ConflictSection<T extends { id: string; name: string }>({
               onClick={() => onToggle(i, 'skip')}
               className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
                 conflict.resolution === 'skip'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                  ? 'bg-caution-dim text-caution border border-caution/40'
                   : 'bg-panel text-dim border border-trim hover:text-sub'
               }`}
             >
@@ -288,7 +288,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
             </p>
 
             {state.phase === 'error' && (
-              <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded-md p-3 text-red-400 text-sm">
+              <div className="flex items-start gap-2 bg-danger-dim border border-danger/30 rounded-md p-3 text-danger text-sm">
                 <AlertTriangle
                   size={16}
                   className="shrink-0 mt-0.5"
@@ -404,7 +404,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         {/* Conflicts */}
         {state.phase === 'conflicts' && (
           <>
-            <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-md p-3 text-amber-300 text-sm">
+            <div className="flex items-start gap-2 bg-caution-dim border border-caution/30 rounded-md p-3 text-caution text-sm">
               <AlertTriangle
                 size={16}
                 className="shrink-0 mt-0.5"

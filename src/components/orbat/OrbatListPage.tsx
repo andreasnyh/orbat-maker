@@ -119,7 +119,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
 
       {/* No templates warning */}
       {templates.length === 0 && (
-        <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-4 mb-6 text-yellow-300 text-sm">
+        <div className="bg-warning-dim border border-warning/30 rounded-lg p-4 mb-6 text-warning text-sm">
           No templates available. Create a template before building an ORBAT.
         </div>
       )}

@@ -120,9 +120,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             key={toast.id}
             className={`pointer-events-auto flex flex-col overflow-hidden bg-panel border ${
               toast.variant === 'error'
-                ? 'border-red-500/30'
+                ? 'border-danger/30'
                 : toast.variant === 'undo'
-                  ? 'border-amber-500/30'
+                  ? 'border-caution/30'
                   : 'border-success/30'
             } rounded-lg shadow-lg shadow-black/30 text-sm text-body ${
               toast.exiting ? 'animate-fade-out' : 'animate-fade-in'
@@ -132,13 +132,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               {toast.variant === 'error' ? (
                 <AlertTriangle
                   size={16}
-                  className="text-red-400 shrink-0"
+                  className="text-danger shrink-0"
                   aria-hidden="true"
                 />
               ) : toast.variant === 'undo' ? (
                 <Undo2
                   size={16}
-                  className="text-amber-400 shrink-0"
+                  className="text-caution shrink-0"
                   aria-hidden="true"
                 />
               ) : (
@@ -156,7 +156,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                     toast.onUndo?.();
                     dismiss(toast.id);
                   }}
-                  className="ml-2 px-2 py-0.5 text-xs font-semibold text-amber-300 hover:text-amber-100 bg-amber-500/15 hover:bg-amber-500/25 rounded transition-colors"
+                  className="ml-2 px-2 py-0.5 text-xs font-semibold text-caution hover:text-body bg-caution-dim hover:bg-caution/25 rounded transition-colors"
                 >
                   Undo
                 </button>
@@ -164,9 +164,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             </div>
             {/* Countdown bar for undo toasts — pure CSS animation */}
             {toast.variant === 'undo' && (
-              <div className="h-0.5 bg-amber-500/10">
+              <div className="h-0.5 bg-caution/10">
                 <div
-                  className="h-full bg-amber-500/40 origin-left"
+                  className="h-full bg-caution/40 origin-left"
                   style={{
                     animation: `shrink-bar ${UNDO_DURATION}ms linear forwards`,
                   }}

@@ -160,7 +160,7 @@ export function RanksPage() {
                 <button
                   type="button"
                   onClick={() => handleDelete(rank)}
-                  className="p-1.5 rounded-md text-dim hover:text-red-400 hover:bg-overlay transition-colors"
+                  className="p-1.5 rounded-md text-dim hover:text-danger hover:bg-overlay transition-colors"
                   aria-label={`Delete ${rank.name}`}
                 >
                   <Trash2 size={14} />

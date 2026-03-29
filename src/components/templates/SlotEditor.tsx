@@ -113,7 +113,7 @@ export function SlotEditor({
         {/* Delete button — always visible on hover */}
         <button
           onClick={onDelete}
-          className="shrink-0 text-faint hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+          className="shrink-0 text-faint hover:text-danger transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
           aria-label={`Remove ${slot.roleLabel}`}
           title="Remove slot"
           type="button"

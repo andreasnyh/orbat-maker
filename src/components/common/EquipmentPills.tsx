@@ -57,7 +57,7 @@ export function EquipmentPills({
                 onRemove(tag);
               }}
               onPointerDown={(e) => e.stopPropagation()}
-              className="hover:text-red-400 transition-colors ml-0.5"
+              className="hover:text-danger transition-colors ml-0.5"
               aria-label={`Remove ${tag}`}
             >
               <X size={10} />

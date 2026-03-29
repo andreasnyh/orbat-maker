@@ -49,7 +49,7 @@ export const PersonCard = memo(function PersonCard({
                 onClick={() => onDelete(person)}
                 aria-label={`Delete ${person.name}`}
                 title="Delete"
-                className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                className="text-danger hover:text-danger hover:bg-danger-dim"
               >
                 <Trash2 size={14} />
               </Button>

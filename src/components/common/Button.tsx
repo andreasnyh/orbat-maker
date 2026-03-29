@@ -21,8 +21,7 @@ export function Button({
         {
           'bg-accent-dim text-white hover:bg-accent-mid': variant === 'primary',
           'bg-trim text-body hover:bg-trim-hover': variant === 'secondary',
-          'bg-red-600/20 text-red-400 hover:bg-red-600/30':
-            variant === 'danger',
+          'bg-danger-dim text-danger hover:bg-danger/20': variant === 'danger',
           'text-dim hover:text-body hover:bg-overlay': variant === 'ghost',
         },
         {

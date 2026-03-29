@@ -197,7 +197,7 @@ export function GroupEditor({
           {/* Delete group button */}
           <button
             onClick={() => setConfirmDelete(true)}
-            className="shrink-0 text-faint hover:text-red-400 transition-colors"
+            className="shrink-0 text-faint hover:text-danger transition-colors"
             aria-label={`Delete ${group.name}`}
             title="Delete group"
             type="button"

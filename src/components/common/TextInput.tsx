@@ -33,7 +33,7 @@ export function TextInput({
         className={clsx(
           inputBaseClass,
           error &&
-            'border-red-500/50 focus-visible:border-red-500/50 focus-visible:ring-red-500/25',
+            'border-danger/50 focus-visible:border-danger/50 focus-visible:ring-danger/25',
           className,
         )}
         aria-invalid={error ? true : undefined}
@@ -41,7 +41,7 @@ export function TextInput({
         {...props}
       />
       {error && (
-        <p id={`${inputId}-error`} className="text-xs text-red-400">
+        <p id={`${inputId}-error`} className="text-xs text-danger">
           {error}
         </p>
       )}
