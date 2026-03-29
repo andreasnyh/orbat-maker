@@ -44,7 +44,7 @@ function RankForm({
     inputRef.current?.focus();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setTouched(true);
     if (!trimmed || isDuplicate) return;

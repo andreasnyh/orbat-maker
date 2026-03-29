@@ -42,7 +42,7 @@ export function PersonForm({
       ? customRank.trim() || undefined
       : selectValue || undefined;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setTouched(true);
     const trimmedName = name.trim();

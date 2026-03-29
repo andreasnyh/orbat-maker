@@ -32,7 +32,7 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
       ? customRank.trim() || undefined
       : selectValue || undefined;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (names.length === 0) return;
     if (

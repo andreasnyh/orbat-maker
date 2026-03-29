@@ -26,7 +26,7 @@ export function BulkAddRanksForm({
 
   const names = useMemo(() => parseLines(text), [text]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (names.length === 0) return;
     onSubmit(names);
