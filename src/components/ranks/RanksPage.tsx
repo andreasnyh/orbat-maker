@@ -161,7 +161,9 @@ export function RanksPage() {
         onClose={() => setIsAddOpen(false)}
         title="Add Rank"
       >
-        <RankForm onSubmit={handleAdd} onCancel={() => setIsAddOpen(false)} />
+        {isAddOpen && (
+          <RankForm onSubmit={handleAdd} onCancel={() => setIsAddOpen(false)} />
+        )}
       </Modal>
 
       {/* Edit modal */}
