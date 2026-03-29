@@ -79,7 +79,7 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
                 type="checkbox"
                 checked={saveCustomRank}
                 onChange={(e) => setSaveCustomRank(e.target.checked)}
-                className="accent-green-500"
+                className="accent-success"
               />
               Save to ranks list
             </label>

@@ -81,7 +81,7 @@ function ConflictSection<T extends { id: string; name: string }>({
               onClick={() => onToggle(i, 'add')}
               className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
                 conflict.resolution === 'add'
-                  ? 'bg-green-500/20 text-green-300 border border-green-500/40'
+                  ? 'bg-success-dim text-success border border-success/40'
                   : 'bg-panel text-dim border border-trim hover:text-sub'
               }`}
             >
@@ -366,7 +366,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
                             [key]: e.target.checked,
                           }))
                         }
-                        className="accent-green-500"
+                        className="accent-success"
                       />
                       {label} <span className="text-faint">({count})</span>
                     </label>

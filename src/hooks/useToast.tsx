@@ -123,7 +123,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 ? 'border-red-500/30'
                 : toast.variant === 'undo'
                   ? 'border-amber-500/30'
-                  : 'border-green-500/30'
+                  : 'border-success/30'
             } rounded-lg shadow-lg shadow-black/30 text-sm text-body ${
               toast.exiting ? 'animate-fade-out' : 'animate-fade-in'
             }`}
