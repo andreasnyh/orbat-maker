@@ -236,6 +236,11 @@
     animation: none;
     opacity: 1;
   }
+  .shrink-bar {
+    /* biome-ignore lint/complexity/noImportantStyles: must override inline style for a11y */
+    animation: none !important;
+    transform: scaleX(1);
+  }
 }
 
 /* ── TipTap AAR editor ───────────────────────────────────────────────── */

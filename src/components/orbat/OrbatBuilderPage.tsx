@@ -172,12 +172,14 @@ export function OrbatBuilderPage({
   const handleRemoveSlot = useCallback(
     (groupId: string, slotId: string) =>
       withOwnTemplate((tid) => {
-        // Snapshot slot and its index for undo
+        // Snapshot slot, its neighbours, and assignment for undo
         const group = templates
           .find((t) => t.id === tid)
           ?.groups.find((g) => g.id === groupId);
         const slotIndex = group?.slots.findIndex((s) => s.id === slotId) ?? -1;
         const slot = group?.slots[slotIndex];
+        const prevSlotId =
+          slotIndex > 0 ? group?.slots[slotIndex - 1]?.id : undefined;
         const assignment = orbat?.assignments.find((a) => a.slotId === slotId);
 
         unassignSlot(orbatId, slotId);
@@ -187,7 +189,12 @@ export function OrbatBuilderPage({
           toast.undo(`Removed "${slot.roleLabel}" slot`, () => {
             updateGroupSlots(tid, groupId, (slots) => {
               const restored = [...slots];
-              restored.splice(slotIndex, 0, slot);
+              // Re-insert after the slot that was previously before this one,
+              // falling back to the start if that neighbour was also removed.
+              const insertAt = prevSlotId
+                ? restored.findIndex((s) => s.id === prevSlotId) + 1
+                : 0;
+              restored.splice(insertAt, 0, slot);
               return restored;
             });
             if (assignment) {

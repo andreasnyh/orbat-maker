@@ -53,7 +53,7 @@ const AboutPage = lazy(() =>
 
 function PageSkeleton() {
   return (
-    <div className="animate-pulse space-y-4 py-2">
+    <div className="animate-pulse motion-reduce:animate-none space-y-4 py-2">
       {/* Header row */}
       <div className="flex items-center justify-between">
         <div className="h-7 w-40 rounded bg-trim/40" />

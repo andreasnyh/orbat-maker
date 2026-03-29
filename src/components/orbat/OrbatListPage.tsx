@@ -74,9 +74,14 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
 
   function handleDelete(orbat: ORBAT) {
     const snapshot = orbat;
+    const index = orbats.indexOf(orbat);
     deleteOrbat(orbat.id);
     toast.undo(`Deleted "${orbat.name}"`, () => {
-      setOrbats((prev) => [...prev, snapshot]);
+      setOrbats((prev) => {
+        const restored = [...prev];
+        restored.splice(Math.min(index, restored.length), 0, snapshot);
+        return restored;
+      });
     });
   }
 
@@ -180,7 +185,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
                   {total > 0 && (
                     <div className="h-1.5 bg-page rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-success rounded-full transition-all"
+                        className="h-full bg-success rounded-full transition-all motion-reduce:transition-none"
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>

@@ -166,7 +166,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             {toast.variant === 'undo' && (
               <div className="h-0.5 bg-caution/10">
                 <div
-                  className="h-full bg-caution/40 origin-left"
+                  className="h-full bg-caution/40 origin-left shrink-bar"
                   style={{
                     animation: `shrink-bar ${UNDO_DURATION}ms linear forwards`,
                   }}

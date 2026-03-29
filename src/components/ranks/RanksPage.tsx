@@ -106,9 +106,14 @@ export function RanksPage() {
 
   const handleDelete = (rank: Rank) => {
     const snapshot = rank;
+    const index = ranks.indexOf(rank);
     deleteRank(rank.id);
     toast.undo(`Deleted "${rank.name}"`, () => {
-      setRanks((prev) => [...prev, snapshot]);
+      setRanks((prev) => {
+        const restored = [...prev];
+        restored.splice(Math.min(index, restored.length), 0, snapshot);
+        return restored;
+      });
     });
   };
 

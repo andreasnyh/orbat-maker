@@ -57,10 +57,15 @@ export function PeopleRosterPage() {
 
   const handleDeleteOpen = (person: Person) => {
     const snapshot = person;
+    const index = people.indexOf(person);
     deletePerson(person.id);
     const label = [snapshot.rank, snapshot.name].filter(Boolean).join(' ');
     toast.undo(`Deleted ${label}`, () => {
-      setPeople((prev) => [...prev, snapshot]);
+      setPeople((prev) => {
+        const restored = [...prev];
+        restored.splice(Math.min(index, restored.length), 0, snapshot);
+        return restored;
+      });
     });
   };
 

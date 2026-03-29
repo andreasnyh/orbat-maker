@@ -60,9 +60,14 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
 
   function handleDelete(template: Template) {
     const snapshot = template;
+    const index = templates.indexOf(template);
     deleteTemplate(template.id);
     toast.undo(`Deleted "${template.name}"`, () => {
-      setTemplates((prev) => [...prev, snapshot]);
+      setTemplates((prev) => {
+        const restored = [...prev];
+        restored.splice(Math.min(index, restored.length), 0, snapshot);
+        return restored;
+      });
     });
   }
 
