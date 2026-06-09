@@ -19,6 +19,13 @@ function getPersonDisplay(
   return person.rank ? `${person.rank} ${person.name}` : person.name;
 }
 
+// Fixed-width buddy-team column: `[BTn] ` when the slot has a team, or an
+// equal-width blank so role/person columns stay aligned in the monospace block.
+// Team numbers are 1-8 (single digit), so this is always 6 characters.
+function buddyTeamPrefix(team: number | undefined): string {
+  return team ? `[BT${team}] ` : '      ';
+}
+
 interface FormatOptions {
   orbat: ORBAT;
   template: Template;
@@ -34,6 +41,16 @@ function formatGroupLines({
 }: FormatOptions): string[] {
   const personMap = buildPersonMap(people);
   const assignmentMap = buildAssignmentMap(orbat.assignments);
+  const buddyTeamBySlotId = new Map(
+    (orbat.buddyTeams ?? []).map((b) => [b.slotId, b.team]),
+  );
+  // Only render the buddy-team column when at least one assigned (copied) slot
+  // actually has a team — otherwise leave output identical to the no-teams case.
+  const hasBuddyTeams = template.groups.some((group) =>
+    group.slots.some(
+      (s) => assignmentMap.has(s.id) && buddyTeamBySlotId.has(s.id),
+    ),
+  );
   const lines: string[] = [];
 
   for (const group of template.groups) {
@@ -55,7 +72,10 @@ function formatGroupLines({
         hasEquipment && slot.equipment?.length
           ? ` — ${slot.equipment.join(', ')}`
           : '';
-      lines.push(`  ${role}  ${personDisplay}${equipStr}`);
+      const indent = hasBuddyTeams
+        ? buddyTeamPrefix(buddyTeamBySlotId.get(slot.id))
+        : '  ';
+      lines.push(`${indent}${role}  ${personDisplay}${equipStr}`);
     }
   }
 
