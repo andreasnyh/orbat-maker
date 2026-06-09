@@ -4,8 +4,10 @@ import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
 import { GripVertical, Trash2, X } from 'lucide-react';
 import { memo } from 'react';
+import { teamColor } from '../../lib/colors';
 import type { Assignment, Person, Slot } from '../../types';
 import { EquipmentPills } from '../common/EquipmentPills';
+import { BuddyTeamBadge } from './BuddyTeamBadge';
 
 interface OrbatSlotProps {
   slot: Slot;
@@ -19,6 +21,8 @@ interface OrbatSlotProps {
   onTapAssign?: (slotId: string) => void;
   isHighlighted?: boolean;
   onUnassign?: (slotId: string) => void;
+  buddyTeam?: number;
+  onSetBuddyTeam?: (slotId: string, team: number | null) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -78,6 +82,8 @@ export const OrbatSlot = memo(function OrbatSlot(props: OrbatSlotProps) {
         onTapAssign={props.onTapAssign}
         isHighlighted={props.isHighlighted}
         onUnassign={props.onUnassign}
+        buddyTeam={props.buddyTeam}
+        onSetBuddyTeam={props.onSetBuddyTeam}
         isDragging={isDragging}
         isOver={isOver}
         sortableAttrs={sortableAttrs}
@@ -116,6 +122,8 @@ const OrbatSlotContent = memo(
     onTapAssign,
     isHighlighted,
     onUnassign,
+    buddyTeam,
+    onSetBuddyTeam,
     isDragging,
     isOver,
     sortableAttrs,
@@ -161,6 +169,27 @@ const OrbatSlotContent = memo(
         />
       </div>
     );
+
+    const buddyTeamBadge = (
+      <BuddyTeamBadge
+        team={buddyTeam}
+        onChange={
+          onSetBuddyTeam ? (team) => onSetBuddyTeam(slot.id, team) : undefined
+        }
+      />
+    );
+
+    // Thin colored left edge so same-numbered slots read as a group at a glance.
+    // borderLeftStyle is forced solid so the accent stays solid even on empty
+    // slots, whose outer container uses border-dashed.
+    const buddyAccentStyle: React.CSSProperties | undefined =
+      buddyTeam != null
+        ? {
+            borderLeftColor: teamColor(buddyTeam),
+            borderLeftWidth: 3,
+            borderLeftStyle: 'solid',
+          }
+        : undefined;
 
     const unassignButton = assignment && (
       <button
@@ -210,7 +239,10 @@ const OrbatSlotContent = memo(
               outerClasses,
               'flex items-center gap-2 px-2 py-2.5',
             )}
+            style={buddyAccentStyle}
           >
+            {buddyTeamBadge}
+
             {/* Slot reorder zone: grip + role label */}
             <div
               className="flex items-center gap-2 shrink-0 cursor-grab active:cursor-grabbing rounded-sm transition-colors -ml-0.5 pl-0.5 pr-1 -my-0.5 py-0.5"
@@ -273,8 +305,10 @@ const OrbatSlotContent = memo(
         {onTapAssign && (
           <div
             className={clsx(outerClasses, 'flex flex-col gap-1 px-2.5 py-2')}
+            style={buddyAccentStyle}
           >
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+              {buddyTeamBadge}
               <span
                 className="font-data text-sm text-dim truncate shrink min-w-0"
                 title={slot.roleLabel}
@@ -328,9 +362,11 @@ const OrbatSlotContent = memo(
     prev.isOver === next.isOver &&
     prev.isHighlighted === next.isHighlighted &&
     prev.showEquipment === next.showEquipment &&
+    prev.buddyTeam === next.buddyTeam &&
     prev.onRemoveSlot === next.onRemoveSlot &&
     prev.onUpdateEquipment === next.onUpdateEquipment &&
     prev.onTapAssign === next.onTapAssign &&
     prev.onUnassign === next.onUnassign &&
+    prev.onSetBuddyTeam === next.onSetBuddyTeam &&
     prev.equipmentSuggestions === next.equipmentSuggestions,
 );

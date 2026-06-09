@@ -35,11 +35,17 @@ export interface Assignment {
   personId: string;
 }
 
+export interface SlotBuddyTeam {
+  slotId: string;
+  team: number; // 1-based buddy team number; slots sharing a number form a team
+}
+
 export interface ORBAT {
   id: string;
   name: string;
   templateId: string;
   assignments: Assignment[];
+  buddyTeams?: SlotBuddyTeam[];
 }
 
 export interface AAR {

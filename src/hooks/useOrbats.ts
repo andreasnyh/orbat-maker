@@ -126,6 +126,35 @@ export function useOrbats() {
     [setOrbats],
   );
 
+  /** Set (or clear, with team=null) a slot's buddy-team number. */
+  const setSlotBuddyTeam = useCallback(
+    (orbatId: string, slotId: string, team: number | null) => {
+      setOrbats((prev) =>
+        prev.map((o) => {
+          if (o.id !== orbatId) return o;
+          const filtered = (o.buddyTeams ?? []).filter(
+            (b) => b.slotId !== slotId,
+          );
+          return {
+            ...o,
+            buddyTeams:
+              team == null ? filtered : [...filtered, { slotId, team }],
+          };
+        }),
+      );
+    },
+    [setOrbats],
+  );
+
+  const clearBuddyTeams = useCallback(
+    (orbatId: string) => {
+      setOrbats((prev) =>
+        prev.map((o) => (o.id === orbatId ? { ...o, buddyTeams: [] } : o)),
+      );
+    },
+    [setOrbats],
+  );
+
   return {
     orbats,
     createOrbat,
@@ -136,6 +165,8 @@ export function useOrbats() {
     movePersonToSlot,
     clearAssignments,
     unassignSlot,
+    setSlotBuddyTeam,
+    clearBuddyTeams,
     setOrbats,
   };
 }

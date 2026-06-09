@@ -69,6 +69,8 @@ export function OrbatBuilderPage({
     clearAssignments,
     updateOrbat,
     unassignSlot,
+    setSlotBuddyTeam,
+    clearBuddyTeams,
   } = useOrbatsState();
   const { ensureOwnTemplate } = useCrossCuttingState();
   const toast = useToast();
@@ -134,6 +136,12 @@ export function OrbatBuilderPage({
     [assignments],
   );
 
+  const buddyTeams = orbat?.buddyTeams;
+  const buddyTeamBySlotId = useMemo(
+    () => new Map(buddyTeams ? buddyTeams.map((b) => [b.slotId, b.team]) : []),
+    [buddyTeams],
+  );
+
   const personById = useMemo(
     () => new Map(people.map((p) => [p.id, p])),
     [people],
@@ -181,8 +189,13 @@ export function OrbatBuilderPage({
         const prevSlotId =
           slotIndex > 0 ? group?.slots[slotIndex - 1]?.id : undefined;
         const assignment = orbat?.assignments.find((a) => a.slotId === slotId);
+        const buddyTeam = orbat?.buddyTeams?.find(
+          (b) => b.slotId === slotId,
+        )?.team;
 
         unassignSlot(orbatId, slotId);
+        // Prune the slot's buddy-team membership so no orphan entry lingers.
+        if (buddyTeam != null) setSlotBuddyTeam(orbatId, slotId, null);
         removeSlotFromGroup(tid, groupId, slotId);
 
         if (slot) {
@@ -200,6 +213,9 @@ export function OrbatBuilderPage({
             if (assignment) {
               assignPersonToSlot(orbatId, slotId, assignment.personId);
             }
+            if (buddyTeam != null) {
+              setSlotBuddyTeam(orbatId, slotId, buddyTeam);
+            }
           });
         }
       }),
@@ -212,6 +228,7 @@ export function OrbatBuilderPage({
       unassignSlot,
       updateGroupSlots,
       assignPersonToSlot,
+      setSlotBuddyTeam,
       toast,
     ],
   );
@@ -246,6 +263,13 @@ export function OrbatBuilderPage({
       unassignSlot(orbatId, slotId);
     },
     [orbatId, unassignSlot],
+  );
+
+  const handleSetBuddyTeam = useCallback(
+    (slotId: string, team: number | null) => {
+      setSlotBuddyTeam(orbatId, slotId, team);
+    },
+    [orbatId, setSlotBuddyTeam],
   );
 
   // ---- Drag handlers -------------------------------------------------------
@@ -371,6 +395,15 @@ export function OrbatBuilderPage({
     });
   }, [orbat, orbatId, clearAssignments, updateOrbat, toast]);
 
+  const handleResetBuddyTeams = useCallback(() => {
+    if (!orbat?.buddyTeams || orbat.buddyTeams.length === 0) return;
+    const snapshot = orbat.buddyTeams;
+    clearBuddyTeams(orbatId);
+    toast.undo('Buddy teams reset', () => {
+      updateOrbat(orbatId, { buddyTeams: snapshot });
+    });
+  }, [orbat, orbatId, clearBuddyTeams, updateOrbat, toast]);
+
   const handleRosterClose = useCallback(() => {
     setShowRoster(false);
     setTapTargetSlotId(null);
@@ -468,6 +501,8 @@ export function OrbatBuilderPage({
             onShowEquipmentChange={setShowEquipment}
             hasAssignments={orbat.assignments.length > 0}
             onClearClick={handleClearClick}
+            hasBuddyTeams={(orbat.buddyTeams?.length ?? 0) > 0}
+            onResetBuddyTeams={handleResetBuddyTeams}
             copiedTarget={copiedTarget}
             onCopy={handleCopy}
             onAARsClick={() => onNavigate('aar-list', orbatId)}
@@ -509,6 +544,8 @@ export function OrbatBuilderPage({
                       showEquipment={showEquipment}
                       onTapAssign={isMobile ? handleTapAssign : undefined}
                       highlightSlotId={tapTargetSlotId}
+                      buddyTeamBySlotId={buddyTeamBySlotId}
+                      onSetBuddyTeam={handleSetBuddyTeam}
                     />
                   ))}
                   {template.groups.length === 0 && (
