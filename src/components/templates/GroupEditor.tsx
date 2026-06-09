@@ -4,6 +4,7 @@ import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusWhen } from '../../hooks/useFocusWhen';
 import { useToggle } from '../../hooks/useToggle';
+import { GROUP_COLORS } from '../../lib/colors';
 import { generateId } from '../../lib/ids';
 import type { Group, Slot } from '../../types';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -18,18 +19,6 @@ interface GroupEditorProps {
 }
 
 // ---- GroupEditor -------------------------------------------------------------
-
-const GROUP_COLORS = [
-  { value: undefined, label: 'Default' },
-  { value: '#22c55e', label: 'Green' },
-  { value: '#3b82f6', label: 'Blue' },
-  { value: '#ef4444', label: 'Red' },
-  { value: '#f59e0b', label: 'Amber' },
-  { value: '#a855f7', label: 'Purple' },
-  { value: '#06b6d4', label: 'Cyan' },
-  { value: '#f97316', label: 'Orange' },
-  { value: '#ec4899', label: 'Pink' },
-] as const;
 
 export function GroupEditor({
   group,

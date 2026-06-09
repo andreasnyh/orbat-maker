@@ -5,6 +5,7 @@ import {
   FileText,
   Pencil,
   RotateCcw,
+  Users,
 } from 'lucide-react';
 import type { KeyboardEvent } from 'react';
 import { memo } from 'react';
@@ -28,6 +29,8 @@ interface OrbatToolbarProps {
   onShowEquipmentChange: (value: boolean) => void;
   hasAssignments: boolean;
   onClearClick: () => void;
+  hasBuddyTeams: boolean;
+  onResetBuddyTeams: () => void;
   copiedTarget: 'discord' | 'teamspeak' | null;
   onCopy: (target: 'discord' | 'teamspeak') => void;
   onAARsClick: () => void;
@@ -53,6 +56,8 @@ export const OrbatToolbar = memo(function OrbatToolbar({
   onShowEquipmentChange,
   hasAssignments,
   onClearClick,
+  hasBuddyTeams,
+  onResetBuddyTeams,
   copiedTarget,
   onCopy,
   onAARsClick,
@@ -96,6 +101,18 @@ export const OrbatToolbar = memo(function OrbatToolbar({
     >
       <RotateCcw size={14} />
       Clear
+    </Button>
+  );
+
+  const resetTeamsButton = hasBuddyTeams && (
+    <Button
+      variant="secondary"
+      size="sm"
+      onClick={onResetBuddyTeams}
+      title="Reset all buddy teams"
+    >
+      <Users size={14} />
+      Reset teams
     </Button>
   );
 
@@ -158,6 +175,7 @@ export const OrbatToolbar = memo(function OrbatToolbar({
                 label="Show equipment"
                 size="md"
               />
+              {resetTeamsButton}
               {clearButton}
             </div>
             <div className="flex items-center gap-2">
@@ -171,14 +189,17 @@ export const OrbatToolbar = memo(function OrbatToolbar({
       {/* Row 2: Action buttons on mobile */}
       {hasTemplate && (
         <div className="flex lg:hidden flex-col-reverse gap-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <Toggle
               checked={showEquipment}
               onChange={onShowEquipmentChange}
               label="Show equipment"
               size="md"
             />
-            {clearButton}
+            <div className="flex items-center gap-2">
+              {resetTeamsButton}
+              {clearButton}
+            </div>
           </div>
           <div className="flex items-center gap-2 *:flex-1">
             {copyButtons}

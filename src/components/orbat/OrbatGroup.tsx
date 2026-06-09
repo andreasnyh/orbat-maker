@@ -26,6 +26,8 @@ interface OrbatGroupProps {
   showEquipment?: boolean;
   onTapAssign?: (slotId: string) => void;
   highlightSlotId?: string | null;
+  buddyTeamBySlotId?: Map<string, number>;
+  onSetBuddyTeam?: (slotId: string, team: number | null) => void;
 }
 
 export const OrbatGroup = memo(function OrbatGroup({
@@ -40,6 +42,8 @@ export const OrbatGroup = memo(function OrbatGroup({
   showEquipment,
   onTapAssign,
   highlightSlotId,
+  buddyTeamBySlotId,
+  onSetBuddyTeam,
 }: OrbatGroupProps) {
   const { setNodeRef: setDroppableRef } = useDroppable({
     id: `group-${group.id}`,
@@ -134,6 +138,8 @@ export const OrbatGroup = memo(function OrbatGroup({
                   showEquipment={showEquipment}
                   onTapAssign={onTapAssign}
                   isHighlighted={highlightSlotId === slot.id}
+                  buddyTeam={buddyTeamBySlotId?.get(slot.id)}
+                  onSetBuddyTeam={onSetBuddyTeam}
                 />
               );
             })}
