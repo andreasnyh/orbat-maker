@@ -10,9 +10,9 @@ export const MAX_TEAMS = 8;
 
 export const GROUP_COLORS = [
   { value: undefined, label: 'Default' },
+  { value: '#ef4444', label: 'Red' },
   { value: '#22c55e', label: 'Green' },
   { value: '#3b82f6', label: 'Blue' },
-  { value: '#ef4444', label: 'Red' },
   { value: '#f59e0b', label: 'Amber' },
   { value: '#a855f7', label: 'Purple' },
   { value: '#06b6d4', label: 'Cyan' },
