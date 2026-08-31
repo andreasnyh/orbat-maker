@@ -245,7 +245,7 @@ const OrbatSlotContent = memo(
 
             {/* Slot reorder zone: grip + role label */}
             <div
-              className="flex items-center gap-2 shrink-0 cursor-grab active:cursor-grabbing rounded-sm transition-colors -ml-0.5 pl-0.5 pr-1 -my-0.5 py-0.5"
+              className="flex items-center gap-2 shrink-0 cursor-grab active:cursor-grabbing rounded-sm transition-colors -ml-0.5 pl-0.5 pr-1 -my-0.5 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
               title="Drag to reorder slot"
               {...sortableAttrs}
               {...sortableListeners}
@@ -269,6 +269,7 @@ const OrbatSlotContent = memo(
               ref={setDragRef}
               className={clsx(
                 'flex-1 min-w-0 flex items-center gap-1.5 rounded-sm px-1.5 -mx-0.5 -my-0.5 py-0.5 transition-colors',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60',
                 person
                   ? 'font-display text-lg text-body font-medium cursor-grab active:cursor-grabbing hover:bg-overlay'
                   : 'text-sm text-dim italic font-data',
@@ -276,6 +277,10 @@ const OrbatSlotContent = memo(
               title={person ? 'Drag to reassign' : undefined}
               {...dragAttrs}
               {...dragListeners}
+              // An empty slot has nothing to pick up; dnd-kit still marks it
+              // role="button" tabIndex={0}, which would put every empty slot
+              // in the tab order as a dead stop.
+              tabIndex={assignment ? 0 : -1}
             >
               {person ? (
                 <>

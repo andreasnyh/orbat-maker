@@ -1,4 +1,7 @@
-import type { DraggableSyntheticListeners } from '@dnd-kit/core';
+import type {
+  DraggableAttributes,
+  DraggableSyntheticListeners,
+} from '@dnd-kit/core';
 import { GripVertical, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useFocusWhen } from '../../hooks/useFocusWhen';
@@ -11,6 +14,9 @@ interface SlotEditorProps {
   onUpdate: (slot: Slot) => void;
   onDelete: () => void;
   dragHandleProps?: DraggableSyntheticListeners;
+  /** Kept beside the listeners: the tab stop and aria wiring belong on the
+   * same element the keyboard sensor listens on. */
+  dragHandleAttributes?: DraggableAttributes;
   equipmentSuggestions?: string[];
   isLast?: boolean;
 }
@@ -20,6 +26,7 @@ export function SlotEditor({
   onUpdate,
   onDelete,
   dragHandleProps,
+  dragHandleAttributes,
   equipmentSuggestions,
   isLast,
 }: SlotEditorProps) {
@@ -79,8 +86,9 @@ export function SlotEditor({
         {/* Drag handle */}
         <button
           type="button"
-          className="text-chrome group-hover/row:text-dim hover:text-sub! cursor-grab active:cursor-grabbing shrink-0 transition-colors"
+          className="text-chrome group-hover/row:text-dim hover:text-sub! cursor-grab active:cursor-grabbing shrink-0 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
           aria-label={`Reorder ${slot.roleLabel}`}
+          {...dragHandleAttributes}
           {...dragHandleProps}
         >
           <GripVertical size={14} />

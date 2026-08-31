@@ -38,7 +38,8 @@ const DraggablePersonCard = memo(function DraggablePersonCard({
     <div
       ref={setNodeRef}
       className={clsx(
-        'roster-card relative cursor-grab active:cursor-grabbing',
+        'roster-card relative cursor-grab active:cursor-grabbing rounded-md',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60',
         isDragging && 'opacity-40',
       )}
       {...attributes}
