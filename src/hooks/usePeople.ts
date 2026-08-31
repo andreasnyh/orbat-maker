@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { Person } from '../types';
@@ -40,12 +40,18 @@ export function usePeople() {
     [setPeople],
   );
 
-  return {
-    people,
-    addPerson,
-    updatePerson,
-    deletePerson,
-    addPeople,
-    setPeople,
-  };
+  // Memoized so this hook's context only re-renders its own consumers.
+  // Without it every setX produced a fresh object and the six-context
+  // split behaved like one big context.
+  return useMemo(
+    () => ({
+      people,
+      addPerson,
+      updatePerson,
+      deletePerson,
+      addPeople,
+      setPeople,
+    }),
+    [people, addPerson, updatePerson, deletePerson, addPeople, setPeople],
+  );
 }

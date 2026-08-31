@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { defaultTemplates } from '../data/defaultTemplates';
 import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
@@ -225,20 +225,41 @@ export function useTemplates() {
     [setTemplates],
   );
 
-  return {
-    templates,
-    addTemplate,
-    updateTemplate,
-    deleteTemplate,
-    duplicateTemplate,
-    forkTemplate,
-    addSlotToGroup,
-    removeSlotFromGroup,
-    reorderSlotsInGroup,
-    moveSlotBetweenGroups,
-    updateSlot,
-    updateGroupSlots,
-    addTemplates,
-    setTemplates,
-  };
+  // Memoized so this hook's context only re-renders its own consumers.
+  // Without it every setX produced a fresh object and the six-context
+  // split behaved like one big context.
+  return useMemo(
+    () => ({
+      templates,
+      addTemplate,
+      updateTemplate,
+      deleteTemplate,
+      duplicateTemplate,
+      forkTemplate,
+      addSlotToGroup,
+      removeSlotFromGroup,
+      reorderSlotsInGroup,
+      moveSlotBetweenGroups,
+      updateSlot,
+      updateGroupSlots,
+      addTemplates,
+      setTemplates,
+    }),
+    [
+      templates,
+      addTemplate,
+      updateTemplate,
+      deleteTemplate,
+      duplicateTemplate,
+      forkTemplate,
+      addSlotToGroup,
+      removeSlotFromGroup,
+      reorderSlotsInGroup,
+      moveSlotBetweenGroups,
+      updateSlot,
+      updateGroupSlots,
+      addTemplates,
+      setTemplates,
+    ],
+  );
 }

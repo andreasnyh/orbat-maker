@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { AAR } from '../types';
@@ -55,5 +55,18 @@ export function useAARs() {
     [setAARs],
   );
 
-  return { aars, createAAR, updateAAR, deleteAAR, addAARs, setAARs };
+  // Memoized so this hook's context only re-renders its own consumers.
+  // Without it every setX produced a fresh object and the six-context
+  // split behaved like one big context.
+  return useMemo(
+    () => ({
+      aars,
+      createAAR,
+      updateAAR,
+      deleteAAR,
+      addAARs,
+      setAARs,
+    }),
+    [aars, createAAR, updateAAR, deleteAAR, addAARs, setAARs],
+  );
 }
