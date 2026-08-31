@@ -38,12 +38,17 @@ export function SortableSlot({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
+    // `attributes` go on the handle, not here: they carry the tab stop and the
+    // aria-describedby pointing at the drag instructions, and the keyboard
+    // sensor listens on the element that holds `listeners`. Split across two
+    // elements, focus lands somewhere the space bar does nothing.
+    <div ref={setNodeRef} style={style}>
       <SlotEditor
         slot={slot}
         onUpdate={onUpdate}
         onDelete={onDelete}
         dragHandleProps={listeners}
+        dragHandleAttributes={attributes}
         equipmentSuggestions={equipmentSuggestions}
         isLast={isLast}
       />

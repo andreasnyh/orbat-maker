@@ -1,9 +1,9 @@
 import {
   DndContext,
   type DragEndEvent,
+  KeyboardSensor,
   MeasuringStrategy,
   PointerSensor,
-  pointerWithin,
   TouchSensor,
   useDroppable,
   useSensor,
@@ -21,6 +21,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTemplatesState } from '../../context/AppStateContext';
 import { useFocusWhen } from '../../hooks/useFocusWhen';
 import { useToggle } from '../../hooks/useToggle';
+import { collisionDetection, keyboardCoordinates } from '../../lib/dnd';
 import { generateId } from '../../lib/ids';
 import type { Group, Page, Slot } from '../../types';
 import { GroupEditor } from './GroupEditor';
@@ -73,12 +74,13 @@ function SortableGroup({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
+    <div ref={setNodeRef} style={style}>
       <GroupEditor
         group={group}
         onUpdate={onUpdate}
         onDelete={onDelete}
         dragHandleProps={listeners}
+        dragHandleAttributes={attributes}
         slotDroppableRef={setDroppableRef}
         renderSlots={(slots) => (
           <SortableContext
@@ -153,6 +155,7 @@ export function TemplateEditorPage({
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: keyboardCoordinates }),
   );
 
   if (!template) {
@@ -425,7 +428,7 @@ export function TemplateEditorPage({
       {template.groups.length > 0 ? (
         <DndContext
           sensors={sensors}
-          collisionDetection={pointerWithin}
+          collisionDetection={collisionDetection}
           onDragEnd={handleDragEnd}
           measuring={{
             droppable: { strategy: MeasuringStrategy.WhileDragging },
