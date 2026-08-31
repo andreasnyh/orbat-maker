@@ -22,11 +22,12 @@ import {
 import { useIsMobile } from '../../hooks/useIsMobile';
 import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
+import { copyToClipboard } from '../../lib/clipboard';
 import {
-  copyToClipboard,
-  formatOrbatForDiscord,
-  formatOrbatForTeamspeak,
-} from '../../lib/clipboard';
+  renderDiscord,
+  renderTeamspeak,
+  resolveRoster,
+} from '../../lib/exporter';
 import type { Page, Person, Slot } from '../../types';
 import { AlertBanner } from '../common/AlertBanner';
 import { Badge } from '../common/Badge';
@@ -413,10 +414,12 @@ export function OrbatBuilderPage({
 
   async function handleCopy(target: 'discord' | 'teamspeak') {
     if (!orbat || !template || copiedTarget) return;
+    const roster = resolveRoster(orbat, template, people);
+    const options = { includeEquipment: showEquipment };
     const text =
       target === 'discord'
-        ? formatOrbatForDiscord(orbat, template, people, showEquipment)
-        : formatOrbatForTeamspeak(orbat, template, people, showEquipment);
+        ? renderDiscord(roster, options)
+        : renderTeamspeak(roster, options);
     const label = target === 'discord' ? 'Discord' : 'TeamSpeak';
     const ok = await copyToClipboard(text);
     if (ok) {
