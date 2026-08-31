@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { Person } from '../types';
 import { useLocalStorage } from './useLocalStorage';
@@ -33,5 +34,20 @@ export function usePeople() {
     [setPeople],
   );
 
-  return { people, addPerson, updatePerson, deletePerson, setPeople };
+  /** Append records that are new by id — the import applier's way in. */
+  const addPeople = useCallback(
+    (incoming: Person[]) => {
+      setPeople((prev) => mergeById(prev, incoming));
+    },
+    [setPeople],
+  );
+
+  return {
+    people,
+    addPerson,
+    updatePerson,
+    deletePerson,
+    addPeople,
+    setPeople,
+  };
 }

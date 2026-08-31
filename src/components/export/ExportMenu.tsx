@@ -2,6 +2,7 @@ import { ChevronDown, Download, Upload } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import {
   useAARsState,
+  useOrbatsState,
   usePeopleState,
   useRanksState,
   useTemplatesState,
@@ -18,6 +19,7 @@ export function ExportMenu() {
   const { people } = usePeopleState();
   const { ranks } = useRanksState();
   const { templates } = useTemplatesState();
+  const { orbats } = useOrbatsState();
   const { aars } = useAARsState();
   const [dropdownOpen, toggleDropdownOpen, setDropdownOpen] = useToggle();
   const [importOpen, , setImportOpen] = useToggle();
@@ -54,11 +56,16 @@ export function ExportMenu() {
         );
         break;
       case 'aars':
-        downloadJson(createExportBundle({ aars }), generateFilename('aars'));
+        // ORBATs travel with their AARs — an AAR without its ORBAT is
+        // unreachable on the importing machine.
+        downloadJson(
+          createExportBundle({ orbats, aars }),
+          generateFilename('aars'),
+        );
         break;
       case 'all':
         downloadJson(
-          createExportBundle({ people, ranks, templates, aars }),
+          createExportBundle({ people, ranks, templates, orbats, aars }),
           generateFilename('all'),
         );
         break;
@@ -100,7 +107,7 @@ export function ExportMenu() {
                 onClick={() => handleExport('templates')}
               />
               <DropdownItem
-                label="Export AARs"
+                label="Export ORBATs & AARs"
                 onClick={() => handleExport('aars')}
               />
               <div className="border-t border-trim my-1" />

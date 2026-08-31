@@ -1,18 +1,29 @@
 import { CheckCircle, Upload } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   useAARsState,
+  useOrbatsState,
   usePeopleState,
   useRanksState,
   useTemplatesState,
 } from '../../context/AppStateContext';
 import {
-  type Conflict,
-  describeBundle,
-  detectNameConflicts,
+  allSections,
+  applyImport,
+  countConflicts,
+  countSections,
+  describeCounts,
+  type ImportPlan,
+  type ImportSection,
+  type ImportStore,
+  type ImportSummary,
+  type NameConflict,
   parseImportFile,
+  planImport,
+  planIsEmpty,
+  type SectionSelection,
+  type ValidatedBundle,
 } from '../../lib/exportImport';
-import type { ExportBundle, Person, Rank, Template } from '../../types';
 import { AlertBanner } from '../common/AlertBanner';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
@@ -24,26 +35,33 @@ interface ImportDialogProps {
 
 type ImportState =
   | { phase: 'idle' }
-  | { phase: 'preview'; bundle: ExportBundle; filename: string }
-  | {
-      phase: 'conflicts';
-      bundle: ExportBundle;
-      filename: string;
-      peopleConflicts: Conflict<Person>[];
-      rankConflicts: Conflict<Rank>[];
-      templateConflicts: Conflict<Template>[];
-    }
   | { phase: 'error'; message: string }
-  | { phase: 'success'; description: string };
+  | {
+      phase: 'preview' | 'conflicts';
+      bundle: ValidatedBundle;
+      filename: string;
+      warnings: string[];
+    }
+  | { phase: 'success'; summary: ImportSummary };
+
+const SECTION_LABELS: Record<ImportSection, string> = {
+  people: 'Personnel',
+  ranks: 'Ranks',
+  templates: 'Templates',
+  orbats: 'ORBATs',
+  aars: 'AARs',
+};
 
 function ConflictSection<T extends { id: string; name: string }>({
   title,
   conflicts,
+  addAnyway,
   onToggle,
 }: {
   title: string;
-  conflicts: Conflict<T>[];
-  onToggle: (index: number, resolution: 'skip' | 'add') => void;
+  conflicts: NameConflict<T>[];
+  addAnyway: ReadonlySet<string>;
+  onToggle: (id: string, add: boolean) => void;
 }) {
   if (conflicts.length === 0) return null;
 
@@ -52,62 +70,94 @@ function ConflictSection<T extends { id: string; name: string }>({
       <h3 className="text-xs font-semibold text-dim uppercase tracking-wide">
         {title}
       </h3>
-      {conflicts.map((conflict, i) => (
-        <div
-          key={conflict.incoming.id}
-          className="flex items-center justify-between gap-3 bg-page border border-trim rounded-md px-3 py-2"
-        >
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-sm text-body truncate">
-              {conflict.incoming.name}
-            </span>
-            <span className="text-xs text-dim">
-              Matches existing: {conflict.existingMatch.name}
-            </span>
+      {conflicts.map((conflict) => {
+        const add = addAnyway.has(conflict.incoming.id);
+        return (
+          <div
+            key={conflict.incoming.id}
+            className="flex items-center justify-between gap-3 bg-page border border-trim rounded-md px-3 py-2"
+          >
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <span className="text-sm text-body truncate">
+                {conflict.incoming.name}
+              </span>
+              <span className="text-xs text-dim">
+                Matches existing: {conflict.existingMatch.name}
+              </span>
+            </div>
+            <div className="flex gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => onToggle(conflict.incoming.id, false)}
+                className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
+                  add
+                    ? 'bg-panel text-dim border border-trim hover:text-sub'
+                    : 'bg-caution-dim text-caution border border-caution/40'
+                }`}
+              >
+                Skip
+              </button>
+              <button
+                type="button"
+                onClick={() => onToggle(conflict.incoming.id, true)}
+                className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
+                  add
+                    ? 'bg-success-dim text-success border border-success/40'
+                    : 'bg-panel text-dim border border-trim hover:text-sub'
+                }`}
+              >
+                Add anyway
+              </button>
+            </div>
           </div>
-          <div className="flex gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={() => onToggle(i, 'skip')}
-              className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
-                conflict.resolution === 'skip'
-                  ? 'bg-caution-dim text-caution border border-caution/40'
-                  : 'bg-panel text-dim border border-trim hover:text-sub'
-              }`}
-            >
-              Skip
-            </button>
-            <button
-              type="button"
-              onClick={() => onToggle(i, 'add')}
-              className={`px-2.5 py-1 text-xs rounded-md font-medium transition-colors ${
-                conflict.resolution === 'add'
-                  ? 'bg-success-dim text-success border border-success/40'
-                  : 'bg-panel text-dim border border-trim hover:text-sub'
-              }`}
-            >
-              Add anyway
-            </button>
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
 
 export function ImportDialog({ open, onClose }: ImportDialogProps) {
-  const { people, setPeople } = usePeopleState();
-  const { ranks, setRanks } = useRanksState();
-  const { templates, setTemplates } = useTemplatesState();
-  const { aars, setAARs } = useAARsState();
+  const { people, addPeople } = usePeopleState();
+  const { ranks, addRanks } = useRanksState();
+  const { templates, addTemplates } = useTemplatesState();
+  const { orbats, addOrbats } = useOrbatsState();
+  const { aars, addAARs } = useAARsState();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<ImportState>({ phase: 'idle' });
-  const [selectedSections, setSelectedSections] = useState({
-    people: true,
-    ranks: true,
-    templates: true,
-    aars: true,
-  });
+  const [sections, setSections] = useState<SectionSelection>(() =>
+    allSections(true),
+  );
+  const [addAnyway, setAddAnyway] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+
+  const bundle =
+    state.phase === 'preview' || state.phase === 'conflicts'
+      ? state.bundle
+      : null;
+
+  const plan = useMemo<ImportPlan | null>(
+    () =>
+      bundle
+        ? planImport(
+            bundle,
+            { people, ranks, templates, orbats, aars },
+            sections,
+          )
+        : null,
+    [bundle, people, ranks, templates, orbats, aars, sections],
+  );
+
+  const store = useMemo<ImportStore>(
+    () => ({
+      addPeople,
+      addRanks,
+      addTemplates,
+      addOrbats,
+      addAARs,
+    }),
+    [addPeople, addRanks, addTemplates, addOrbats, addAARs],
+  );
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -120,18 +170,26 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         setState({ phase: 'error', message: 'Failed to read file.' });
         return;
       }
-      const { bundle, error } = parseImportFile(text);
-      if (error) {
-        setState({ phase: 'error', message: error });
-      } else {
-        setSelectedSections({
-          people: (bundle.people?.length ?? 0) > 0,
-          ranks: (bundle.ranks?.length ?? 0) > 0,
-          templates: (bundle.templates?.length ?? 0) > 0,
-          aars: (bundle.aars?.length ?? 0) > 0,
-        });
-        setState({ phase: 'preview', bundle, filename: file.name });
+      const parsed = parseImportFile(text);
+      if (!parsed.ok) {
+        setState({ phase: 'error', message: parsed.error });
+        return;
       }
+      const counts = countSections(parsed.bundle);
+      setSections({
+        people: counts.people > 0,
+        ranks: counts.ranks > 0,
+        templates: counts.templates > 0,
+        orbats: counts.orbats > 0,
+        aars: counts.aars > 0,
+      });
+      setAddAnyway(new Set());
+      setState({
+        phase: 'preview',
+        bundle: parsed.bundle,
+        filename: file.name,
+        warnings: parsed.warnings,
+      });
     };
     reader.readAsText(file);
 
@@ -139,114 +197,31 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
     e.target.value = '';
   }
 
-  function mergeNewItems<T extends { id: string }>(
-    incoming: T[] | undefined,
-    existing: T[],
-    skippedIds: Set<string>,
-    setter: (updater: (prev: T[]) => T[]) => void,
-  ) {
-    if (!incoming?.length) return;
-    const existingIds = new Set(existing.map((item) => item.id));
-    const newItems = incoming.filter(
-      (item) => !existingIds.has(item.id) && !skippedIds.has(item.id),
-    );
-    if (newItems.length > 0) setter((prev) => [...prev, ...newItems]);
-  }
-
-  function performImport(
-    bundle: ExportBundle,
-    skippedPeopleIds: Set<string>,
-    skippedTemplateIds: Set<string>,
-    skippedRankIds: Set<string>,
-  ) {
-    mergeNewItems(bundle.people, people, skippedPeopleIds, setPeople);
-    mergeNewItems(bundle.ranks, ranks, skippedRankIds, setRanks);
-    mergeNewItems(
-      bundle.templates,
-      templates,
-      skippedTemplateIds,
-      setTemplates,
-    );
-    if (selectedSections.aars) {
-      mergeNewItems(bundle.aars, aars, new Set(), setAARs);
-    }
-    setState({ phase: 'success', description: describeBundle(bundle) });
-  }
+  const runImport = useCallback(
+    (target: ImportPlan) => {
+      setState({
+        phase: 'success',
+        summary: applyImport(target, { addAnyway }, store),
+      });
+    },
+    [addAnyway, store],
+  );
 
   function handleImport() {
-    if (state.phase !== 'preview') return;
-    const { bundle: fullBundle, filename } = state;
-
-    // Filter bundle to only selected sections
-    const bundle: ExportBundle = {
-      version: fullBundle.version,
-      exportedAt: fullBundle.exportedAt,
-      ...(selectedSections.people && { people: fullBundle.people }),
-      ...(selectedSections.ranks && { ranks: fullBundle.ranks }),
-      ...(selectedSections.templates && { templates: fullBundle.templates }),
-      ...(selectedSections.aars && { aars: fullBundle.aars }),
-    };
-
-    const peopleConflicts = bundle.people?.length
-      ? detectNameConflicts(bundle.people, people)
-      : [];
-    const rankConflicts = bundle.ranks?.length
-      ? detectNameConflicts(bundle.ranks, ranks)
-      : [];
-    const templateConflicts = bundle.templates?.length
-      ? detectNameConflicts(bundle.templates, templates)
-      : [];
-
-    if (
-      peopleConflicts.length > 0 ||
-      rankConflicts.length > 0 ||
-      templateConflicts.length > 0
-    ) {
-      setState({
-        phase: 'conflicts',
-        bundle,
-        filename,
-        peopleConflicts,
-        rankConflicts,
-        templateConflicts,
-      });
+    if (state.phase !== 'preview' || !plan) return;
+    if (countConflicts(plan) > 0) {
+      setState({ ...state, phase: 'conflicts' });
       return;
     }
-
-    performImport(bundle, new Set(), new Set(), new Set());
+    runImport(plan);
   }
 
-  function buildSkippedIds<T extends { id: string }>(
-    conflicts: Conflict<T>[],
-  ): Set<string> {
-    return new Set(
-      conflicts
-        .filter((c) => c.resolution === 'skip')
-        .map((c) => c.incoming.id),
-    );
-  }
-
-  function handleConfirmedImport() {
-    if (state.phase !== 'conflicts') return;
-    const { bundle, peopleConflicts, rankConflicts, templateConflicts } = state;
-    performImport(
-      bundle,
-      buildSkippedIds(peopleConflicts),
-      buildSkippedIds(templateConflicts),
-      buildSkippedIds(rankConflicts),
-    );
-  }
-
-  function toggleConflict(
-    key: 'peopleConflicts' | 'rankConflicts' | 'templateConflicts',
-    i: number,
-    resolution: 'skip' | 'add',
-  ) {
-    setState((prev) => {
-      if (prev.phase !== 'conflicts') return prev;
-      const updated = [...prev[key]];
-      updated[i] = { ...updated[i], resolution };
-      return { ...prev, [key]: updated };
+  function toggleConflict(id: string, add: boolean) {
+    setAddAnyway((prev) => {
+      const next = new Set(prev);
+      if (add) next.add(id);
+      else next.delete(id);
+      return next;
     });
   }
 
@@ -260,12 +235,12 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
     fileInputRef.current?.click();
   }
 
-  const totalConflicts =
-    state.phase === 'conflicts'
-      ? state.peopleConflicts.length +
-        state.rankConflicts.length +
-        state.templateConflicts.length
-      : 0;
+  const counts = bundle ? countSections(bundle) : null;
+  const presentSections = counts
+    ? (Object.keys(SECTION_LABELS) as ImportSection[]).filter(
+        (section) => counts[section] > 0,
+      )
+    : [];
 
   return (
     <Modal open={open} onClose={handleClose} title="Import Data">
@@ -307,7 +282,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         )}
 
         {/* Preview */}
-        {state.phase === 'preview' && (
+        {state.phase === 'preview' && counts && plan && (
           <>
             <div className="bg-page border border-trim rounded-md p-4 flex flex-col gap-2">
               <p className="text-xs text-dim font-mono truncate">
@@ -316,7 +291,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
               <p className="text-sm text-sub">
                 This file contains:{' '}
                 <span className="text-accent font-medium">
-                  {describeBundle(state.bundle)}
+                  {describeCounts(counts)}
                 </span>
               </p>
               {state.bundle.exportedAt && (
@@ -326,51 +301,62 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
               )}
             </div>
 
+            {[...state.warnings, ...plan.warnings].map((warning) => (
+              <AlertBanner key={warning} variant="caution">
+                {warning}
+              </AlertBanner>
+            ))}
+
+            {planIsEmpty(plan) && (
+              <AlertBanner variant="caution">
+                Nothing new to import — every selected record is already in the
+                app.
+              </AlertBanner>
+            )}
+
             {/* Section picker — only show when multiple sections exist */}
-            {[
-              state.bundle.people?.length && 'people',
-              state.bundle.ranks?.length && 'ranks',
-              state.bundle.templates?.length && 'templates',
-              state.bundle.aars?.length && 'aars',
-            ].filter(Boolean).length > 1 && (
+            {presentSections.length > 1 && (
               <fieldset className="flex flex-col gap-1.5">
                 <legend className="text-xs font-semibold text-dim uppercase tracking-wide mb-1">
                   Import sections
                 </legend>
-                {(
-                  [
-                    ['people', 'Personnel', state.bundle.people?.length],
-                    ['ranks', 'Ranks', state.bundle.ranks?.length],
-                    ['templates', 'Templates', state.bundle.templates?.length],
-                    ['aars', 'AARs', state.bundle.aars?.length],
-                  ] as const
-                )
-                  .filter(([, , count]) => count)
-                  .map(([key, label, count]) => (
-                    <label
-                      key={key}
-                      className="flex items-center gap-2 text-sm text-sub cursor-pointer select-none"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedSections[key]}
-                        onChange={(e) =>
-                          setSelectedSections((prev) => ({
-                            ...prev,
-                            [key]: e.target.checked,
-                          }))
-                        }
-                        className="accent-success"
-                      />
-                      {label} <span className="text-faint">({count})</span>
-                    </label>
-                  ))}
+                {presentSections.map((section) => (
+                  <label
+                    key={section}
+                    className="flex items-center gap-2 text-sm text-sub cursor-pointer select-none"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={sections[section]}
+                      onChange={(e) =>
+                        setSections((prev) => ({
+                          ...prev,
+                          [section]: e.target.checked,
+                        }))
+                      }
+                      className="accent-success"
+                    />
+                    {SECTION_LABELS[section]}{' '}
+                    <span className="text-faint">({counts[section]})</span>
+                  </label>
+                ))}
               </fieldset>
             )}
 
             <p className="text-xs text-dim">
               Import mode: <span className="text-sub">Merge</span> — records
-              whose IDs already exist in the app will be skipped.
+              whose IDs already exist in the app will be skipped
+              {describeCounts(plan.duplicates) !== 'nothing' && (
+                <>
+                  {' '}
+                  (
+                  <span className="text-sub">
+                    {describeCounts(plan.duplicates)}
+                  </span>{' '}
+                  in this file)
+                </>
+              )}
+              .
             </p>
 
             <div className="flex gap-2 justify-end">
@@ -381,12 +367,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
                 variant="primary"
                 size="sm"
                 onClick={handleImport}
-                disabled={
-                  !selectedSections.people &&
-                  !selectedSections.ranks &&
-                  !selectedSections.templates &&
-                  !selectedSections.aars
-                }
+                disabled={planIsEmpty(plan)}
               >
                 <Upload size={14} />
                 Import
@@ -396,11 +377,11 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
         )}
 
         {/* Conflicts */}
-        {state.phase === 'conflicts' && (
+        {state.phase === 'conflicts' && plan && (
           <>
             <AlertBanner variant="caution">
-              {totalConflicts} name{' '}
-              {totalConflicts === 1 ? 'conflict' : 'conflicts'} found
+              {countConflicts(plan)} name{' '}
+              {countConflicts(plan) === 1 ? 'conflict' : 'conflicts'} found
             </AlertBanner>
 
             <p className="text-xs text-dim">
@@ -412,24 +393,21 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
             <div className="flex flex-col gap-3 max-h-64 overflow-y-auto">
               <ConflictSection
                 title="Personnel"
-                conflicts={state.peopleConflicts}
-                onToggle={(i, resolution) =>
-                  toggleConflict('peopleConflicts', i, resolution)
-                }
+                conflicts={plan.conflicts.people}
+                addAnyway={addAnyway}
+                onToggle={toggleConflict}
               />
               <ConflictSection
                 title="Ranks"
-                conflicts={state.rankConflicts}
-                onToggle={(i, resolution) =>
-                  toggleConflict('rankConflicts', i, resolution)
-                }
+                conflicts={plan.conflicts.ranks}
+                addAnyway={addAnyway}
+                onToggle={toggleConflict}
               />
               <ConflictSection
                 title="Templates"
-                conflicts={state.templateConflicts}
-                onToggle={(i, resolution) =>
-                  toggleConflict('templateConflicts', i, resolution)
-                }
+                conflicts={plan.conflicts.templates}
+                addAnyway={addAnyway}
+                onToggle={toggleConflict}
               />
             </div>
 
@@ -437,20 +415,14 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() =>
-                  setState({
-                    phase: 'preview',
-                    bundle: state.bundle,
-                    filename: state.filename,
-                  })
-                }
+                onClick={() => setState({ ...state, phase: 'preview' })}
               >
                 Back
               </Button>
               <Button
                 variant="primary"
                 size="sm"
-                onClick={handleConfirmedImport}
+                onClick={() => runImport(plan)}
               >
                 Continue Import
               </Button>
@@ -465,9 +437,20 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
               <CheckCircle size={40} className="text-accent" />
               <p className="text-body font-medium">Import complete</p>
               <p className="text-sm text-dim">
-                {state.description} merged successfully.
+                Merged {describeCounts(state.summary.added)}.
               </p>
+              {describeCounts(state.summary.skipped) !== 'nothing' && (
+                <p className="text-xs text-dim">
+                  Skipped {describeCounts(state.summary.skipped)} already
+                  present or set to skip.
+                </p>
+              )}
             </div>
+            {state.summary.warnings.map((warning) => (
+              <AlertBanner key={warning} variant="caution">
+                {warning}
+              </AlertBanner>
+            ))}
             <div className="flex justify-end">
               <Button variant="primary" size="sm" onClick={handleClose}>
                 Done

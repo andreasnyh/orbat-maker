@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { defaultTemplates } from '../data/defaultTemplates';
+import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { Slot, Template } from '../types';
 import { useLocalStorage } from './useLocalStorage';
@@ -200,6 +201,14 @@ export function useTemplates() {
     [setTemplates],
   );
 
+  /** Append records that are new by id — the import applier's way in. */
+  const addTemplates = useCallback(
+    (incoming: Template[]) => {
+      setTemplates((prev) => mergeById(prev, incoming));
+    },
+    [setTemplates],
+  );
+
   return {
     templates,
     addTemplate,
@@ -213,6 +222,7 @@ export function useTemplates() {
     moveSlotBetweenGroups,
     updateSlot,
     updateGroupSlots,
+    addTemplates,
     setTemplates,
   };
 }
