@@ -51,9 +51,13 @@ export function useStoredCollection<N extends CollectionName>(
     const key = collectionKey(name);
     return storageAdapter().subscribe((changed) => {
       if (changed !== key) return;
+      // An edit made here is already on its way to storage but has not been
+      // written yet. Adopting the other tab's copy now would drop it for good,
+      // so let the pending write land: it raises a storage event of its own
+      // and the other tab converges on it instead.
+      if (dirty.current) return;
       const result = readCollection(name);
       if (result.notice) noteStorageProblem(result.notice);
-      dirty.current = false;
       setRecords(result.records);
     });
   }, [name]);

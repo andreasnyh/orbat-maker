@@ -191,16 +191,55 @@ function ensureMigrated(target: StorageAdapter): void {
 // ---- Notices -----------------------------------------------------------------
 
 const notices = new Set<string>();
+const noticeListeners = new Set<() => void>();
+// Subscribers compare snapshots by identity, so the array is rebuilt only when
+// the set behind it actually changes.
+let noticeSnapshot: string[] = [];
+
+function publishNotices(): void {
+  noticeSnapshot = [...notices];
+  for (const listener of noticeListeners) listener();
+}
 
 /** Record something the user needs to know about their stored data. */
 export function noteStorageProblem(message: string): void {
+  if (notices.has(message)) return;
   notices.add(message);
+  publishNotices();
+}
+
+/** Drop a notice once the user has acknowledged it. */
+export function dismissStorageNotice(message: string): void {
+  if (!notices.delete(message)) return;
+  publishNotices();
+}
+
+/**
+ * Watch the pending notices.
+ *
+ * The banner subscribes rather than reading once, because the stores that
+ * raise notices sit above it and React runs a child's effects before its
+ * parent's: a one-shot read on mount always ran before there was anything to
+ * find, and a write refused later in the session never showed at all.
+ */
+export function subscribeToStorageNotices(listener: () => void): () => void {
+  noticeListeners.add(listener);
+  return () => {
+    noticeListeners.delete(listener);
+  };
+}
+
+/** The pending notices. Stable between changes, so it is safe to render from. */
+export function storageNotices(): string[] {
+  return noticeSnapshot;
 }
 
 /** Read and clear the pending notices. */
 export function drainStorageNotices(): string[] {
-  const drained = [...notices];
+  const drained = noticeSnapshot;
+  if (notices.size === 0) return drained;
   notices.clear();
+  publishNotices();
   return drained;
 }
 
@@ -270,7 +309,11 @@ function quarantine<N extends CollectionName>(
   }
   return {
     records: [],
-    repaired: false,
+    // Once the bytes are safely parked, the empty collection is written back
+    // so the same unreadable payload is not re-read and re-reported on every
+    // later load. Without a backup there is nothing to fall back on, so the
+    // original is left exactly where it is.
+    repaired: kept,
     notice: kept
       ? `${problem}. A copy of the unreadable data was kept under "${quarantineKey(name)}" in browser storage.`
       : `${problem}, and could not be recovered.`,

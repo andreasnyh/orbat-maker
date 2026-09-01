@@ -3,12 +3,15 @@ import { defaultTemplates } from '../data/defaultTemplates';
 import type { Person } from '../types';
 import {
   collectionKey,
+  dismissStorageNotice,
   drainStorageNotices,
   memoryAdapter,
   migrate,
   noteStorageProblem,
   readCollection,
   type StorageAdapter,
+  storageNotices,
+  subscribeToStorageNotices,
   writeCollection,
 } from './storage';
 
@@ -107,6 +110,36 @@ describe('reading a collection', () => {
       'could not be recovered',
     );
   });
+
+  it('writes back over a quarantined payload so it is not re-read forever', () => {
+    const adapter = memoryAdapter({ [PEOPLE_KEY]: '{"people": [' });
+    const first = readCollection('people', adapter);
+    expect(first.repaired).toBe(true);
+
+    // The hook writes on a repaired read; this is the value it persists.
+    writeCollection('people', first.records, adapter);
+
+    // Second load is clean: no re-parse, no second copy, no repeated banner.
+    expect(readCollection('people', adapter)).toEqual({
+      records: [],
+      repaired: false,
+    });
+    expect(adapter.entries.get('orbat-maker:unreadable:people')).toBe(
+      '{"people": [',
+    );
+  });
+
+  it('leaves the original alone when the quarantine copy could not be kept', () => {
+    // Nothing was parked, so overwriting the key would destroy the only copy
+    // of data the user might still recover by hand.
+    const adapter: StorageAdapter = {
+      ...memoryAdapter({ [PEOPLE_KEY]: 'not json' }),
+      write() {
+        throw new Error('QuotaExceededError');
+      },
+    };
+    expect(readCollection('people', adapter).repaired).toBe(false);
+  });
 });
 
 describe('writing a collection', () => {
@@ -171,6 +204,44 @@ describe('notices', () => {
     expect(drainStorageNotices()).toEqual([notice, 'something else']);
     // Draining clears them, so a later render does not repeat the banner.
     expect(drainStorageNotices()).toEqual([]);
+  });
+
+  it('reaches a banner that subscribed before anything was noted', () => {
+    // The banner renders below the stores that raise notices, and React runs
+    // a child's effects before its parent's, so it always starts watching an
+    // empty queue. Reading once there found nothing, every time.
+    const seen: string[][] = [];
+    const unsubscribe = subscribeToStorageNotices(() =>
+      seen.push(storageNotices()),
+    );
+    expect(storageNotices()).toEqual([]);
+
+    noteStorageProblem('the stores read after the banner mounted');
+    // A write refused much later in the session lands the same way.
+    noteStorageProblem('browser storage is full');
+
+    expect(seen).toEqual([
+      ['the stores read after the banner mounted'],
+      ['the stores read after the banner mounted', 'browser storage is full'],
+    ]);
+
+    unsubscribe();
+    noteStorageProblem('after unsubscribe');
+    expect(seen).toHaveLength(2);
+  });
+
+  it('holds the snapshot steady so a repeat note does not re-render', () => {
+    noteStorageProblem('steady');
+    const first = storageNotices();
+    noteStorageProblem('steady');
+    expect(storageNotices()).toBe(first);
+  });
+
+  it('drops a notice the user dismissed and keeps the rest', () => {
+    noteStorageProblem('dismissed');
+    noteStorageProblem('kept');
+    dismissStorageNotice('dismissed');
+    expect(storageNotices()).toEqual(['kept']);
   });
 });
 
