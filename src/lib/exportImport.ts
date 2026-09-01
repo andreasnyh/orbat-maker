@@ -33,6 +33,27 @@ export function createExportBundle(options: {
   };
 }
 
+/**
+ * What the given ORBATs need to survive an import: the templates they render
+ * against, and the people their assignments name. An ORBAT whose template is
+ * absent is dropped outright; assignments naming absent people are pruned,
+ * which lands the ORBAT empty. Filtered rather than wholesale, so an ORBAT
+ * export carries what it depends on and not the user's entire roster.
+ */
+export function dependenciesOf(
+  orbats: ORBAT[],
+  source: { templates: Template[]; people: Person[] },
+): { templates: Template[]; people: Person[] } {
+  const templateIds = new Set(orbats.map((orbat) => orbat.templateId));
+  const personIds = new Set(
+    orbats.flatMap((orbat) => orbat.assignments.map((a) => a.personId)),
+  );
+  return {
+    templates: source.templates.filter((t) => templateIds.has(t.id)),
+    people: source.people.filter((p) => personIds.has(p.id)),
+  };
+}
+
 export function downloadJson(bundle: ExportBundle, filename: string): void {
   const json = JSON.stringify(bundle, null, 2);
   const blob = new Blob([json], { type: 'application/json' });

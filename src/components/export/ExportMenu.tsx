@@ -10,6 +10,7 @@ import {
 import { useToggle } from '../../hooks/useToggle';
 import {
   createExportBundle,
+  dependenciesOf,
   downloadJson,
   generateFilename,
 } from '../../lib/exportImport';
@@ -55,14 +56,23 @@ export function ExportMenu() {
           generateFilename('templates'),
         );
         break;
-      case 'aars':
+      case 'aars': {
         // ORBATs travel with their AARs — an AAR without its ORBAT is
-        // unreachable on the importing machine.
+        // unreachable on the importing machine — and both travel with what the
+        // ORBATs are built from, or the import drops the ORBATs and strands
+        // the AARs after all.
+        const needed = dependenciesOf(orbats, { templates, people });
         downloadJson(
-          createExportBundle({ orbats, aars }),
+          createExportBundle({
+            people: needed.people,
+            templates: needed.templates,
+            orbats,
+            aars,
+          }),
           generateFilename('aars'),
         );
         break;
+      }
       case 'all':
         downloadJson(
           createExportBundle({ people, ranks, templates, orbats, aars }),

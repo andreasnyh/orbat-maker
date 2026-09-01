@@ -5,6 +5,7 @@ import {
   applyImport,
   countConflicts,
   createExportBundle,
+  dependenciesOf,
   type ImportStore,
   type ImportTargets,
   parseImportFile,
@@ -344,6 +345,38 @@ describe('export/import round trip', () => {
       orbats: 1,
       aars: 1,
     });
+  });
+
+  it('lands ORBATs and AARs intact on a fresh machine', () => {
+    // What the "Export ORBATs & AARs" menu item builds. Without the template
+    // the ORBAT is dropped on arrival and its AAR is left pointing at nothing;
+    // without the assigned people it arrives with every slot empty.
+    const weapons: Template = { id: 't2', name: 'Weapons Squad', groups: [] };
+    const spare: Person = { id: 'p3', name: 'Kestrel' };
+    const needed = dependenciesOf([redwood], {
+      templates: [squad, weapons],
+      people: [nyx, vex, spare],
+    });
+
+    // Only what the ORBAT depends on — not the whole roster or template list.
+    expect(needed.templates).toEqual([squad]);
+    expect(needed.people).toEqual([nyx, vex]);
+
+    const bundle = createExportBundle({
+      people: needed.people,
+      templates: needed.templates,
+      orbats: [redwood],
+      aars: [redwoodAAR],
+    });
+
+    const parsed = parseImportFile(JSON.stringify(bundle, null, 2));
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+
+    const { written, summary } = importInto(empty(), parsed.bundle);
+    expect(written.orbats).toEqual([redwood]);
+    expect(written.aars).toEqual([redwoodAAR]);
+    expect(summary.warnings).toEqual([]);
   });
 
   it('is a no-op when the same file is imported twice', () => {
