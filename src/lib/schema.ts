@@ -123,12 +123,23 @@ function sanitizeAssignment(value: unknown): Assignment | null {
   return { slotId, personId };
 }
 
+/**
+ * Team numbers are 1-based whole numbers. There is no upper bound: `teamColor`
+ * cycles the palette, so a number past the picker's range still reads
+ * consistently. A fraction would not — it indexes the palette off the end.
+ */
 function sanitizeBuddyTeam(value: unknown): SlotBuddyTeam | null {
   if (!isRecord(value)) return null;
   const slotId = requiredString(value.slotId);
-  if (!slotId || typeof value.team !== 'number' || !Number.isFinite(value.team))
+  const team = value.team;
+  if (
+    !slotId ||
+    typeof team !== 'number' ||
+    !Number.isInteger(team) ||
+    team < 1
+  )
     return null;
-  return { slotId, team: value.team };
+  return { slotId, team };
 }
 
 /** One person per slot, one slot per person — what assignPersonToSlot keeps. */

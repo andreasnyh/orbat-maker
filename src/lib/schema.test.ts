@@ -125,6 +125,26 @@ describe('sanitizeOrbat', () => {
       sanitizeOrbat({ id: 'o1', name: 'Op Redwood', assignments: [] }),
     ).toBeNull();
   });
+
+  it('keeps only whole, 1-based buddy team numbers', () => {
+    // teamColor indexes the palette by (team - 1) % length, so a fraction
+    // reads off the end of the array and yields no color at all.
+    const orbat = sanitizeOrbat({
+      id: 'o1',
+      name: 'Op Redwood',
+      templateId: 't1',
+      assignments: [],
+      buddyTeams: [
+        { slotId: 's1', team: 2.5 },
+        { slotId: 's2', team: 0 },
+        { slotId: 's3', team: -1 },
+        { slotId: 's4', team: Number.NaN },
+        { slotId: 's5', team: 12 },
+      ],
+    });
+    // 12 is past the picker's range but still cycles to a real color.
+    expect(orbat?.buddyTeams).toEqual([{ slotId: 's5', team: 12 }]);
+  });
 });
 
 describe('sanitizeAAR', () => {
