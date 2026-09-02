@@ -6,7 +6,7 @@ import {
   usePeopleState,
   useTemplatesState,
 } from '../../context/AppStateContext';
-import { generateAARContent, generateAARTitle } from '../../lib/aar';
+import { aarTitle, renderAARHtml, resolveRoster } from '../../lib/exporter';
 import type { Page } from '../../types';
 import { Button } from '../common/Button';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -47,8 +47,8 @@ export function AARListPage({ orbatId, onNavigate }: AARListPageProps) {
 
   const handleNewAAR = useCallback(() => {
     if (!orbat || !template) return;
-    const content = generateAARContent(orbat, template, people);
-    const title = generateAARTitle(orbat.name);
+    const content = renderAARHtml(resolveRoster(orbat, template, people));
+    const title = aarTitle(orbat.name);
     const aar = createAAR(orbatId, title, content);
     onNavigate('aar-editor', aar.id);
   }, [orbat, template, people, orbatId, createAAR, onNavigate]);
