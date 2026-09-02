@@ -223,6 +223,74 @@ function elementToText(el: Element): string {
   return clone.textContent?.trim() ?? '';
 }
 
+/** The editor is configured for h2/h3, but pasted content can carry any level. */
+const HEADING_TAG = /^H[1-6]$/;
+
+/** A list item's own text, with any list nested inside it left out. */
+function listItemText(li: Element): string {
+  const clone = li.cloneNode(true) as Element;
+  for (const nested of clone.querySelectorAll('ul, ol')) {
+    nested.remove();
+  }
+  return elementToText(clone);
+}
+
+/**
+ * Only direct children are bulleted here, and nested lists recurse one level
+ * deeper. Walking every descendant `li` at once would emit an indented item
+ * twice: once inside its parent's text, and again on its own line.
+ */
+function pushList(list: Element, lines: string[], depth: number): void {
+  const indent = '  '.repeat(depth + 1);
+
+  for (const li of list.children) {
+    if (li.tagName !== 'LI') continue;
+
+    const [first, ...rest] = listItemText(li)
+      .split('\n')
+      .filter((line) => line.trim());
+    if (first) {
+      lines.push(`${indent}- ${first}`);
+      for (const line of rest) lines.push(`${indent}  ${line}`);
+    }
+
+    for (const child of li.children) {
+      if (child.tagName === 'UL' || child.tagName === 'OL') {
+        pushList(child, lines, depth + 1);
+      }
+    }
+  }
+}
+
+function pushNodes(nodes: Iterable<ChildNode>, lines: string[]): void {
+  for (const node of nodes) {
+    if (!(node instanceof HTMLElement)) {
+      const text = node.textContent?.trim();
+      if (text) lines.push(text);
+      continue;
+    }
+
+    const tag = node.tagName;
+
+    if (HEADING_TAG.test(tag)) {
+      if (lines.length > 0) lines.push('');
+      lines.push(node.textContent?.trim() ?? '');
+    } else if (tag === 'UL' || tag === 'OL') {
+      pushList(node, lines, 0);
+    } else if (tag === 'P' || tag === 'PRE') {
+      const text = elementToText(node);
+      if (text) lines.push(text);
+    } else if (tag === 'HR') {
+      // A rule has no plain-text equivalent worth carrying.
+    } else {
+      // Blockquotes and any other wrapper still hold text. The toolbar has no
+      // button for them, but StarterKit leaves their input rules on, so `> `
+      // at the start of a line produces one. Recurse rather than drop it.
+      pushNodes(node.childNodes, lines);
+    }
+  }
+}
+
 /**
  * The fourth target: an AAR the user has since edited, flattened for pasting.
  * Unlike the others its input is the edited document rather than the roster,
@@ -233,34 +301,6 @@ export function aarHtmlToPlainText(html: string): string {
   tmp.innerHTML = html;
 
   const lines: string[] = [];
-
-  for (const node of tmp.childNodes) {
-    if (!(node instanceof HTMLElement)) {
-      const text = node.textContent?.trim();
-      if (text) lines.push(text);
-      continue;
-    }
-
-    const tag = node.tagName;
-
-    if (tag === 'H2' || tag === 'H3') {
-      if (lines.length > 0) lines.push('');
-      lines.push(node.textContent?.trim() ?? '');
-    } else if (tag === 'UL' || tag === 'OL') {
-      for (const li of node.querySelectorAll('li')) {
-        const text = elementToText(li);
-        if (!text) continue;
-        const liLines = text.split('\n').filter((l) => l.trim());
-        lines.push(`  - ${liLines[0]}`);
-        for (let i = 1; i < liLines.length; i++) {
-          lines.push(`    ${liLines[i]}`);
-        }
-      }
-    } else if (tag === 'P') {
-      const text = elementToText(node);
-      if (text) lines.push(text);
-    }
-  }
-
+  pushNodes(tmp.childNodes, lines);
   return lines.join('\n');
 }
