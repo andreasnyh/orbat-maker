@@ -3,7 +3,6 @@ import {
   type ReactNode,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
 } from 'react';
 import { useAARs } from '../hooks/useAARs';
@@ -11,7 +10,6 @@ import { useOrbats } from '../hooks/useOrbats';
 import { usePeople } from '../hooks/usePeople';
 import { useRanks } from '../hooks/useRanks';
 import { useTemplates } from '../hooks/useTemplates';
-import { initStorage } from '../lib/storage';
 
 // ---- Individual context types ------------------------------------------------
 
@@ -36,10 +34,8 @@ const CrossCuttingContext = createContext<CrossCuttingState | null>(null);
 // ---- Provider ----------------------------------------------------------------
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
-  useEffect(() => {
-    initStorage();
-  }, []);
-
+  // Schema migration used to run here, in an effect, after every store had
+  // already read. It now runs inside the storage seam, before the first read.
   const people = usePeople();
   const ranks = useRanks();
   const templates = useTemplates();

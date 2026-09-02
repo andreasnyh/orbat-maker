@@ -2,16 +2,24 @@ import { useCallback, useEffect } from 'react';
 import { defaultTemplates } from '../data/defaultTemplates';
 import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
+import { sanitizeTemplate } from '../lib/schema';
 import type { Slot, Template } from '../types';
-import { useLocalStorage } from './useLocalStorage';
+import { useStoredCollection } from './useStoredCollection';
 
-const STORAGE_KEY = 'orbat-maker:templates';
+/**
+ * Compare a stored default against its source. Both sides go through the
+ * sanitizer first so field order — which differs between a hand-written
+ * literal and a record rebuilt on load — cannot fake a difference.
+ */
+function matchesSource(stored: Template, source: Template): boolean {
+  return (
+    JSON.stringify(sanitizeTemplate(stored)) ===
+    JSON.stringify(sanitizeTemplate(source))
+  );
+}
 
 export function useTemplates() {
-  const [templates, setTemplates] = useLocalStorage<Template[]>(
-    STORAGE_KEY,
-    [],
-  );
+  const [templates, setTemplates] = useStoredCollection('templates');
 
   // Seed missing defaults and sync existing ones with source data on every load
   useEffect(() => {
@@ -19,11 +27,19 @@ export function useTemplates() {
       if (prev.length === 0) return defaultTemplates;
       const defaultById = new Map(defaultTemplates.map((d) => [d.id, d]));
       // Update existing defaults in-place, keep custom templates as-is
-      const updated = prev.map((t) => defaultById.get(t.id) ?? t);
+      let changed = false;
+      const updated = prev.map((t) => {
+        const source = defaultById.get(t.id);
+        if (!source || matchesSource(t, source)) return t;
+        changed = true;
+        return source;
+      });
       // Append any new defaults not yet present
       const existingIds = new Set(prev.map((t) => t.id));
       const missing = defaultTemplates.filter((d) => !existingIds.has(d.id));
-      return missing.length > 0 ? [...updated, ...missing] : updated;
+      if (missing.length > 0) return [...updated, ...missing];
+      // Returning prev unchanged keeps this effect from writing on every load.
+      return changed ? updated : prev;
     });
   }, [setTemplates]);
 

@@ -2,12 +2,10 @@ import { useCallback } from 'react';
 import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { ORBAT, Template } from '../types';
-import { useLocalStorage } from './useLocalStorage';
-
-const STORAGE_KEY = 'orbat-maker:orbats';
+import { useStoredCollection } from './useStoredCollection';
 
 export function useOrbats() {
-  const [orbats, setOrbats] = useLocalStorage<ORBAT[]>(STORAGE_KEY, []);
+  const [orbats, setOrbats] = useStoredCollection('orbats');
 
   const createOrbat = useCallback(
     (name: string, template: Template) => {

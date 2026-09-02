@@ -2,12 +2,10 @@ import { useCallback } from 'react';
 import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { Rank } from '../types';
-import { useLocalStorage } from './useLocalStorage';
-
-const STORAGE_KEY = 'orbat-maker:ranks';
+import { useStoredCollection } from './useStoredCollection';
 
 export function useRanks() {
-  const [ranks, setRanks] = useLocalStorage<Rank[]>(STORAGE_KEY, []);
+  const [ranks, setRanks] = useStoredCollection('ranks');
 
   const addRank = useCallback(
     (name: string) => {
