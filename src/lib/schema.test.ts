@@ -188,10 +188,103 @@ describe('sanitizeCollection', () => {
     expect(sanitizeCollection(undefined, sanitizePerson)).toEqual({
       valid: [],
       rejected: 0,
+      repaired: 0,
     });
     expect(sanitizeCollection({ p1: 'Nyx' }, sanitizePerson)).toEqual({
       valid: [],
       rejected: 1,
+      repaired: 0,
     });
+  });
+
+  it('counts records that survived with parts dropped', () => {
+    // A caller writing sanitized data back must know it is not writing back
+    // what it read, even when every record made it through.
+    const slot = { id: 's1', roleLabel: 'Lead' };
+    const group = { id: 'g1', name: 'Alpha', slots: [slot] };
+    const templates = sanitizeCollection(
+      [
+        { id: 't1', name: 'Intact', groups: [group] },
+        { id: 't2', name: 'Bad group', groups: [group, { id: 'g2' }] },
+        {
+          id: 't3',
+          name: 'Bad slot',
+          groups: [{ ...group, slots: [slot, { roleLabel: 'No id' }] }],
+        },
+        {
+          id: 't4',
+          name: 'Bad equipment',
+          groups: [{ ...group, slots: [{ ...slot, equipment: ['M4', 42] }] }],
+        },
+      ],
+      sanitizeTemplate,
+    );
+    expect(templates.valid).toHaveLength(4);
+    expect(templates.rejected).toBe(0);
+    expect(templates.repaired).toBe(3);
+
+    const orbats = sanitizeCollection(
+      [
+        {
+          id: 'o1',
+          name: 'Bad assignment',
+          templateId: 't1',
+          assignments: [{}],
+        },
+        {
+          id: 'o2',
+          name: 'Doubled slot',
+          templateId: 't1',
+          assignments: [
+            { slotId: 's1', personId: 'p1' },
+            { slotId: 's1', personId: 'p2' },
+          ],
+        },
+        {
+          id: 'o3',
+          name: 'Bad team',
+          templateId: 't1',
+          assignments: [],
+          buddyTeams: [{ slotId: 's1', team: 0 }],
+        },
+      ],
+      sanitizeOrbat,
+    );
+    expect(orbats.repaired).toBe(3);
+  });
+
+  it('does not count what the app itself writes as a repair', () => {
+    // Shapes real stored data has: an empty equipment list, an absent
+    // buddyTeams, and the `date` field ORBATs carried before it was removed.
+    const templates = sanitizeCollection(
+      [
+        {
+          id: 't1',
+          name: 'Squad',
+          groups: [
+            {
+              id: 'g1',
+              name: 'Alpha',
+              slots: [{ id: 's1', roleLabel: '', equipment: [] }],
+            },
+          ],
+        },
+      ],
+      sanitizeTemplate,
+    );
+    const orbats = sanitizeCollection(
+      [
+        {
+          id: 'o1',
+          name: 'Op',
+          templateId: 't1',
+          date: '2025-03-01',
+          assignments: [{ slotId: 's1', personId: 'p1' }],
+        },
+      ],
+      sanitizeOrbat,
+    );
+    expect(templates.repaired).toBe(0);
+    expect(orbats.repaired).toBe(0);
   });
 });

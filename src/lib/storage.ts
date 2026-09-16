@@ -1,5 +1,6 @@
 import type { AAR, ORBAT, Person, Rank, Template } from '../types';
 import {
+  type Drops,
   sanitizeAAR,
   sanitizeCollection,
   sanitizeOrbat,
@@ -107,7 +108,7 @@ export type CollectionRecord<N extends CollectionName> = CollectionTypes[N];
 interface CollectionSchema<T> {
   key: string;
   label: string;
-  sanitize: (value: unknown) => T | null;
+  sanitize: (value: unknown, drops: Drops) => T | null;
 }
 
 const COLLECTIONS: {
@@ -136,9 +137,38 @@ export function collectionKey(name: CollectionName): string {
   return COLLECTIONS[name].key;
 }
 
-/** Where an unreadable payload is parked instead of being overwritten. */
-function quarantineKey(name: CollectionName): string {
-  return `orbat-maker:unreadable:${name}`;
+/**
+ * Where a payload is parked before anything replaces it. A parked copy may be
+ * the only one left of the user's data, so a different payload never takes
+ * its place: it gets the next numbered key instead. The same payload finds its
+ * own key again, so a payload read twice is parked once.
+ */
+function parkingKey(
+  name: CollectionName,
+  raw: string,
+  target: StorageAdapter,
+): string {
+  const base = `orbat-maker:unreadable:${name}`;
+  for (let n = 1; ; n++) {
+    const key = n === 1 ? base : `${base}:${n}`;
+    const parked = target.read(key);
+    if (parked === null || parked === raw) return key;
+  }
+}
+
+/** Copy a payload aside. Returns where it went, or null if it could not go. */
+function park(
+  name: CollectionName,
+  raw: string,
+  target: StorageAdapter,
+): string | null {
+  const key = parkingKey(name, raw, target);
+  try {
+    target.write(key, raw);
+    return key;
+  } catch {
+    return null;
+  }
 }
 
 // ---- Migration ---------------------------------------------------------------
@@ -282,16 +312,40 @@ export function readCollection<N extends CollectionName>(
     return quarantine(name, raw, target, `Your saved ${label} were malformed`);
   }
 
-  const { valid, rejected } = sanitizeCollection(parsed, sanitize);
-  if (rejected === 0) return { records: valid, repaired: false };
+  const { valid, rejected, repaired } = sanitizeCollection(parsed, sanitize);
+  if (rejected === 0 && repaired === 0) {
+    return { records: valid, repaired: false };
+  }
 
+  // The cleaned records are about to replace what is stored, and whatever they
+  // leave out exists nowhere else — so the original is parked first. Without
+  // that copy it stays where it is: the valid records still load, and the
+  // damage is left for a later load to find.
+  const parked = park(name, raw, target);
+  const damage = describeDamage(label, rejected, repaired);
   return {
     records: valid,
-    repaired: true,
-    notice: `Dropped ${rejected} damaged ${label} ${
-      rejected === 1 ? 'record' : 'records'
-    } while loading. The rest of your data is intact.`,
+    repaired: parked !== null,
+    notice: parked
+      ? `${damage} The rest of your data is intact. A copy of what was stored was kept under "${parked}" in browser storage.`
+      : `${damage} The rest of your data is intact, but no copy of the damaged ${label} could be kept.`,
   };
+}
+
+function describeDamage(
+  label: string,
+  rejected: number,
+  repaired: number,
+): string {
+  const dropped = `${rejected} damaged ${label} ${
+    rejected === 1 ? 'record' : 'records'
+  }`;
+  const trimmed = `damaged parts from ${repaired} ${
+    rejected > 0 ? 'more' : `of your ${label}`
+  }`;
+  if (repaired === 0) return `Dropped ${dropped} while loading.`;
+  if (rejected === 0) return `Removed ${trimmed} while loading.`;
+  return `Dropped ${dropped} and removed ${trimmed} while loading.`;
 }
 
 function quarantine<N extends CollectionName>(
@@ -300,22 +354,16 @@ function quarantine<N extends CollectionName>(
   target: StorageAdapter,
   problem: string,
 ): CollectionRead<CollectionRecord<N>> {
-  let kept = false;
-  try {
-    target.write(quarantineKey(name), raw);
-    kept = true;
-  } catch {
-    // Nothing more to be done; the notice below still tells the user.
-  }
+  const parked = park(name, raw, target);
   return {
     records: [],
     // Once the bytes are safely parked, the empty collection is written back
     // so the same unreadable payload is not re-read and re-reported on every
     // later load. Without a backup there is nothing to fall back on, so the
     // original is left exactly where it is.
-    repaired: kept,
-    notice: kept
-      ? `${problem}. A copy of the unreadable data was kept under "${quarantineKey(name)}" in browser storage.`
+    repaired: parked !== null,
+    notice: parked
+      ? `${problem}. A copy of the unreadable data was kept under "${parked}" in browser storage.`
       : `${problem}, and could not be recovered.`,
   };
 }

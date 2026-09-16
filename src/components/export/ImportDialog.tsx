@@ -24,6 +24,7 @@ import {
   type SectionSelection,
   type ValidatedBundle,
 } from '../../lib/exportImport';
+import type { Person, Template } from '../../types';
 import { AlertBanner } from '../common/AlertBanner';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
@@ -57,11 +58,17 @@ function ConflictSection<T extends { id: string; name: string }>({
   conflicts,
   addAnyway,
   onToggle,
+  skipEffect,
 }: {
   title: string;
   conflicts: NameConflict<T>[];
   addAnyway: ReadonlySet<string>;
   onToggle: (id: string, add: boolean) => void;
+  /** What skipping does to the records that lean on this one, if anything. */
+  skipEffect?: (conflict: NameConflict<T>) => {
+    text: string;
+    tone: 'dim' | 'caution';
+  } | null;
 }) {
   if (conflicts.length === 0) return null;
 
@@ -72,6 +79,7 @@ function ConflictSection<T extends { id: string; name: string }>({
       </h3>
       {conflicts.map((conflict) => {
         const add = addAnyway.has(conflict.incoming.id);
+        const effect = add ? null : skipEffect?.(conflict);
         return (
           <div
             key={conflict.incoming.id}
@@ -84,6 +92,15 @@ function ConflictSection<T extends { id: string; name: string }>({
               <span className="text-xs text-dim">
                 Matches existing: {conflict.existingMatch.name}
               </span>
+              {effect && (
+                <span
+                  className={`text-xs ${
+                    effect.tone === 'caution' ? 'text-caution' : 'text-dim'
+                  }`}
+                >
+                  {effect.text}
+                </span>
+              )}
             </div>
             <div className="flex gap-1 shrink-0">
               <button
@@ -114,6 +131,41 @@ function ConflictSection<T extends { id: string; name: string }>({
       })}
     </div>
   );
+}
+
+function personSkipEffect(conflict: NameConflict<Person>) {
+  const n = conflict.dependents;
+  if (n === 0) return null;
+  return {
+    text: `Skipping puts your ${conflict.existingMatch.name} in ${
+      n === 1 ? 'its imported slot' : `its ${n} imported slots`
+    }`,
+    tone: 'dim' as const,
+  };
+}
+
+function templateSkipEffect(conflict: NameConflict<Template>) {
+  const n = conflict.dependents;
+  if (n === 0) return null;
+  return {
+    text: `Skipping drops ${
+      n === 1
+        ? 'the imported ORBAT built on it, and its AARs'
+        : `the ${n} imported ORBATs built on it, and their AARs`
+    }`,
+    tone: 'caution' as const,
+  };
+}
+
+function emptyPlanMessage(
+  presentSections: ImportSection[],
+  sections: SectionSelection,
+): string {
+  if (presentSections.length === 0)
+    return 'Nothing in this file can be imported.';
+  if (presentSections.every((section) => !sections[section]))
+    return 'Select at least one section to import.';
+  return 'Nothing new to import — every selected record is already in the app.';
 }
 
 export function ImportDialog({ open, onClose }: ImportDialogProps) {
@@ -309,8 +361,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
 
             {planIsEmpty(plan) && (
               <AlertBanner variant="caution">
-                Nothing new to import — every selected record is already in the
-                app.
+                {emptyPlanMessage(presentSections, sections)}
               </AlertBanner>
             )}
 
@@ -396,6 +447,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
                 conflicts={plan.conflicts.people}
                 addAnyway={addAnyway}
                 onToggle={toggleConflict}
+                skipEffect={personSkipEffect}
               />
               <ConflictSection
                 title="Ranks"
@@ -408,6 +460,7 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
                 conflicts={plan.conflicts.templates}
                 addAnyway={addAnyway}
                 onToggle={toggleConflict}
+                skipEffect={templateSkipEffect}
               />
             </div>
 

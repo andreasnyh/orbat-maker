@@ -18,7 +18,16 @@ import type {
  * unknown keys — including `__proto__` — never reach application state. A
  * record that cannot be made valid is rejected outright rather than repaired,
  * because a half-valid record crashes later, far from here.
+ *
+ * A record can still lose parts and survive — a group keeps its valid slots
+ * when one is malformed. Those losses are counted in `Drops`, so a caller that
+ * writes sanitized data back knows it is not writing back what it read.
  */
+
+/** Parts a sanitizer dropped from a record it kept. */
+export interface Drops {
+  count: number;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -34,9 +43,10 @@ function optionalString(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined;
 }
 
-function stringArray(value: unknown): string[] | undefined {
+function stringArray(value: unknown, drops?: Drops): string[] | undefined {
   if (!Array.isArray(value)) return undefined;
   const items = value.filter((v): v is string => typeof v === 'string');
+  if (drops) drops.count += value.length - items.length;
   return items.length > 0 ? items : undefined;
 }
 
@@ -44,12 +54,17 @@ function stringArray(value: unknown): string[] | undefined {
 function mapValid<T>(
   value: unknown,
   sanitize: (item: unknown) => T | null,
+  drops?: Drops,
 ): T[] {
-  if (!Array.isArray(value)) return [];
+  if (!Array.isArray(value)) {
+    if (drops && value !== undefined) drops.count++;
+    return [];
+  }
   const valid: T[] = [];
   for (const item of value) {
     const record = sanitize(item);
     if (record) valid.push(record);
+    else if (drops) drops.count++;
   }
   return valid;
 }
@@ -73,41 +88,40 @@ export function sanitizePerson(value: unknown): Person | null {
   return person;
 }
 
-export function sanitizeSlot(value: unknown): Slot | null {
+export function sanitizeSlot(value: unknown, drops?: Drops): Slot | null {
   if (!isRecord(value)) return null;
   const id = requiredString(value.id);
   if (!id || typeof value.roleLabel !== 'string') return null;
   const slot: Slot = { id, roleLabel: value.roleLabel };
-  const equipment = stringArray(value.equipment);
+  const equipment = stringArray(value.equipment, drops);
   if (equipment) slot.equipment = equipment;
   return slot;
 }
 
-export function sanitizeGroup(value: unknown): Group | null {
+export function sanitizeGroup(value: unknown, drops?: Drops): Group | null {
   if (!isRecord(value)) return null;
   const id = requiredString(value.id);
   const name = requiredString(value.name);
   if (!id || !name) return null;
-  const group: Group = {
-    id,
-    name,
-    slots: sanitizeCollection(value.slots, sanitizeSlot).valid,
-  };
+  const slots = sanitizeCollection(value.slots, sanitizeSlot);
+  if (drops) drops.count += slots.rejected + slots.repaired;
+  const group: Group = { id, name, slots: slots.valid };
   const color = optionalString(value.color);
   if (color !== undefined) group.color = color;
   return group;
 }
 
-export function sanitizeTemplate(value: unknown): Template | null {
+export function sanitizeTemplate(
+  value: unknown,
+  drops?: Drops,
+): Template | null {
   if (!isRecord(value)) return null;
   const id = requiredString(value.id);
   const name = requiredString(value.name);
   if (!id || !name) return null;
-  const template: Template = {
-    id,
-    name,
-    groups: sanitizeCollection(value.groups, sanitizeGroup).valid,
-  };
+  const groups = sanitizeCollection(value.groups, sanitizeGroup);
+  if (drops) drops.count += groups.rejected + groups.repaired;
+  const template: Template = { id, name, groups: groups.valid };
   const description = optionalString(value.description);
   if (description !== undefined) template.description = description;
   if (typeof value.isDefault === 'boolean')
@@ -143,7 +157,7 @@ function sanitizeBuddyTeam(value: unknown): SlotBuddyTeam | null {
 }
 
 /** One person per slot, one slot per person — what assignPersonToSlot keeps. */
-function dedupeAssignments(assignments: Assignment[]): Assignment[] {
+export function dedupeAssignments(assignments: Assignment[]): Assignment[] {
   const slots = new Set<string>();
   const people = new Set<string>();
   return assignments.filter((a) => {
@@ -163,24 +177,24 @@ function dedupeBuddyTeams(teams: SlotBuddyTeam[]): SlotBuddyTeam[] {
   });
 }
 
-export function sanitizeOrbat(value: unknown): ORBAT | null {
+export function sanitizeOrbat(value: unknown, drops?: Drops): ORBAT | null {
   if (!isRecord(value)) return null;
   const id = requiredString(value.id);
   const name = requiredString(value.name);
   const templateId = requiredString(value.templateId);
   if (!id || !name || !templateId) return null;
+  const assignments = mapValid(value.assignments, sanitizeAssignment, drops);
   const orbat: ORBAT = {
     id,
     name,
     templateId,
-    assignments: dedupeAssignments(
-      mapValid(value.assignments, sanitizeAssignment),
-    ),
+    assignments: dedupeAssignments(assignments),
   };
+  if (drops) drops.count += assignments.length - orbat.assignments.length;
   if (value.buddyTeams !== undefined) {
-    orbat.buddyTeams = dedupeBuddyTeams(
-      mapValid(value.buddyTeams, sanitizeBuddyTeam),
-    );
+    const teams = mapValid(value.buddyTeams, sanitizeBuddyTeam, drops);
+    orbat.buddyTeams = dedupeBuddyTeams(teams);
+    if (drops) drops.count += teams.length - orbat.buddyTeams.length;
   }
   return orbat;
 }
@@ -208,6 +222,8 @@ export interface SanitizedCollection<T> {
   valid: T[];
   /** Records dropped because they were malformed or repeated an id. */
   rejected: number;
+  /** Records kept, but with malformed parts — a slot, an assignment — dropped. */
+  repaired: number;
 }
 
 /**
@@ -217,22 +233,25 @@ export interface SanitizedCollection<T> {
  */
 export function sanitizeCollection<T extends { id: string }>(
   value: unknown,
-  sanitize: (item: unknown) => T | null,
+  sanitize: (item: unknown, drops: Drops) => T | null,
 ): SanitizedCollection<T> {
   if (!Array.isArray(value)) {
-    return { valid: [], rejected: value === undefined ? 0 : 1 };
+    return { valid: [], rejected: value === undefined ? 0 : 1, repaired: 0 };
   }
   const valid: T[] = [];
   const ids = new Set<string>();
   let rejected = 0;
+  let repaired = 0;
   for (const item of value) {
-    const record = sanitize(item);
+    const drops: Drops = { count: 0 };
+    const record = sanitize(item, drops);
     if (!record || ids.has(record.id)) {
       rejected++;
       continue;
     }
+    if (drops.count > 0) repaired++;
     ids.add(record.id);
     valid.push(record);
   }
-  return { valid, rejected };
+  return { valid, rejected, repaired };
 }

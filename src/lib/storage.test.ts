@@ -66,6 +66,54 @@ describe('reading a collection', () => {
     expect(result.notice).toContain('Dropped 2 damaged personnel records');
   });
 
+  it('parks what was stored before the repaired collection replaces it', () => {
+    // The write-back is the moment the dropped records stop existing anywhere.
+    const raw = JSON.stringify([nyx, { id: 'p2' }]);
+    const adapter = memoryAdapter({ [PEOPLE_KEY]: raw });
+    const result = readCollection('people', adapter);
+    expect(adapter.entries.get('orbat-maker:unreadable:people')).toBe(raw);
+    expect(result.notice).toBe(
+      'Dropped 1 damaged personnel record while loading. The rest of your data is intact. A copy of what was stored was kept under "orbat-maker:unreadable:people" in browser storage.',
+    );
+  });
+
+  it('reports and parks damage inside records it kept', () => {
+    // A group with a blank name is dropped with its slots, but the template
+    // around it is valid — the collection still loses data on write-back.
+    const template = {
+      id: 't1',
+      name: 'Squad',
+      groups: [
+        { id: 'g1', name: 'Alpha', slots: [{ id: 's1', roleLabel: 'Lead' }] },
+        { id: 'g2', name: ' ', slots: [{ id: 's2', roleLabel: 'Medic' }] },
+      ],
+    };
+    const raw = JSON.stringify([template]);
+    const adapter = memoryAdapter({ [collectionKey('templates')]: raw });
+    const result = readCollection('templates', adapter);
+
+    expect(result.records[0].groups.map((g) => g.id)).toEqual(['g1']);
+    expect(result.repaired).toBe(true);
+    expect(result.notice).toContain(
+      'Removed damaged parts from 1 of your templates while loading.',
+    );
+    expect(adapter.entries.get('orbat-maker:unreadable:templates')).toBe(raw);
+  });
+
+  it('keeps the original in place when no copy of it can be parked', () => {
+    const adapter = withPeople(nyx, { id: 'p2' });
+    const refusing: StorageAdapter = {
+      ...adapter,
+      write() {
+        throw new Error('QuotaExceededError');
+      },
+    };
+    const result = readCollection('people', refusing);
+    expect(result.records).toEqual([nyx]);
+    expect(result.repaired).toBe(false);
+    expect(result.notice).toContain('no copy of the damaged personnel');
+  });
+
   it('writes the repaired collection back so the damage does not recur', () => {
     // The hook writes on a repaired read; this is the value it persists.
     const adapter = withPeople(nyx, { id: 'p2' });
@@ -127,6 +175,25 @@ describe('reading a collection', () => {
     expect(adapter.entries.get('orbat-maker:unreadable:people')).toBe(
       '{"people": [',
     );
+  });
+
+  it('never parks a different payload over an earlier one', () => {
+    const adapter = memoryAdapter({ [PEOPLE_KEY]: 'first garbage' });
+    readCollection('people', adapter);
+    // Same payload again, as a StrictMode double read does: parked once.
+    readCollection('people', adapter);
+
+    adapter.entries.set(PEOPLE_KEY, 'second garbage');
+    const second = readCollection('people', adapter);
+
+    expect(adapter.entries.get('orbat-maker:unreadable:people')).toBe(
+      'first garbage',
+    );
+    expect(adapter.entries.get('orbat-maker:unreadable:people:2')).toBe(
+      'second garbage',
+    );
+    expect(adapter.entries.has('orbat-maker:unreadable:people:3')).toBe(false);
+    expect(second.notice).toContain('"orbat-maker:unreadable:people:2"');
   });
 
   it('leaves the original alone when the quarantine copy could not be kept', () => {
