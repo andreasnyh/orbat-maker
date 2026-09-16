@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { ORBAT, Template } from '../types';
 import { useLocalStorage } from './useLocalStorage';
@@ -155,6 +156,14 @@ export function useOrbats() {
     [setOrbats],
   );
 
+  /** Append records that are new by id — the import applier's way in. */
+  const addOrbats = useCallback(
+    (incoming: ORBAT[]) => {
+      setOrbats((prev) => mergeById(prev, incoming));
+    },
+    [setOrbats],
+  );
+
   return {
     orbats,
     createOrbat,
@@ -167,6 +176,7 @@ export function useOrbats() {
     unassignSlot,
     setSlotBuddyTeam,
     clearBuddyTeams,
+    addOrbats,
     setOrbats,
   };
 }

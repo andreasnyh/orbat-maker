@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { Rank } from '../types';
 import { useLocalStorage } from './useLocalStorage';
@@ -33,5 +34,13 @@ export function useRanks() {
     [setRanks],
   );
 
-  return { ranks, addRank, updateRank, deleteRank, setRanks };
+  /** Append records that are new by id — the import applier's way in. */
+  const addRanks = useCallback(
+    (incoming: Rank[]) => {
+      setRanks((prev) => mergeById(prev, incoming));
+    },
+    [setRanks],
+  );
+
+  return { ranks, addRank, updateRank, deleteRank, addRanks, setRanks };
 }

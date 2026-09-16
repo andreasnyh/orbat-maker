@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { AAR } from '../types';
 import { useLocalStorage } from './useLocalStorage';
@@ -48,5 +49,13 @@ export function useAARs() {
     [setAARs],
   );
 
-  return { aars, createAAR, updateAAR, deleteAAR, setAARs };
+  /** Append records that are new by id — the import applier's way in. */
+  const addAARs = useCallback(
+    (incoming: AAR[]) => {
+      setAARs((prev) => mergeById(prev, incoming));
+    },
+    [setAARs],
+  );
+
+  return { aars, createAAR, updateAAR, deleteAAR, addAARs, setAARs };
 }
