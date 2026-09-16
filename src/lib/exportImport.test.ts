@@ -151,6 +151,27 @@ describe('parseImportFile', () => {
     ]);
   });
 
+  it('says when a record kept only some of its parts', () => {
+    const parsed = parseImportFile(
+      JSON.stringify({
+        version: 1,
+        exportedAt: '2026-01-01T00:00:00.000Z',
+        templates: [
+          {
+            ...squad,
+            groups: [...squad.groups, { id: 'g2', name: ' ', slots: [] }],
+          },
+        ],
+      }),
+    );
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    expect(parsed.bundle.templates).toEqual([squad]);
+    expect(parsed.warnings).toEqual([
+      'Dropped unreadable parts of 1 templates record in this file.',
+    ]);
+  });
+
   it('never imports a template as a default', () => {
     const parsed = parseImportFile(
       JSON.stringify({
@@ -182,7 +203,11 @@ describe('planImport', () => {
     expect(plan.additions.people).toEqual([{ id: 'p3', name: 'Kilo' }]);
     expect(plan.duplicates.people).toBe(1);
     expect(plan.conflicts.people).toEqual([
-      { incoming: vex, existingMatch: { id: 'p9', name: 'Vex' } },
+      {
+        incoming: vex,
+        existingMatch: { id: 'p9', name: 'Vex' },
+        dependents: 0,
+      },
     ]);
     expect(countConflicts(plan)).toBe(1);
   });
@@ -195,6 +220,20 @@ describe('planImport', () => {
     );
     expect(plan.conflicts.people).toHaveLength(1);
     expect(plan.additions.people).toEqual([]);
+  });
+
+  it('counts what leans on each conflicting record', () => {
+    const plan = planImport(
+      bundleOf({ people: [nyx], templates: [squad], orbats: [redwood] }),
+      {
+        ...empty(),
+        people: [{ id: 'p9', name: 'Nyx' }],
+        templates: [{ ...squad, id: 't9' }],
+      },
+      allSections(true),
+    );
+    expect(plan.conflicts.people[0].dependents).toBe(1);
+    expect(plan.conflicts.templates[0].dependents).toBe(1);
   });
 
   it('ignores deselected sections entirely', () => {
@@ -213,8 +252,9 @@ describe('planImport', () => {
       empty(),
       allSections(true),
     );
-    expect(plan.warnings).toHaveLength(1);
-    expect(plan.warnings[0]).toContain('1 ORBAT');
+    expect(plan.warnings).toEqual([
+      '1 ORBAT references a template that is neither in this file nor in your data, and will be skipped.',
+    ]);
   });
 
   it('stays quiet when the bundle carries what it references', () => {
@@ -270,15 +310,93 @@ describe('applyImport', () => {
     expect(summary.warnings[0]).toContain('template was not imported');
   });
 
-  it('drops an ORBAT whose template the user chose to skip', () => {
-    const { written } = importInto(
+  it('drops an ORBAT whose template the user chose to skip, with its AARs', () => {
+    const { written, summary } = importInto(
       { ...empty(), templates: [{ ...squad, id: 'other' }] },
-      bundleOf({ templates: [squad], orbats: [redwood] }),
+      bundleOf({ templates: [squad], orbats: [redwood], aars: [redwoodAAR] }),
     );
     // squad conflicts by name with the existing template and stays skipped,
-    // so the ORBAT pointing at t1 has nothing to render against.
+    // so the ORBAT pointing at t1 has nothing to render against — and its AAR
+    // would land with nothing to open it from.
     expect(written.templates).toEqual([]);
     expect(written.orbats).toEqual([]);
+    expect(written.aars).toEqual([]);
+    expect(summary.skipped.aars).toBe(1);
+    expect(summary.warnings).toEqual([
+      'Skipped 1 ORBAT whose template was not imported, and 1 AAR written for them.',
+    ]);
+  });
+
+  it("gives a skipped person's slots to the existing person of that name", () => {
+    const existingNyx: Person = { id: 'p9', name: 'nyx ' };
+    const { written, summary } = importInto(
+      { ...empty(), people: [existingNyx] },
+      bundleOf({ templates: [squad], people: [nyx, vex], orbats: [redwood] }),
+    );
+    expect(written.people).toEqual([vex]);
+    expect(written.orbats[0].assignments).toEqual([
+      { slotId: 's1', personId: 'p9' },
+      { slotId: 's2', personId: 'p2' },
+    ]);
+    expect(summary.warnings).toEqual([]);
+  });
+
+  it('keeps one slot per person when two skipped names are the same person', () => {
+    const nyxAgain: Person = { id: 'p4', name: 'NYX' };
+    const { written, summary } = importInto(
+      { ...empty(), people: [{ id: 'p9', name: 'Nyx' }] },
+      bundleOf({
+        templates: [squad],
+        people: [nyx, nyxAgain],
+        orbats: [
+          {
+            ...redwood,
+            assignments: [
+              { slotId: 's1', personId: 'p1' },
+              { slotId: 's2', personId: 'p4' },
+            ],
+          },
+        ],
+      }),
+    );
+    expect(written.orbats[0].assignments).toEqual([
+      { slotId: 's1', personId: 'p9' },
+    ]);
+    expect(summary.warnings[0]).toContain('Cleared 1 assignment');
+  });
+
+  it('adds a conflicting person as new when asked, keeping their slots', () => {
+    const { written } = importInto(
+      { ...empty(), people: [{ id: 'p9', name: 'Nyx' }] },
+      bundleOf({ templates: [squad], people: [nyx, vex], orbats: [redwood] }),
+      { addAnyway: ['p1'] },
+    );
+    expect(written.orbats[0].assignments).toEqual(redwood.assignments);
+  });
+
+  it("checks assignments against the ORBAT's own template", () => {
+    // Forks keep their source's slot ids, so a slot id existing *somewhere*
+    // says nothing about whether this ORBAT can show it.
+    const other: Template = {
+      id: 't9',
+      name: 'Other',
+      groups: [{ id: 'g9', name: 'X', slots: [{ id: 's9', roleLabel: 'X' }] }],
+    };
+    const { written, summary } = importInto(
+      { ...empty(), templates: [squad, other], people: [nyx] },
+      bundleOf({
+        orbats: [
+          {
+            ...redwood,
+            assignments: [{ slotId: 's9', personId: 'p1' }],
+            buddyTeams: [{ slotId: 's9', team: 2 }],
+          },
+        ],
+      }),
+    );
+    expect(written.orbats[0].assignments).toEqual([]);
+    expect(written.orbats[0].buddyTeams).toEqual([]);
+    expect(summary.warnings[0]).toContain('Cleared 2 assignments');
   });
 
   it('prunes assignments pointing at personnel that were not imported', () => {
@@ -307,7 +425,8 @@ describe('applyImport', () => {
       empty(),
       bundleOf({ aars: [redwoodAAR] }),
     );
-    expect(plan.warnings[0]).toContain('1 AAR');
+    expect(plan.warnings[0]).toContain('1 AAR references an ORBAT');
+    expect(plan.warnings[0]).toContain('it will import');
     expect(written.aars).toEqual([redwoodAAR]);
   });
 });
@@ -376,6 +495,34 @@ describe('export/import round trip', () => {
     const { written, summary } = importInto(empty(), parsed.bundle);
     expect(written.orbats).toEqual([redwood]);
     expect(written.aars).toEqual([redwoodAAR]);
+    expect(summary.warnings).toEqual([]);
+  });
+
+  it('lands an ORBAT on a default template that the target already has', () => {
+    // A real fresh machine is not empty: it has the shipped defaults, and an
+    // unedited ORBAT points at one of them.
+    const shipped: Template = {
+      ...squad,
+      id: 'default-squad',
+      isDefault: true,
+    };
+    const onDefault: ORBAT = { ...redwood, templateId: 'default-squad' };
+    const bundle = createExportBundle({
+      people: [nyx, vex],
+      templates: [shipped],
+      orbats: [onDefault],
+    });
+    const parsed = parseImportFile(JSON.stringify(bundle));
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+
+    const { written, summary } = importInto(
+      { ...empty(), templates: [shipped] },
+      parsed.bundle,
+    );
+    expect(written.templates).toEqual([]);
+    expect(written.orbats).toEqual([onDefault]);
+    expect(summary.skipped.templates).toBe(1);
     expect(summary.warnings).toEqual([]);
   });
 
