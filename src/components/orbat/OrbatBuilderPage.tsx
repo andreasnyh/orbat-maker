@@ -1,4 +1,5 @@
 import {
+  type Active,
   type Announcements,
   DndContext,
   type DragEndEvent,
@@ -6,6 +7,7 @@ import {
   type DragStartEvent,
   KeyboardSensor,
   MeasuringStrategy,
+  type Over,
   PointerSensor,
   TouchSensor,
   useSensor,
@@ -28,7 +30,7 @@ import {
   formatOrbatForDiscord,
   formatOrbatForTeamspeak,
 } from '../../lib/clipboard';
-import { collisionDetection, keyboardCoordinates } from '../../lib/dnd';
+import { collisionDetection, keyboardSensorOptions } from '../../lib/dnd';
 import type { Page, Person, Slot } from '../../types';
 import { AlertBanner } from '../common/AlertBanner';
 import { Badge } from '../common/Badge';
@@ -55,6 +57,29 @@ interface DragData {
 
 function personLabel(person: Person): string {
   return person.rank ? `${person.rank} ${person.name}` : person.name;
+}
+
+/**
+ * Whether dropping `active` on `over` changes anything. `handleDragEnd` acts
+ * on nothing else, and the announcements use it to say when nothing changed.
+ */
+function dropApplies(active: Active, over: Over | null): boolean {
+  if (!over || active.id === over.id) return false;
+  const dragged: DragData | undefined = active.data.current;
+  const target: DragData | undefined = over.data.current;
+  if (dragged?.type === 'slot-reorder') {
+    // A slot let go over its own group's list, rather than a slot in it,
+    // stays where it is.
+    return (
+      target?.groupId != null &&
+      (target.groupId !== dragged.groupId || target.slotId != null)
+    );
+  }
+  return (
+    dragged?.personId != null &&
+    target?.slotId != null &&
+    target.slotId !== dragged.sourceSlotId
+  );
 }
 
 interface OrbatBuilderPageProps {
@@ -120,7 +145,7 @@ export function OrbatBuilderPage({
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: keyboardCoordinates }),
+    useSensor(KeyboardSensor, keyboardSensorOptions),
   );
 
   // ---- Pointer tracking for custom overlay ---------------------------------
@@ -308,7 +333,7 @@ export function OrbatBuilderPage({
     (event: DragEndEvent) => {
       setActivePerson(null);
       const { active, over } = event;
-      if (!over || active.id === over.id) return;
+      if (!over || !dropApplies(active, over)) return;
 
       // ---- Slot reorder drag (grip handle) ----
       if (active.data.current?.type === 'slot-reorder') {
@@ -381,6 +406,10 @@ export function OrbatBuilderPage({
       assignPersonToSlot,
     ],
   );
+
+  // Escape, a resize or a tab switch cancels a pointer drag too; without this
+  // the floating card would keep following the pointer afterwards.
+  const handleDragCancel = useCallback(() => setActivePerson(null), []);
 
   // ---- Name editing --------------------------------------------------------
 
@@ -532,7 +561,7 @@ export function OrbatBuilderPage({
           ? `${describeDragged(active.data.current)} is over ${describeTarget(over.data.current)}${describeOccupant(over.data.current)}.`
           : `${describeDragged(active.data.current)} is over no drop target.`,
       onDragEnd: ({ active, over }) =>
-        over
+        over && dropApplies(active, over)
           ? `Dropped ${describeDragged(active.data.current)} on ${describeTarget(over.data.current)}.`
           : `Dropped ${describeDragged(active.data.current)}. Nothing changed.`,
       onDragCancel: ({ active }) =>
@@ -567,6 +596,7 @@ export function OrbatBuilderPage({
         measuring={measuringConfig}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
       >
         <div className="flex flex-col gap-4 h-full">
           {/* Top bar */}

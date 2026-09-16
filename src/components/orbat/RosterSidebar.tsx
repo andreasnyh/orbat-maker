@@ -214,8 +214,9 @@ export function RosterSidebar({
       {/* Divider */}
       <div className="border-t border-trim" />
 
-      {/* Person list */}
-      <div className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0 pr-1">
+      {/* Person list. The 2px of padding, cancelled out by the margin, keeps a
+          focused card's ring inside the scroll clip. */}
+      <div className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0 -m-0.5 p-0.5 pr-1.5">
         {filtered.length === 0 ? (
           <p className="text-xs text-dim italic text-center py-8">
             {people.length === 0
