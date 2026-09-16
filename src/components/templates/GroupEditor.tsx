@@ -1,4 +1,7 @@
-import type { DraggableSyntheticListeners } from '@dnd-kit/core';
+import type {
+  DraggableAttributes,
+  DraggableSyntheticListeners,
+} from '@dnd-kit/core';
 import { GripVertical, Palette, Plus, Trash2 } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -14,6 +17,9 @@ interface GroupEditorProps {
   onUpdate: (group: Group) => void;
   onDelete: () => void;
   dragHandleProps?: DraggableSyntheticListeners;
+  /** Kept beside the listeners: the tab stop and aria wiring belong on the
+   * same element the keyboard sensor listens on. */
+  dragHandleAttributes?: DraggableAttributes;
   slotDroppableRef?: (element: HTMLElement | null) => void;
   renderSlots?: (slots: Slot[]) => React.ReactNode;
 }
@@ -25,6 +31,7 @@ export function GroupEditor({
   onUpdate,
   onDelete,
   dragHandleProps,
+  dragHandleAttributes,
   slotDroppableRef,
   renderSlots,
 }: GroupEditorProps) {
@@ -100,8 +107,9 @@ export function GroupEditor({
           {/* Drag handle for the group */}
           <button
             type="button"
-            className="text-chrome hover:text-sub cursor-grab active:cursor-grabbing shrink-0 transition-colors"
+            className="text-chrome hover:text-sub cursor-grab active:cursor-grabbing shrink-0 transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
             aria-label={`Reorder ${group.name}`}
+            {...dragHandleAttributes}
             {...dragHandleProps}
           >
             <GripVertical size={16} />

@@ -1,11 +1,14 @@
 import {
+  type Active,
+  type Announcements,
   DndContext,
   type DragEndEvent,
   DragOverlay,
   type DragStartEvent,
+  KeyboardSensor,
   MeasuringStrategy,
+  type Over,
   PointerSensor,
-  pointerWithin,
   TouchSensor,
   useSensor,
   useSensors,
@@ -23,6 +26,7 @@ import { useIsMobile } from '../../hooks/useIsMobile';
 import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
 import { copyToClipboard } from '../../lib/clipboard';
+import { collisionDetection, keyboardSensorOptions } from '../../lib/dnd';
 import {
   renderDiscord,
   renderTeamspeak,
@@ -42,6 +46,42 @@ import { RosterSidebar } from './RosterSidebar';
 const measuringConfig = {
   droppable: { strategy: MeasuringStrategy.WhileDragging },
 };
+
+/** What the draggables and droppables on this page carry in `data`. */
+interface DragData {
+  type?: string;
+  slotId?: string;
+  groupId?: string;
+  personId?: string;
+  sourceSlotId?: string;
+}
+
+function personLabel(person: Person): string {
+  return person.rank ? `${person.rank} ${person.name}` : person.name;
+}
+
+/**
+ * Whether dropping `active` on `over` changes anything. `handleDragEnd` acts
+ * on nothing else, and the announcements use it to say when nothing changed.
+ */
+function dropApplies(active: Active, over: Over | null): boolean {
+  if (!over || active.id === over.id) return false;
+  const dragged: DragData | undefined = active.data.current;
+  const target: DragData | undefined = over.data.current;
+  if (dragged?.type === 'slot-reorder') {
+    // A slot let go over its own group's list, rather than a slot in it,
+    // stays where it is.
+    return (
+      target?.groupId != null &&
+      (target.groupId !== dragged.groupId || target.slotId != null)
+    );
+  }
+  return (
+    dragged?.personId != null &&
+    target?.slotId != null &&
+    target.slotId !== dragged.sourceSlotId
+  );
+}
 
 interface OrbatBuilderPageProps {
   orbatId: string;
@@ -91,6 +131,7 @@ export function OrbatBuilderPage({
   // ---- Local state ----------------------------------------------------------
   const [activePerson, setActivePerson] = useState<Person | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const focusAfterDropRef = useRef<HTMLElement | null>(null);
   const [editingName, , setEditingName] = useToggle();
   const [nameValue, setNameValue] = useState(orbat?.name ?? '');
   const [showRoster, , setShowRoster] = useToggle();
@@ -106,6 +147,7 @@ export function OrbatBuilderPage({
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, keyboardSensorOptions),
   );
 
   // ---- Pointer tracking for custom overlay ---------------------------------
@@ -279,7 +321,12 @@ export function OrbatBuilderPage({
     (event: DragStartEvent) => {
       const personId = event.active.data.current?.personId;
       const person = personById.get(personId);
-      setActivePerson(person ?? null);
+      // The floating overlay is positioned from pointermove events. A keyboard
+      // drag produces none, so showing it would pin a card to the top-left
+      // corner of the viewport for the whole drag. The target slot's own
+      // highlight, plus the announcements, carry the keyboard case.
+      const fromKeyboard = event.activatorEvent instanceof KeyboardEvent;
+      setActivePerson(fromKeyboard ? null : (person ?? null));
     },
     [personById],
   );
@@ -288,7 +335,7 @@ export function OrbatBuilderPage({
     (event: DragEndEvent) => {
       setActivePerson(null);
       const { active, over } = event;
-      if (!over || active.id === over.id) return;
+      if (!over || !dropApplies(active, over)) return;
 
       // ---- Slot reorder drag (grip handle) ----
       if (active.data.current?.type === 'slot-reorder') {
@@ -349,6 +396,24 @@ export function OrbatBuilderPage({
       } else {
         assignPersonToSlot(orbatId, targetSlotId, personId);
       }
+
+      // From the keyboard, carry focus on: from the roster to the next card, so
+      // a run of assignments needs no Tab presses, and otherwise to the slot
+      // just filled. Left alone it would stay on a roster card that unmounts
+      // once its person is assigned, or on the slot the person just left.
+      if (event.activatorEvent instanceof KeyboardEvent) {
+        const card = event.activatorEvent.target;
+        const nextCard =
+          !sourceSlotId && card instanceof Element
+            ? card.nextElementSibling
+            : null;
+        focusAfterDropRef.current =
+          nextCard instanceof HTMLElement
+            ? nextCard
+            : document.querySelector<HTMLElement>(
+                `[data-slot-person="${CSS.escape(targetSlotId)}"]`,
+              );
+      }
     },
     [
       templateGroups,
@@ -361,6 +426,21 @@ export function OrbatBuilderPage({
       assignPersonToSlot,
     ],
   );
+
+  // Escape, a resize or a tab switch cancels a pointer drag too; without this
+  // the floating card would keep following the pointer afterwards.
+  const handleDragCancel = useCallback(() => setActivePerson(null), []);
+
+  // Runs after every render, and only acts on the one that follows a keyboard
+  // drop. dnd-kit hands focus back to the dragged element in an animation
+  // frame queued from its own effect. Children's effects run first, so the
+  // frame queued here runs after that one and has the last word.
+  useEffect(() => {
+    const target = focusAfterDropRef.current;
+    if (!target) return;
+    focusAfterDropRef.current = null;
+    requestAnimationFrame(() => target.focus());
+  });
 
   // ---- Name editing --------------------------------------------------------
 
@@ -461,6 +541,68 @@ export function OrbatBuilderPage({
     return undefined;
   }, [tapTargetSlotId, template]);
 
+  // ---- Screen reader announcements -----------------------------------------
+  // dnd-kit's defaults announce raw ids ("draggable item sort-V1StGX"), which
+  // tells a screen reader user nothing. These name the actual slots and people.
+
+  const slotLabels = useMemo(() => {
+    const labels = new Map<string, string>();
+    for (const group of templateGroups ?? []) {
+      for (const slot of group.slots) {
+        labels.set(slot.id, `${slot.roleLabel} in ${group.name}`);
+      }
+    }
+    return labels;
+  }, [templateGroups]);
+
+  const describeDragged = useCallback(
+    (data: DragData | undefined) => {
+      if (data?.type === 'slot-reorder' && data.slotId) {
+        return slotLabels.get(data.slotId) ?? 'slot';
+      }
+      const person = data?.personId ? personById.get(data.personId) : undefined;
+      return person ? personLabel(person) : 'item';
+    },
+    [slotLabels, personById],
+  );
+
+  const describeTarget = useCallback(
+    (data: DragData | undefined) => {
+      if (data?.slotId) return slotLabels.get(data.slotId) ?? 'slot';
+      const group = templateGroups?.find((g) => g.id === data?.groupId);
+      return group ? `the end of ${group.name}` : 'no drop target';
+    },
+    [slotLabels, templateGroups],
+  );
+
+  const describeOccupant = useCallback(
+    (data: DragData | undefined) => {
+      if (!data?.slotId) return '';
+      const assignment = assignmentsBySlotId.get(data.slotId);
+      const person = assignment ? personById.get(assignment.personId) : null;
+      return person ? `, held by ${personLabel(person)}` : ', empty';
+    },
+    [assignmentsBySlotId, personById],
+  );
+
+  const announcements = useMemo<Announcements>(
+    () => ({
+      onDragStart: ({ active }) =>
+        `Picked up ${describeDragged(active.data.current)}. Use the arrow keys to choose a slot, space to drop, escape to cancel.`,
+      onDragOver: ({ active, over }) =>
+        over
+          ? `${describeDragged(active.data.current)} is over ${describeTarget(over.data.current)}${describeOccupant(over.data.current)}.`
+          : `${describeDragged(active.data.current)} is over no drop target.`,
+      onDragEnd: ({ active, over }) =>
+        over && dropApplies(active, over)
+          ? `Dropped ${describeDragged(active.data.current)} on ${describeTarget(over.data.current)}.`
+          : `Dropped ${describeDragged(active.data.current)}. Nothing changed.`,
+      onDragCancel: ({ active }) =>
+        `Cancelled. ${describeDragged(active.data.current)} stayed where it was.`,
+    }),
+    [describeDragged, describeTarget, describeOccupant],
+  );
+
   // ---- Guard: ORBAT not found ---------------------------------------------
 
   if (!orbat) {
@@ -482,10 +624,12 @@ export function OrbatBuilderPage({
     <>
       <DndContext
         sensors={sensors}
-        collisionDetection={pointerWithin}
+        collisionDetection={collisionDetection}
+        accessibility={{ announcements }}
         measuring={measuringConfig}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
       >
         <div className="flex flex-col gap-4 h-full">
           {/* Top bar */}
