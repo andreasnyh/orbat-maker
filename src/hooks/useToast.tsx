@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -107,8 +108,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     [showUndo],
   );
 
+  // The callbacks are already stable, so without this memo the only thing
+  // re-rendering every toast consumer was the object literal itself — and it
+  // changed on every toast that appeared or expired.
+  const value = useMemo(
+    () => ({ success, error, undo }),
+    [success, error, undo],
+  );
+
   return (
-    <ToastContext.Provider value={{ success, error, undo }}>
+    <ToastContext.Provider value={value}>
       {children}
       {/* Toast container */}
       <div

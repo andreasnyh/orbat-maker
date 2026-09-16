@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { ORBAT, Template } from '../types';
@@ -162,19 +162,39 @@ export function useOrbats() {
     [setOrbats],
   );
 
-  return {
-    orbats,
-    createOrbat,
-    updateOrbat,
-    deleteOrbat,
-    assignPersonToSlot,
-    swapSlotAssignments,
-    movePersonToSlot,
-    clearAssignments,
-    unassignSlot,
-    setSlotBuddyTeam,
-    clearBuddyTeams,
-    addOrbats,
-    setOrbats,
-  };
+  // Memoized so this hook's context only re-renders its own consumers.
+  // Without it every setX produced a fresh object and the six-context
+  // split behaved like one big context.
+  return useMemo(
+    () => ({
+      orbats,
+      createOrbat,
+      updateOrbat,
+      deleteOrbat,
+      assignPersonToSlot,
+      swapSlotAssignments,
+      movePersonToSlot,
+      clearAssignments,
+      unassignSlot,
+      setSlotBuddyTeam,
+      clearBuddyTeams,
+      addOrbats,
+      setOrbats,
+    }),
+    [
+      orbats,
+      createOrbat,
+      updateOrbat,
+      deleteOrbat,
+      assignPersonToSlot,
+      swapSlotAssignments,
+      movePersonToSlot,
+      clearAssignments,
+      unassignSlot,
+      setSlotBuddyTeam,
+      clearBuddyTeams,
+      addOrbats,
+      setOrbats,
+    ],
+  );
 }
