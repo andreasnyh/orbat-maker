@@ -60,6 +60,9 @@ export function useStoredCollection<N extends CollectionName>(
       if (dirty.current) return;
       const result = readCollection(name);
       if (result.notice) noteStorageProblem(result.notice);
+      // Damage adopted from another tab is written back, as it is on a load,
+      // so the next event does not find it and report it all over again.
+      if (result.repaired) dirty.current = true;
       setRecords(result.records);
     });
   }, [name]);
