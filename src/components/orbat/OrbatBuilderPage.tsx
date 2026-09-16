@@ -130,6 +130,7 @@ export function OrbatBuilderPage({
   // ---- Local state ----------------------------------------------------------
   const [activePerson, setActivePerson] = useState<Person | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const focusAfterDropRef = useRef<HTMLElement | null>(null);
   const [editingName, , setEditingName] = useToggle();
   const [nameValue, setNameValue] = useState(orbat?.name ?? '');
   const [showRoster, , setShowRoster] = useToggle();
@@ -394,6 +395,24 @@ export function OrbatBuilderPage({
       } else {
         assignPersonToSlot(orbatId, targetSlotId, personId);
       }
+
+      // From the keyboard, carry focus on: from the roster to the next card, so
+      // a run of assignments needs no Tab presses, and otherwise to the slot
+      // just filled. Left alone it would stay on a roster card that unmounts
+      // once its person is assigned, or on the slot the person just left.
+      if (event.activatorEvent instanceof KeyboardEvent) {
+        const card = event.activatorEvent.target;
+        const nextCard =
+          !sourceSlotId && card instanceof Element
+            ? card.nextElementSibling
+            : null;
+        focusAfterDropRef.current =
+          nextCard instanceof HTMLElement
+            ? nextCard
+            : document.querySelector<HTMLElement>(
+                `[data-slot-person="${CSS.escape(targetSlotId)}"]`,
+              );
+      }
     },
     [
       templateGroups,
@@ -410,6 +429,17 @@ export function OrbatBuilderPage({
   // Escape, a resize or a tab switch cancels a pointer drag too; without this
   // the floating card would keep following the pointer afterwards.
   const handleDragCancel = useCallback(() => setActivePerson(null), []);
+
+  // Runs after every render, and only acts on the one that follows a keyboard
+  // drop. dnd-kit hands focus back to the dragged element in an animation
+  // frame queued from its own effect. Children's effects run first, so the
+  // frame queued here runs after that one and has the last word.
+  useEffect(() => {
+    const target = focusAfterDropRef.current;
+    if (!target) return;
+    focusAfterDropRef.current = null;
+    requestAnimationFrame(() => target.focus());
+  });
 
   // ---- Name editing --------------------------------------------------------
 

@@ -37,6 +37,7 @@ export const OrbatSlot = memo(function OrbatSlot(props: OrbatSlotProps) {
     attributes: sortableAttrs,
     listeners: sortableListeners,
     setNodeRef: setSortableRef,
+    setActivatorNodeRef: setSortableActivatorRef,
     transform,
     transition,
     isDragging: isSortDragging,
@@ -88,6 +89,7 @@ export const OrbatSlot = memo(function OrbatSlot(props: OrbatSlotProps) {
         isOver={isOver}
         sortableAttrs={sortableAttrs}
         sortableListeners={sortableListeners}
+        setSortableActivatorRef={setSortableActivatorRef}
         setDragRef={setDragRef}
         dragAttrs={dragAttrs}
         dragListeners={dragListeners}
@@ -105,6 +107,7 @@ interface OrbatSlotContentProps extends OrbatSlotProps {
   isOver: boolean;
   sortableAttrs: React.HTMLAttributes<HTMLElement>;
   sortableListeners: ReturnType<typeof useSortable>['listeners'];
+  setSortableActivatorRef: (node: HTMLElement | null) => void;
   setDragRef: (node: HTMLElement | null) => void;
   dragAttrs: React.HTMLAttributes<HTMLElement>;
   dragListeners: ReturnType<typeof useDraggable>['listeners'];
@@ -128,6 +131,7 @@ const OrbatSlotContent = memo(
     isOver,
     sortableAttrs,
     sortableListeners,
+    setSortableActivatorRef,
     setDragRef,
     dragAttrs,
     dragListeners,
@@ -243,8 +247,11 @@ const OrbatSlotContent = memo(
           >
             {buddyTeamBadge}
 
-            {/* Slot reorder zone: grip + role label */}
+            {/* Slot reorder zone: grip + role label. As the activator, it is
+                where dnd-kit returns focus after a keyboard move; otherwise
+                that falls to the slot's first focusable, the buddy badge. */}
             <div
+              ref={setSortableActivatorRef}
               className="flex items-center gap-2 shrink-0 cursor-grab active:cursor-grabbing rounded-sm transition-colors -ml-0.5 pl-0.5 pr-1 -my-0.5 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
               title="Drag to reorder slot"
               {...sortableAttrs}
@@ -275,6 +282,7 @@ const OrbatSlotContent = memo(
                   : 'text-sm text-dim italic font-data',
               )}
               title={person ? 'Drag to reassign' : undefined}
+              data-slot-person={slot.id}
               {...dragAttrs}
               {...dragListeners}
               // An empty slot has nothing to pick up; dnd-kit still marks it
