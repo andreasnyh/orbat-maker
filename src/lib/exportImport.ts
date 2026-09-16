@@ -7,6 +7,7 @@ import type {
   Template,
 } from '../types';
 import {
+  dedupeAssignments,
   sanitizeAAR,
   sanitizeCollection,
   sanitizeOrbat,
@@ -190,19 +191,26 @@ export function parseImportFile(text: string): ParsedImport {
     aars: aars.valid,
   };
 
-  const rejected: SectionCounts = {
-    people: people.rejected,
-    ranks: ranks.rejected,
-    templates: templates.rejected,
-    orbats: orbats.rejected,
-    aars: aars.rejected,
-  };
-  const warnings = IMPORT_SECTIONS.filter((s) => rejected[s] > 0).map(
-    (s) =>
-      `Ignored ${rejected[s]} unreadable ${SECTION_LABELS[s]} ${
-        rejected[s] === 1 ? 'record' : 'records'
-      } in this file.`,
-  );
+  const results = { people, ranks, templates, orbats, aars };
+  const warnings = IMPORT_SECTIONS.flatMap((s) => {
+    const { rejected, repaired } = results[s];
+    const found: string[] = [];
+    if (rejected > 0) {
+      found.push(
+        `Ignored ${rejected} unreadable ${SECTION_LABELS[s]} ${
+          rejected === 1 ? 'record' : 'records'
+        } in this file.`,
+      );
+    }
+    if (repaired > 0) {
+      found.push(
+        `Dropped unreadable parts of ${repaired} ${SECTION_LABELS[s]} ${
+          repaired === 1 ? 'record' : 'records'
+        } in this file.`,
+      );
+    }
+    return found;
+  });
 
   return { ok: true, bundle, warnings };
 }
@@ -220,6 +228,11 @@ function asUserTemplate(template: Template): Template {
 export interface NameConflict<T> {
   incoming: T;
   existingMatch: T;
+  /**
+   * What else in the import leans on the incoming record, and so is affected
+   * by skipping it: assignments naming a person, ORBATs built on a template.
+   */
+  dependents: number;
 }
 
 export interface ImportPlan {
@@ -240,8 +253,8 @@ export interface ImportPlan {
 
 interface ExistingIds {
   people: Set<string>;
-  templates: Set<string>;
-  slots: Set<string>;
+  /** Each template's slot ids, keyed by template id. */
+  slotsByTemplate: Map<string, Set<string>>;
 }
 
 interface Split<T> {
@@ -268,7 +281,11 @@ function splitByIdAndName<T extends { id: string; name: string }>(
     }
     const match = existingByName.get(item.name.trim().toLowerCase());
     if (match) {
-      result.conflicts.push({ incoming: item, existingMatch: match });
+      result.conflicts.push({
+        incoming: item,
+        existingMatch: match,
+        dependents: 0,
+      });
     } else {
       result.additions.push(item);
     }
@@ -285,14 +302,25 @@ function splitById<T extends { id: string }>(
   return { additions, duplicates: incoming.length - additions.length };
 }
 
-function slotIdsOf(templates: Template[]): Set<string> {
-  const ids = new Set<string>();
-  for (const template of templates) {
-    for (const group of template.groups) {
-      for (const slot of group.slots) ids.add(slot.id);
-    }
-  }
-  return ids;
+function slotsByTemplate(templates: Template[]): Map<string, Set<string>> {
+  return new Map(
+    templates.map((template) => [
+      template.id,
+      new Set(template.groups.flatMap((g) => g.slots.map((s) => s.id))),
+    ]),
+  );
+}
+
+function withDependents<T extends { id: string }>(
+  conflicts: NameConflict<T>[],
+  countFor: (id: string) => number,
+): NameConflict<T>[] {
+  return conflicts.map((c) => ({ ...c, dependents: countFor(c.incoming.id) }));
+}
+
+function plural(count: number, noun: string, verb?: [string, string]): string {
+  const words = `${count} ${noun}${count === 1 ? '' : 's'}`;
+  return verb ? `${words} ${verb[count === 1 ? 0 : 1]}` : words;
 }
 
 /**
@@ -342,7 +370,7 @@ export function planImport(
   );
   if (orphanOrbats.length > 0) {
     warnings.push(
-      `${orphanOrbats.length} ORBAT${orphanOrbats.length === 1 ? '' : 's'} reference a template that is neither in this file nor in your data, and will be skipped.`,
+      `${plural(orphanOrbats.length, 'ORBAT', ['references', 'reference'])} a template that is neither in this file nor in your data, and will be skipped.`,
     );
   }
 
@@ -355,9 +383,13 @@ export function planImport(
   );
   if (orphanAARs.length > 0) {
     warnings.push(
-      `${orphanAARs.length} AAR${orphanAARs.length === 1 ? '' : 's'} reference an ORBAT that is neither in this file nor in your data — they will import but stay out of reach until that ORBAT exists.`,
+      `${plural(orphanAARs.length, 'AAR', ['references', 'reference'])} an ORBAT that is neither in this file nor in your data — ${
+        orphanAARs.length === 1 ? 'it' : 'they'
+      } will import but stay out of reach until that ORBAT exists.`,
     );
   }
+
+  const incomingOrbats = orbats.additions;
 
   return {
     additions: {
@@ -368,16 +400,24 @@ export function planImport(
       aars: aars.additions,
     },
     conflicts: {
-      people: people.conflicts,
+      people: withDependents(
+        people.conflicts,
+        (id) =>
+          incomingOrbats.flatMap((o) =>
+            o.assignments.filter((a) => a.personId === id),
+          ).length,
+      ),
       ranks: ranks.conflicts,
-      templates: templates.conflicts,
+      templates: withDependents(
+        templates.conflicts,
+        (id) => incomingOrbats.filter((o) => o.templateId === id).length,
+      ),
     },
     duplicates,
     warnings,
     existing: {
       people: new Set(current.people.map((p) => p.id)),
-      templates: new Set(current.templates.map((t) => t.id)),
-      slots: slotIdsOf(current.templates),
+      slotsByTemplate: slotsByTemplate(current.templates),
     },
   };
 }
@@ -449,8 +489,10 @@ function resolve<T extends { id: string }>(
 /**
  * Carry out a plan. Records reach the stores only through this function, which
  * is also where cross-collection references are made sound: an ORBAT whose
- * template did not survive is dropped, and assignments pointing at people or
- * slots that will not exist are pruned rather than left dangling.
+ * template did not survive is dropped along with its AARs, and assignments
+ * pointing at people or slots that will not exist are pruned rather than left
+ * dangling. A person skipped as a name conflict is the same person as the one
+ * already here, so their assignments follow the existing record.
  */
 export function applyImport(
   plan: ImportPlan,
@@ -477,31 +519,38 @@ export function applyImport(
     ...plan.existing.people,
     ...people.records.map((p) => p.id),
   ]);
-  const finalTemplateIds = new Set([
-    ...plan.existing.templates,
-    ...templates.records.map((t) => t.id),
+  const finalSlots = new Map([
+    ...plan.existing.slotsByTemplate,
+    ...slotsByTemplate(templates.records),
   ]);
-  const finalSlotIds = new Set([
-    ...plan.existing.slots,
-    ...slotIdsOf(templates.records),
-  ]);
+  const personAliases = new Map(
+    plan.conflicts.people
+      .filter((c) => !resolutions.addAnyway.has(c.incoming.id))
+      .map((c) => [c.incoming.id, c.existingMatch.id]),
+  );
 
   const warnings: string[] = [];
-  let droppedOrbats = 0;
+  const droppedOrbatIds = new Set<string>();
   let prunedRefs = 0;
 
   const orbats: ORBAT[] = [];
   for (const orbat of plan.additions.orbats) {
-    if (!finalTemplateIds.has(orbat.templateId)) {
-      droppedOrbats++;
+    const slots = finalSlots.get(orbat.templateId);
+    if (!slots) {
+      droppedOrbatIds.add(orbat.id);
       continue;
     }
-    const assignments = orbat.assignments.filter(
-      (a) => finalSlotIds.has(a.slotId) && finalPersonIds.has(a.personId),
+    // Filtered before deduping, so a dead assignment never displaces a live
+    // one; deduped because two aliases can land on the same person.
+    const assignments = dedupeAssignments(
+      orbat.assignments
+        .map((a) => {
+          const alias = personAliases.get(a.personId);
+          return alias ? { ...a, personId: alias } : a;
+        })
+        .filter((a) => slots.has(a.slotId) && finalPersonIds.has(a.personId)),
     );
-    const buddyTeams = orbat.buddyTeams?.filter((b) =>
-      finalSlotIds.has(b.slotId),
-    );
+    const buddyTeams = orbat.buddyTeams?.filter((b) => slots.has(b.slotId));
     prunedRefs +=
       orbat.assignments.length -
       assignments.length +
@@ -513,16 +562,26 @@ export function applyImport(
     );
   }
 
-  const aars = plan.additions.aars;
+  // An AAR whose ORBAT was dropped here would land with nothing to open it
+  // from. One whose ORBAT was never in the file still imports: the plan
+  // warned about it, and importing that ORBAT later makes it reachable.
+  const aars = plan.additions.aars.filter(
+    (a) => !droppedOrbatIds.has(a.orbatId),
+  );
+  const droppedAARs = plan.additions.aars.length - aars.length;
 
-  if (droppedOrbats > 0) {
+  if (droppedOrbatIds.size > 0) {
     warnings.push(
-      `Skipped ${droppedOrbats} ORBAT${droppedOrbats === 1 ? '' : 's'} whose template was not imported.`,
+      `Skipped ${plural(droppedOrbatIds.size, 'ORBAT')} whose template was not imported${
+        droppedAARs > 0
+          ? `, and ${plural(droppedAARs, 'AAR')} written for them`
+          : ''
+      }.`,
     );
   }
   if (prunedRefs > 0) {
     warnings.push(
-      `Cleared ${prunedRefs} assignment${prunedRefs === 1 ? '' : 's'} pointing at personnel or slots that were not imported.`,
+      `Cleared ${plural(prunedRefs, 'assignment')} pointing at personnel or slots that were not imported.`,
     );
   }
 
@@ -544,8 +603,8 @@ export function applyImport(
     people: plan.duplicates.people + people.skipped,
     ranks: plan.duplicates.ranks + ranks.skipped,
     templates: plan.duplicates.templates + templates.skipped,
-    orbats: plan.duplicates.orbats + droppedOrbats,
-    aars: plan.duplicates.aars,
+    orbats: plan.duplicates.orbats + droppedOrbatIds.size,
+    aars: plan.duplicates.aars + droppedAARs,
   };
 
   return { added, skipped, warnings };
