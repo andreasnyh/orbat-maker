@@ -174,9 +174,9 @@ const HTML_ESCAPES: Record<string, string> = {
 };
 
 /**
- * Every interpolated string in the AAR goes through here. The generated HTML
- * is handed to `innerHTML` downstream, and personnel names can arrive from an
- * import file, so an unescaped name is a script that runs.
+ * Every interpolated string in the AAR goes through here. Personnel names can
+ * arrive from an import file, and the generated HTML becomes the editor's
+ * document, so an unescaped name would become markup of the file's choosing.
  */
 export function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char]);
@@ -226,11 +226,15 @@ function elementToText(el: Element): string {
 /** The editor is configured for h2/h3, but pasted content can carry any level. */
 const HEADING_TAG = /^H[1-6]$/;
 
-/** A list item's own text, with any list nested inside it left out. */
+/**
+ * A list item's own text, without the lists nested directly in it — pushList
+ * emits those on their own lines. A list buried deeper, inside a blockquote in
+ * the item, has no line of its own, so it stays in the text.
+ */
 function listItemText(li: Element): string {
   const clone = li.cloneNode(true) as Element;
-  for (const nested of clone.querySelectorAll('ul, ol')) {
-    nested.remove();
+  for (const child of [...clone.children]) {
+    if (child.tagName === 'UL' || child.tagName === 'OL') child.remove();
   }
   return elementToText(clone);
 }
@@ -295,12 +299,16 @@ function pushNodes(nodes: Iterable<ChildNode>, lines: string[]): void {
  * The fourth target: an AAR the user has since edited, flattened for pasting.
  * Unlike the others its input is the edited document rather than the roster,
  * and it is the one renderer that needs a DOM.
+ *
+ * The stored HTML is untrusted — an imported AAR keeps its content as-is — so
+ * it is parsed into a separate, inert document. An element created by the live
+ * page loads an `<img>` even while detached, and its `onerror` runs in the
+ * app's origin; one created by DOMParser never does.
  */
 export function aarHtmlToPlainText(html: string): string {
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
+  const doc = new DOMParser().parseFromString(html, 'text/html');
 
   const lines: string[] = [];
-  pushNodes(tmp.childNodes, lines);
+  pushNodes(doc.body.childNodes, lines);
   return lines.join('\n');
 }

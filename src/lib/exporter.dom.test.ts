@@ -5,7 +5,7 @@
  * it is tested apart from the pure renderers in exporter.test.ts rather than
  * putting the whole suite behind a browser environment.
  */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { ORBAT, Person, Template } from '../types';
 import { aarHtmlToPlainText, renderAARHtml, resolveRoster } from './exporter';
 
@@ -102,6 +102,21 @@ describe('aarHtmlToPlainText', () => {
     expect(text).toContain('A & B');
   });
 
+  it('never parses the stored HTML into the live page', () => {
+    // An imported AAR keeps its content verbatim. Parsed into an element the
+    // live page created, <img onerror> runs in the app's origin on Copy.
+    // happy-dom runs no inline handlers, so the guard is on how it parses.
+    const createElement = vi.spyOn(document, 'createElement');
+    try {
+      expect(
+        aarHtmlToPlainText('<p>tail</p><img src=x onerror="alert(1)">'),
+      ).toBe('tail');
+      expect(createElement).not.toHaveBeenCalled();
+    } finally {
+      createElement.mockRestore();
+    }
+  });
+
   it('keeps blocks the toolbar has no button for', () => {
     // StarterKit leaves blockquote and code-block input rules on, so `> ` and
     // ``` produce nodes the flattener used to walk straight past.
@@ -129,6 +144,16 @@ describe('aarHtmlToPlainText', () => {
     expect(text).toBe(
       ['  - Phase one', '    - Cross the LD', '  - Phase two'].join('\n'),
     );
+  });
+
+  it("keeps a list buried inside a list item's blockquote", () => {
+    // Only lists nested directly in the item get lines of their own; a deeper
+    // one used to be stripped from the item's text and emitted nowhere.
+    expect(
+      aarHtmlToPlainText(
+        '<ul><li><p>A</p><blockquote><ul><li><p>B</p></li></ul></blockquote></li></ul>',
+      ),
+    ).toBe('  - AB');
   });
 
   it('turns line breaks inside an item into indented continuations', () => {
