@@ -1,7 +1,7 @@
 import { ArrowLeft, Pencil } from 'lucide-react';
 import { type KeyboardEvent, useCallback, useMemo, useState } from 'react';
 import { useAARsState, useOrbatsState } from '../../context/AppStateContext';
-import { aarHtmlToPlainText } from '../../lib/aar';
+import { aarHtmlToPlainText } from '../../lib/exporter';
 import type { Page } from '../../types';
 import { Button } from '../common/Button';
 import { CopyButton } from '../common/CopyButton';

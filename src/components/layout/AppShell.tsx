@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Theme } from '../../hooks/useTheme';
 import type { Page } from '../../types';
+import { StorageNotices } from '../common/StorageNotices';
 import { MobileNav } from './MobileNav';
 import { Navbar } from './Navbar';
 
@@ -43,6 +44,7 @@ export function AppShell({
         id="main"
         className="max-w-6xl mx-auto px-4 py-6 pb-24 md:pb-6 md:pt-20"
       >
+        <StorageNotices />
         {children}
       </main>
 

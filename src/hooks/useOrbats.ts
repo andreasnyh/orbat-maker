@@ -1,12 +1,11 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { ORBAT, Template } from '../types';
-import { useLocalStorage } from './useLocalStorage';
-
-const STORAGE_KEY = 'orbat-maker:orbats';
+import { useStoredCollection } from './useStoredCollection';
 
 export function useOrbats() {
-  const [orbats, setOrbats] = useLocalStorage<ORBAT[]>(STORAGE_KEY, []);
+  const [orbats, setOrbats] = useStoredCollection('orbats');
 
   const createOrbat = useCallback(
     (name: string, template: Template) => {
@@ -155,18 +154,47 @@ export function useOrbats() {
     [setOrbats],
   );
 
-  return {
-    orbats,
-    createOrbat,
-    updateOrbat,
-    deleteOrbat,
-    assignPersonToSlot,
-    swapSlotAssignments,
-    movePersonToSlot,
-    clearAssignments,
-    unassignSlot,
-    setSlotBuddyTeam,
-    clearBuddyTeams,
-    setOrbats,
-  };
+  /** Append records that are new by id — the import applier's way in. */
+  const addOrbats = useCallback(
+    (incoming: ORBAT[]) => {
+      setOrbats((prev) => mergeById(prev, incoming));
+    },
+    [setOrbats],
+  );
+
+  // Memoized so this hook's context only re-renders its own consumers.
+  // Without it every setX produced a fresh object and the six-context
+  // split behaved like one big context.
+  return useMemo(
+    () => ({
+      orbats,
+      createOrbat,
+      updateOrbat,
+      deleteOrbat,
+      assignPersonToSlot,
+      swapSlotAssignments,
+      movePersonToSlot,
+      clearAssignments,
+      unassignSlot,
+      setSlotBuddyTeam,
+      clearBuddyTeams,
+      addOrbats,
+      setOrbats,
+    }),
+    [
+      orbats,
+      createOrbat,
+      updateOrbat,
+      deleteOrbat,
+      assignPersonToSlot,
+      swapSlotAssignments,
+      movePersonToSlot,
+      clearAssignments,
+      unassignSlot,
+      setSlotBuddyTeam,
+      clearBuddyTeams,
+      addOrbats,
+      setOrbats,
+    ],
+  );
 }

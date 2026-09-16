@@ -1,12 +1,11 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { Rank } from '../types';
-import { useLocalStorage } from './useLocalStorage';
-
-const STORAGE_KEY = 'orbat-maker:ranks';
+import { useStoredCollection } from './useStoredCollection';
 
 export function useRanks() {
-  const [ranks, setRanks] = useLocalStorage<Rank[]>(STORAGE_KEY, []);
+  const [ranks, setRanks] = useStoredCollection('ranks');
 
   const addRank = useCallback(
     (name: string) => {
@@ -33,5 +32,26 @@ export function useRanks() {
     [setRanks],
   );
 
-  return { ranks, addRank, updateRank, deleteRank, setRanks };
+  /** Append records that are new by id — the import applier's way in. */
+  const addRanks = useCallback(
+    (incoming: Rank[]) => {
+      setRanks((prev) => mergeById(prev, incoming));
+    },
+    [setRanks],
+  );
+
+  // Memoized so this hook's context only re-renders its own consumers.
+  // Without it every setX produced a fresh object and the six-context
+  // split behaved like one big context.
+  return useMemo(
+    () => ({
+      ranks,
+      addRank,
+      updateRank,
+      deleteRank,
+      addRanks,
+      setRanks,
+    }),
+    [ranks, addRank, updateRank, deleteRank, addRanks, setRanks],
+  );
 }

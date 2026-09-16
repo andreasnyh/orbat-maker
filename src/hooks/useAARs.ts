@@ -1,12 +1,11 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { AAR } from '../types';
-import { useLocalStorage } from './useLocalStorage';
-
-const STORAGE_KEY = 'orbat-maker:aars';
+import { useStoredCollection } from './useStoredCollection';
 
 export function useAARs() {
-  const [aars, setAARs] = useLocalStorage<AAR[]>(STORAGE_KEY, []);
+  const [aars, setAARs] = useStoredCollection('aars');
 
   const createAAR = useCallback(
     (orbatId: string, title: string, content: string) => {
@@ -48,5 +47,26 @@ export function useAARs() {
     [setAARs],
   );
 
-  return { aars, createAAR, updateAAR, deleteAAR, setAARs };
+  /** Append records that are new by id — the import applier's way in. */
+  const addAARs = useCallback(
+    (incoming: AAR[]) => {
+      setAARs((prev) => mergeById(prev, incoming));
+    },
+    [setAARs],
+  );
+
+  // Memoized so this hook's context only re-renders its own consumers.
+  // Without it every setX produced a fresh object and the six-context
+  // split behaved like one big context.
+  return useMemo(
+    () => ({
+      aars,
+      createAAR,
+      updateAAR,
+      deleteAAR,
+      addAARs,
+      setAARs,
+    }),
+    [aars, createAAR, updateAAR, deleteAAR, addAARs, setAARs],
+  );
 }
