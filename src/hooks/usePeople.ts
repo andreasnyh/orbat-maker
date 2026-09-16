@@ -2,12 +2,10 @@ import { useCallback } from 'react';
 import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { Person } from '../types';
-import { useLocalStorage } from './useLocalStorage';
-
-const STORAGE_KEY = 'orbat-maker:people';
+import { useStoredCollection } from './useStoredCollection';
 
 export function usePeople() {
-  const [people, setPeople] = useLocalStorage<Person[]>(STORAGE_KEY, []);
+  const [people, setPeople] = useStoredCollection('people');
 
   const addPerson = useCallback(
     (name: string, rank?: string) => {

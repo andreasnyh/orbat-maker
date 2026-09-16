@@ -2,12 +2,10 @@ import { useCallback } from 'react';
 import { mergeById } from '../lib/collections';
 import { generateId } from '../lib/ids';
 import type { AAR } from '../types';
-import { useLocalStorage } from './useLocalStorage';
-
-const STORAGE_KEY = 'orbat-maker:aars';
+import { useStoredCollection } from './useStoredCollection';
 
 export function useAARs() {
-  const [aars, setAARs] = useLocalStorage<AAR[]>(STORAGE_KEY, []);
+  const [aars, setAARs] = useStoredCollection('aars');
 
   const createAAR = useCallback(
     (orbatId: string, title: string, content: string) => {
