@@ -11,7 +11,7 @@ import {
   Redo,
   Undo,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface AARTiptapEditorProps {
   content: string;
@@ -64,13 +64,6 @@ const toolbarButtons = [
 ] as const;
 
 export function AARTiptapEditor({ content, onUpdate }: AARTiptapEditorProps) {
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const pendingHtmlRef = useRef<string>(undefined);
-  const onUpdateRef = useRef(onUpdate);
-  useEffect(() => {
-    onUpdateRef.current = onUpdate;
-  });
-
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -83,16 +76,7 @@ export function AARTiptapEditor({ content, onUpdate }: AARTiptapEditorProps) {
       },
     },
     content,
-    onUpdate: ({ editor: ed }) => {
-      // Serialised now: by unmount, useEditor may already have destroyed the editor.
-      const html = ed.getHTML();
-      pendingHtmlRef.current = html;
-      clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        pendingHtmlRef.current = undefined;
-        onUpdate(html);
-      }, 500);
-    },
+    onUpdate: ({ editor: ed }) => onUpdate(ed.getHTML()),
   });
 
   // Force re-render on selection change so toolbar active states update
@@ -105,15 +89,6 @@ export function AARTiptapEditor({ content, onUpdate }: AARTiptapEditorProps) {
       editor.off('selectionUpdate', onSelectionUpdate);
     };
   }, [editor]);
-
-  useEffect(() => {
-    return () => {
-      clearTimeout(debounceRef.current);
-      if (pendingHtmlRef.current !== undefined) {
-        onUpdateRef.current(pendingHtmlRef.current);
-      }
-    };
-  }, []);
 
   if (!editor) return null;
 
