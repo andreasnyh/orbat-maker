@@ -65,6 +65,7 @@ const toolbarButtons = [
 
 export function AARTiptapEditor({ content, onUpdate }: AARTiptapEditorProps) {
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const pendingHtmlRef = useRef<string>(undefined);
   const onUpdateRef = useRef(onUpdate);
   useEffect(() => {
     onUpdateRef.current = onUpdate;
@@ -83,9 +84,13 @@ export function AARTiptapEditor({ content, onUpdate }: AARTiptapEditorProps) {
     },
     content,
     onUpdate: ({ editor: ed }) => {
+      // Serialised now: by unmount, useEditor may already have destroyed the editor.
+      const html = ed.getHTML();
+      pendingHtmlRef.current = html;
       clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
-        onUpdate(ed.getHTML());
+        pendingHtmlRef.current = undefined;
+        onUpdate(html);
       }, 500);
     },
   });
@@ -104,9 +109,11 @@ export function AARTiptapEditor({ content, onUpdate }: AARTiptapEditorProps) {
   useEffect(() => {
     return () => {
       clearTimeout(debounceRef.current);
-      if (editor) onUpdateRef.current(editor.getHTML());
+      if (pendingHtmlRef.current !== undefined) {
+        onUpdateRef.current(pendingHtmlRef.current);
+      }
     };
-  }, [editor]);
+  }, []);
 
   if (!editor) return null;
 
