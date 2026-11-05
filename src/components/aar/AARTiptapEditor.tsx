@@ -11,7 +11,7 @@ import {
   Redo,
   Undo,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface AARTiptapEditorProps {
   content: string;
@@ -64,12 +64,6 @@ const toolbarButtons = [
 ] as const;
 
 export function AARTiptapEditor({ content, onUpdate }: AARTiptapEditorProps) {
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const onUpdateRef = useRef(onUpdate);
-  useEffect(() => {
-    onUpdateRef.current = onUpdate;
-  });
-
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -82,12 +76,7 @@ export function AARTiptapEditor({ content, onUpdate }: AARTiptapEditorProps) {
       },
     },
     content,
-    onUpdate: ({ editor: ed }) => {
-      clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        onUpdate(ed.getHTML());
-      }, 500);
-    },
+    onUpdate: ({ editor: ed }) => onUpdate(ed.getHTML()),
   });
 
   // Force re-render on selection change so toolbar active states update
@@ -98,13 +87,6 @@ export function AARTiptapEditor({ content, onUpdate }: AARTiptapEditorProps) {
     editor.on('selectionUpdate', onSelectionUpdate);
     return () => {
       editor.off('selectionUpdate', onSelectionUpdate);
-    };
-  }, [editor]);
-
-  useEffect(() => {
-    return () => {
-      clearTimeout(debounceRef.current);
-      if (editor) onUpdateRef.current(editor.getHTML());
     };
   }, [editor]);
 
