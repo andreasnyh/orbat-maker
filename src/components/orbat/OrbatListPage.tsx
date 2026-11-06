@@ -19,6 +19,7 @@ import {
 } from '../../context/AppStateContext';
 import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
+import { liveAssignments } from '../../lib/collections';
 import type { ORBAT, Page } from '../../types';
 import { AlertBanner } from '../common/AlertBanner';
 import { Button } from '../common/Button';
@@ -96,12 +97,13 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
     const map = new Map<string, { filled: number; total: number }>();
     for (const o of orbats) {
       const t = templateMap.get(o.templateId);
-      if (!t) {
-        map.set(o.id, { filled: o.assignments.length, total: 0 });
-      } else {
-        const total = t.groups.reduce((sum, g) => sum + g.slots.length, 0);
-        map.set(o.id, { filled: o.assignments.length, total });
-      }
+      const total = t
+        ? t.groups.reduce((sum, g) => sum + g.slots.length, 0)
+        : 0;
+      map.set(o.id, {
+        filled: liveAssignments(o.assignments, t).length,
+        total,
+      });
     }
     return map;
   }, [orbats, templateMap]);

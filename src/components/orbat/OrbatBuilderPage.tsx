@@ -26,6 +26,7 @@ import { useIsMobile } from '../../hooks/useIsMobile';
 import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
 import { copyToClipboard } from '../../lib/clipboard';
+import { liveAssignments } from '../../lib/collections';
 import { collisionDetection, keyboardSensorOptions } from '../../lib/dnd';
 import {
   renderDiscord,
@@ -173,9 +174,12 @@ export function OrbatBuilderPage({
   // ---- Derived data (memoized) ----------------------------------------------
 
   const templateGroups = template?.groups;
-  const assignments = orbat?.assignments;
+  const assignments = useMemo(
+    () => liveAssignments(orbat?.assignments ?? [], template),
+    [orbat?.assignments, template],
+  );
   const assignmentsBySlotId = useMemo(
-    () => new Map(assignments ? assignments.map((a) => [a.slotId, a]) : []),
+    () => new Map(assignments.map((a) => [a.slotId, a])),
     [assignments],
   );
 
@@ -646,7 +650,7 @@ export function OrbatBuilderPage({
             templateName={template?.name}
             showEquipment={showEquipment}
             onShowEquipmentChange={setShowEquipment}
-            hasAssignments={orbat.assignments.length > 0}
+            hasAssignments={assignments.length > 0}
             onClearClick={handleClearClick}
             hasBuddyTeams={(orbat.buddyTeams?.length ?? 0) > 0}
             onResetBuddyTeams={handleResetBuddyTeams}
@@ -668,7 +672,7 @@ export function OrbatBuilderPage({
             {/* Left: Roster sidebar — desktop only */}
             <div className="hidden lg:block">
               <RosterSidebar
-                assignments={orbat.assignments}
+                assignments={assignments}
                 className="w-80 shrink-0"
               />
             </div>
@@ -742,7 +746,7 @@ export function OrbatBuilderPage({
       <MobileRosterSheet
         open={showRoster}
         onClose={handleRosterClose}
-        assignments={orbat.assignments}
+        assignments={assignments}
         tapTargetSlotId={tapTargetSlotId}
         tapTargetSlot={tapTargetSlot}
         onPersonTap={tapTargetSlotId ? handlePersonTap : undefined}
