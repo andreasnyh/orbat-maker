@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRanksState } from '../../context/AppStateContext';
+import { canonicalRankName } from '../../hooks/useRanks';
 import { Button } from '../common/Button';
 import { SelectInput } from '../common/SelectInput';
 import { TextInput } from '../common/TextInput';
@@ -39,7 +40,7 @@ export function PersonForm({
 
   const resolvedRank =
     selectValue === CUSTOM_VALUE
-      ? customRank.trim() || undefined
+      ? canonicalRankName(ranks, customRank.trim()) || undefined
       : selectValue || undefined;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -47,12 +48,7 @@ export function PersonForm({
     setTouched(true);
     const trimmedName = name.trim();
     if (!trimmedName) return;
-    if (
-      selectValue === CUSTOM_VALUE &&
-      resolvedRank &&
-      saveCustomRank &&
-      !ranks.some((r) => r.name === resolvedRank)
-    ) {
+    if (selectValue === CUSTOM_VALUE && resolvedRank && saveCustomRank) {
       addRank(resolvedRank);
     }
     onSubmit(trimmedName, resolvedRank);
