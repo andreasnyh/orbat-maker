@@ -1,6 +1,7 @@
 import { ChevronsUp, Pencil, Plus, Trash2, UsersRound } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { useRanksState } from '../../context/AppStateContext';
+import { usePeopleState, useRanksState } from '../../context/AppStateContext';
+import { isSameRankName } from '../../hooks/useRanks';
 import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
 import type { Rank } from '../../types';
@@ -30,8 +31,8 @@ function RankForm({
   const trimmed = name.trim();
   const isDuplicate =
     trimmed !== '' &&
-    trimmed.toLowerCase() !== initialName.toLowerCase() &&
-    existingNames.some((n) => n.toLowerCase() === trimmed.toLowerCase());
+    !isSameRankName(trimmed, initialName) &&
+    existingNames.some((n) => isSameRankName(n, trimmed));
   const nameError = touched
     ? !trimmed
       ? 'Name is required'
@@ -77,6 +78,7 @@ function RankForm({
 
 export function RanksPage() {
   const { ranks, addRank, updateRank, deleteRank, setRanks } = useRanksState();
+  const { setPeople } = usePeopleState();
   const toast = useToast();
 
   const rankNames = ranks.map((r) => r.name);
@@ -91,16 +93,31 @@ export function RanksPage() {
   };
 
   const handleBulkAdd = (names: string[]) => {
-    for (const name of names) {
+    const seen = new Set(rankNames.map((n) => n.trim().toLowerCase()));
+    const fresh = names.filter((n) => {
+      const key = n.trim().toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    for (const name of fresh) {
       addRank(name);
     }
     setIsBulkAddOpen(false);
-    toast.success(`Added ${names.length} ranks`);
+    if (fresh.length === 0) toast.success('No new ranks, all already exist');
+    else toast.success(`Added ${fresh.length} ranks`);
   };
 
   const handleEditSubmit = (name: string) => {
     if (!editTarget) return;
     updateRank(editTarget.id, { name });
+    if (name !== editTarget.name) {
+      setPeople((prev) =>
+        prev.map((p) =>
+          p.rank === editTarget.name ? { ...p, rank: name } : p,
+        ),
+      );
+    }
     setEditTarget(null);
   };
 

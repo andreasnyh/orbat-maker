@@ -4,14 +4,24 @@ import { generateId } from '../lib/ids';
 import type { Rank } from '../types';
 import { useStoredCollection } from './useStoredCollection';
 
+export function isSameRankName(a: string, b: string): boolean {
+  return a.trim().toLowerCase() === b.trim().toLowerCase();
+}
+
+/** The existing rank's spelling when `name` matches one, else `name`. */
+export function canonicalRankName(ranks: Rank[], name: string): string {
+  return ranks.find((r) => isSameRankName(r.name, name))?.name ?? name;
+}
+
 export function useRanks() {
   const [ranks, setRanks] = useStoredCollection('ranks');
 
   const addRank = useCallback(
     (name: string) => {
       const rank: Rank = { id: generateId(), name };
-      setRanks((prev) => [...prev, rank]);
-      return rank;
+      setRanks((prev) =>
+        prev.some((r) => isSameRankName(r.name, name)) ? prev : [...prev, rank],
+      );
     },
     [setRanks],
   );
