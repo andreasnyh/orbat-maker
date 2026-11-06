@@ -71,21 +71,28 @@ describe('ensureOwnTemplate', () => {
       created = probe.orbats.createOrbat('Alpha', original);
     });
 
+    const groupId = original.groups[0].id;
     let forkId: string | null = null;
+    let added = { id: '' };
     await act(async () => {
       // A queued update beforehand is what real event handlers produce.
       probe.orbats.updateOrbat(created.id, { name: 'x' });
       forkId = probe.crossCutting.ensureOwnTemplate(created.id);
+      if (forkId) added = probe.templates.addSlotToGroup(forkId, groupId, 'X');
     });
 
     expect(forkId).not.toBeNull();
     expect(forkId).not.toBe(original.id);
     const { templates } = probe.templates;
     expect(templates).toHaveLength(before + 1);
-    const fork = templates.find((t) => t.id === forkId);
+    const fork = templates.find((t) => t.id === forkId) as Template;
     expect(fork).toBeDefined();
-    expect(groupIds(fork as Template)).toEqual(groupIds(original));
-    expect(slotIds(fork as Template)).toEqual(slotIds(original));
+    expect(groupIds(fork)).toEqual(groupIds(original));
+    expect(fork.groups[0].slots.at(-1)?.id).toBe(added.id);
+    expect(slotIds(fork).filter((id) => id !== added.id)).toEqual(
+      slotIds(original),
+    );
+    expect(slotIds(defaultTemplate())).not.toContain(added.id);
     expect(
       probe.orbats.orbats.find((o) => o.id === created.id)?.templateId,
     ).toBe(forkId);
@@ -106,6 +113,7 @@ describe('duplicateTemplate', () => {
 
     let copy: Template | null = null;
     await act(async () => {
+      probe.orbats.createOrbat('Alpha', original);
       copy = probe.templates.duplicateTemplate(original.id);
     });
 
