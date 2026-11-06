@@ -662,8 +662,8 @@ export function OrbatBuilderPage({
           {/* Missing template warning */}
           {!template && (
             <AlertBanner variant="warning">
-              The template for this ORBAT no longer exists. You can still view
-              assignments but cannot add new slots.
+              The template for this ORBAT no longer exists. Its assignments are
+              kept but can't be shown or edited.
             </AlertBanner>
           )}
 
