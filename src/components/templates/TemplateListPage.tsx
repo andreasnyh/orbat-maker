@@ -1,6 +1,9 @@
 import { Copy, LayoutTemplate, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { useTemplatesState } from '../../context/AppStateContext';
+import {
+  useOrbatsState,
+  useTemplatesState,
+} from '../../context/AppStateContext';
 import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
 import type { Page, Template } from '../../types';
@@ -22,6 +25,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
     duplicateTemplate,
     setTemplates,
   } = useTemplatesState();
+  const { orbats } = useOrbatsState();
   const toast = useToast();
 
   // ---- New template modal state ---------------------------------------------
@@ -64,6 +68,11 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
   }
 
   function handleDelete(template: Template) {
+    const user = orbats.find((o) => o.templateId === template.id);
+    if (user) {
+      toast.error(`Used by "${user.name}"`);
+      return;
+    }
     const snapshot = template;
     const index = templates.indexOf(template);
     deleteTemplate(template.id);
