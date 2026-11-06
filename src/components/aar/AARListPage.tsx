@@ -61,8 +61,10 @@ export function AARListPage({ orbatId, onNavigate }: AARListPageProps) {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => onNavigate('orbat-builder', orbatId)}
-          aria-label="Back to ORBAT"
+          onClick={() =>
+            orbat ? onNavigate('orbat-builder', orbatId) : onNavigate('orbats')
+          }
+          aria-label={orbat ? 'Back to ORBAT' : 'Back to ORBATs'}
           className="shrink-0"
         >
           <ArrowLeft size={14} />

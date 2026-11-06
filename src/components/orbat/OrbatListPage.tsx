@@ -4,6 +4,7 @@ import {
   ChevronRight,
   ChevronsUp,
   ClipboardList,
+  FileText,
   FolderOpen,
   LayoutTemplate,
   Plus,
@@ -12,11 +13,13 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import {
+  useAARsState,
   useOrbatsState,
   usePeopleState,
   useRanksState,
   useTemplatesState,
 } from '../../context/AppStateContext';
+import { toHash } from '../../hooks/useHashRouter';
 import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
 import { liveAssignments } from '../../lib/collections';
@@ -36,6 +39,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
   const { templates } = useTemplatesState();
   const { ranks } = useRanksState();
   const { people } = usePeopleState();
+  const { aars } = useAARsState();
   const toast = useToast();
 
   // ---- New ORBAT modal state -----------------------------------------------
@@ -107,6 +111,16 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
     }
     return map;
   }, [orbats, templateMap]);
+
+  const orphanAARs = useMemo(() => {
+    const orbatIds = new Set(orbats.map((o) => o.id));
+    return aars
+      .filter((a) => !orbatIds.has(a.orbatId))
+      .sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+      );
+  }, [aars, orbats]);
 
   // ---- Render --------------------------------------------------------------
 
@@ -316,6 +330,42 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
             </li>
           </ol>
         </div>
+      )}
+
+      {orphanAARs.length > 0 && (
+        <section className="mt-8" aria-labelledby="orphan-aars-heading">
+          <h2
+            id="orphan-aars-heading"
+            className="font-display text-sm font-semibold text-sub uppercase tracking-wide mb-2"
+          >
+            Reports without an ORBAT
+            <span className="ml-2 font-data text-dim font-normal normal-case tracking-normal">
+              {orphanAARs.length}
+            </span>
+          </h2>
+          <ul className="flex flex-col gap-1">
+            {orphanAARs.map((aar) => (
+              <li key={aar.id}>
+                <a
+                  href={toHash('aar-editor', aar.id)}
+                  className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-body hover:bg-trim/30"
+                >
+                  <FileText size={14} className="text-dim shrink-0" />
+                  <span className="flex-1 min-w-0 truncate">{aar.title}</span>
+                  <span className="text-xs text-dim shrink-0">
+                    {new Date(aar.createdAt).toLocaleDateString(undefined, {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {/* New ORBAT modal */}
