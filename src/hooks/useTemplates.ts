@@ -75,49 +75,41 @@ export function useTemplates() {
 
   const duplicateTemplate = useCallback(
     (id: string): Template | null => {
-      let result: Template | null = null;
-      setTemplates((prev) => {
-        const original = prev.find((t) => t.id === id);
-        if (!original) return prev;
-        const duplicate: Template = {
-          ...structuredClone(original),
-          id: generateId(),
-          name: `${original.name} (Copy)`,
-          isDefault: false,
-        };
-        // Generate new IDs for groups and slots
-        duplicate.groups = duplicate.groups.map((g) => ({
-          ...g,
-          id: generateId(),
-          slots: g.slots.map((s) => ({ ...s, id: generateId() })),
-        }));
-        result = duplicate;
-        return [...prev, duplicate];
-      });
-      return result;
+      const original = templates.find((t) => t.id === id);
+      if (!original) return null;
+      const duplicate: Template = {
+        ...structuredClone(original),
+        id: generateId(),
+        name: `${original.name} (Copy)`,
+        isDefault: false,
+      };
+      // Generate new IDs for groups and slots
+      duplicate.groups = duplicate.groups.map((g) => ({
+        ...g,
+        id: generateId(),
+        slots: g.slots.map((s) => ({ ...s, id: generateId() })),
+      }));
+      setTemplates((prev) => [...prev, duplicate]);
+      return duplicate;
     },
-    [setTemplates],
+    [templates, setTemplates],
   );
 
   /** Fork a template preserving all group/slot IDs (so assignments remain valid). */
   const forkTemplate = useCallback(
     (id: string, newName: string): Template | null => {
-      let result: Template | null = null;
-      setTemplates((prev) => {
-        const original = prev.find((t) => t.id === id);
-        if (!original) return prev;
-        const forked: Template = {
-          ...structuredClone(original),
-          id: generateId(),
-          name: newName,
-          isDefault: false,
-        };
-        result = forked;
-        return [...prev, forked];
-      });
-      return result;
+      const original = templates.find((t) => t.id === id);
+      if (!original) return null;
+      const forked: Template = {
+        ...structuredClone(original),
+        id: generateId(),
+        name: newName,
+        isDefault: false,
+      };
+      setTemplates((prev) => [...prev, forked]);
+      return forked;
     },
-    [setTemplates],
+    [templates, setTemplates],
   );
 
   /** Update slots within a specific group of a specific template. */

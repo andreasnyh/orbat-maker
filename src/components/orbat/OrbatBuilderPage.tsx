@@ -227,10 +227,9 @@ export function OrbatBuilderPage({
   const handleRemoveSlot = useCallback(
     (groupId: string, slotId: string) =>
       withOwnTemplate((tid) => {
-        // Snapshot slot, its neighbours, and assignment for undo
-        const group = templates
-          .find((t) => t.id === tid)
-          ?.groups.find((g) => g.id === groupId);
+        // Snapshot slot, its neighbours, and assignment for undo. A fresh fork
+        // isn't in `templates` yet, but keeps the shown template's ids.
+        const group = template?.groups.find((g) => g.id === groupId);
         const slotIndex = group?.slots.findIndex((s) => s.id === slotId) ?? -1;
         const slot = group?.slots[slotIndex];
         const prevSlotId =
@@ -268,7 +267,7 @@ export function OrbatBuilderPage({
       }),
     [
       withOwnTemplate,
-      templates,
+      template,
       orbat,
       orbatId,
       removeSlotFromGroup,
