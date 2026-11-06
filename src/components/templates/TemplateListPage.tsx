@@ -68,9 +68,13 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
   }
 
   function handleDelete(template: Template) {
-    const user = orbats.find((o) => o.templateId === template.id);
-    if (user) {
-      toast.error(`Used by "${user.name}"`);
+    const users = orbats.filter((o) => o.templateId === template.id);
+    if (users.length > 0) {
+      toast.error(
+        users.length === 1
+          ? `Can't delete: used by "${users[0].name}"`
+          : `Can't delete: used by ${users.length} ORBATs`,
+      );
       return;
     }
     const snapshot = template;
