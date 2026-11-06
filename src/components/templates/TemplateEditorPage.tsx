@@ -114,7 +114,15 @@ export function TemplateEditorPage({
   templateId,
   onNavigate,
 }: TemplateEditorPageProps) {
-  const { templates, updateTemplate, duplicateTemplate } = useTemplatesState();
+  const {
+    templates,
+    updateTemplate,
+    duplicateTemplate,
+    updateSlot,
+    removeSlotFromGroup,
+    reorderSlotsInGroup,
+    moveSlotBetweenGroups,
+  } = useTemplatesState();
   const template = useMemo(
     () => templates.find((t) => t.id === templateId),
     [templates, templateId],
@@ -301,26 +309,11 @@ export function TemplateEditorPage({
   }
 
   function handleSlotUpdate(groupId: string, updated: Slot) {
-    updateTemplate(templateId, {
-      groups: t.groups.map((g) =>
-        g.id === groupId
-          ? {
-              ...g,
-              slots: g.slots.map((s) => (s.id === updated.id ? updated : s)),
-            }
-          : g,
-      ),
-    });
+    updateSlot(templateId, groupId, updated.id, updated);
   }
 
   function handleSlotDelete(groupId: string, slotId: string) {
-    updateTemplate(templateId, {
-      groups: t.groups.map((g) =>
-        g.id === groupId
-          ? { ...g, slots: g.slots.filter((s) => s.id !== slotId) }
-          : g,
-      ),
-    });
+    removeSlotFromGroup(templateId, groupId, slotId);
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -358,37 +351,29 @@ export function TemplateEditorPage({
         const oldIndex = group.slots.findIndex((s) => s.id === active.id);
         const newIndex = group.slots.findIndex((s) => s.id === over.id);
         if (oldIndex === -1 || newIndex === -1) return;
-        updateTemplate(templateId, {
-          groups: t.groups.map((g) =>
-            g.id === activeGroupId
-              ? { ...g, slots: arrayMove(g.slots, oldIndex, newIndex) }
-              : g,
-          ),
-        });
+        reorderSlotsInGroup(
+          templateId,
+          activeGroupId,
+          arrayMove(group.slots, oldIndex, newIndex),
+        );
       } else {
         // Cross-group move
         const sourceGroup = t.groups.find((g) => g.id === activeGroupId);
         const targetGroup = t.groups.find((g) => g.id === overGroupId);
         if (!sourceGroup || !targetGroup) return;
-        const slot = sourceGroup.slots.find((s) => s.id === active.id);
-        if (!slot) return;
+        if (!sourceGroup.slots.some((s) => s.id === active.id)) return;
         const targetIndex =
           overData?.type === 'slot'
             ? targetGroup.slots.findIndex((s) => s.id === over.id)
             : targetGroup.slots.length;
 
-        updateTemplate(templateId, {
-          groups: t.groups.map((g) => {
-            if (g.id === activeGroupId)
-              return { ...g, slots: g.slots.filter((s) => s.id !== active.id) };
-            if (g.id === overGroupId) {
-              const newSlots = [...g.slots];
-              newSlots.splice(targetIndex, 0, slot);
-              return { ...g, slots: newSlots };
-            }
-            return g;
-          }),
-        });
+        moveSlotBetweenGroups(
+          templateId,
+          activeGroupId,
+          overGroupId,
+          String(active.id),
+          targetIndex,
+        );
       }
     }
   }
