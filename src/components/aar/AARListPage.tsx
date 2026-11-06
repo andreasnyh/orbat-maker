@@ -6,6 +6,7 @@ import {
   usePeopleState,
   useTemplatesState,
 } from '../../context/AppStateContext';
+import { toHash } from '../../hooks/useHashRouter';
 import { aarTitle, renderAARHtml, resolveRoster } from '../../lib/exporter';
 import type { Page } from '../../types';
 import { Button } from '../common/Button';
@@ -60,8 +61,10 @@ export function AARListPage({ orbatId, onNavigate }: AARListPageProps) {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => onNavigate('orbat-builder', orbatId)}
-          aria-label="Back to ORBAT"
+          onClick={() =>
+            orbat ? onNavigate('orbat-builder', orbatId) : onNavigate('orbats')
+          }
+          aria-label={orbat ? 'Back to ORBAT' : 'Back to ORBATs'}
           className="shrink-0"
         >
           <ArrowLeft size={14} />
@@ -117,7 +120,7 @@ export function AARListPage({ orbatId, onNavigate }: AARListPageProps) {
             >
               <a
                 className="absolute inset-0"
-                href={`#aar-${aar.id}`}
+                href={toHash('aar-editor', aar.id)}
                 onClick={(e) => {
                   e.preventDefault();
                   onNavigate('aar-editor', aar.id);
