@@ -16,7 +16,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Copy, Plus } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTemplatesState } from '../../context/AppStateContext';
 import { useFocusWhen } from '../../hooks/useFocusWhen';
@@ -24,12 +24,15 @@ import { useToggle } from '../../hooks/useToggle';
 import { collisionDetection, keyboardSensorOptions } from '../../lib/dnd';
 import { generateId } from '../../lib/ids';
 import type { Group, Page, Slot } from '../../types';
+import { AlertBanner } from '../common/AlertBanner';
+import { Button } from '../common/Button';
+import { PageHeader } from '../common/PageHeader';
 import { GroupEditor } from './GroupEditor';
 import { SortableSlot } from './SortableSlot';
 
 interface TemplateEditorPageProps {
   templateId: string;
-  onNavigate: (page: Page) => void;
+  onNavigate: (page: Page, id?: string) => void;
 }
 
 // ---- Sortable wrapper for each group ----------------------------------------
@@ -111,7 +114,7 @@ export function TemplateEditorPage({
   templateId,
   onNavigate,
 }: TemplateEditorPageProps) {
-  const { templates, updateTemplate } = useTemplatesState();
+  const { templates, updateTemplate, duplicateTemplate } = useTemplatesState();
   const template = useMemo(
     () => templates.find((t) => t.id === templateId),
     [templates, templateId],
@@ -169,6 +172,39 @@ export function TemplateEditorPage({
         >
           Back to Templates
         </button>
+      </div>
+    );
+  }
+
+  if (template.isDefault) {
+    return (
+      <div className="max-w-2xl mx-auto flex flex-col gap-4">
+        <PageHeader title={template.name}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              const copy = duplicateTemplate(template.id);
+              if (copy) onNavigate('template-editor', copy.id);
+            }}
+          >
+            <Copy size={13} />
+            Duplicate to edit
+          </Button>
+        </PageHeader>
+        <AlertBanner variant="caution">
+          Default templates are read-only. Duplicate it to make your own
+          version.
+        </AlertBanner>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="self-start"
+          onClick={() => onNavigate('templates')}
+        >
+          <ArrowLeft size={13} />
+          Back to Templates
+        </Button>
       </div>
     );
   }

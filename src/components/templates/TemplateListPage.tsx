@@ -58,6 +58,11 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
     duplicateTemplate(id);
   }
 
+  function handleDuplicateToEdit(id: string) {
+    const copy = duplicateTemplate(id);
+    if (copy) onNavigate('template-editor', copy.id);
+  }
+
   function handleDelete(template: Template) {
     const snapshot = template;
     const index = templates.indexOf(template);
@@ -135,24 +140,38 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
 
               {/* Card actions */}
               <div className="flex items-center gap-2 pt-1 border-t border-trim mt-auto">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => onNavigate('template-editor', template.id)}
-                  className="flex-1"
-                >
-                  <Pencil size={13} />
-                  Edit
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDuplicate(template.id)}
-                  title="Duplicate template"
-                  aria-label="Duplicate template"
-                >
-                  <Copy size={13} />
-                </Button>
+                {template.isDefault ? (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleDuplicateToEdit(template.id)}
+                    className="flex-1"
+                  >
+                    <Copy size={13} />
+                    Duplicate to edit
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => onNavigate('template-editor', template.id)}
+                      className="flex-1"
+                    >
+                      <Pencil size={13} />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDuplicate(template.id)}
+                      title="Duplicate template"
+                      aria-label="Duplicate template"
+                    >
+                      <Copy size={13} />
+                    </Button>
+                  </>
+                )}
                 {!template.isDefault && (
                   <Button
                     variant="danger"
