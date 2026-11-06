@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { GripVertical, Trash2, X } from 'lucide-react';
 import { memo } from 'react';
 import { teamColor } from '../../lib/colors';
+import { UNKNOWN_PERSON } from '../../lib/exporter';
 import type { Assignment, Person, Slot } from '../../types';
 import { EquipmentPills } from '../common/EquipmentPills';
 import { BuddyTeamBadge } from './BuddyTeamBadge';
@@ -299,6 +300,13 @@ const OrbatSlotContent = memo(
                     </span>
                   )}
                   <span className="truncate pb-px">{person.name}</span>
+                </>
+              ) : assignment ? (
+                <>
+                  <GripVertical size={14} className="text-chrome shrink-0" />
+                  <span className="truncate pb-px italic text-faint">
+                    {UNKNOWN_PERSON}
+                  </span>
                 </>
               ) : (
                 <>
