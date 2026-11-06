@@ -77,7 +77,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const show = useCallback(
     (message: string, variant: Toast['variant']) => {
       const id = nextId.current++;
-      setToasts((prev) => [...prev.slice(-1), { id, message, variant }]);
+      setToasts((prev) => [
+        ...prev.filter((t, i) => t.variant === 'undo' || i === prev.length - 1),
+        { id, message, variant },
+      ]);
       scheduleRemoval(id, TOAST_EXIT_START, TOAST_DURATION);
     },
     [scheduleRemoval],

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useRanksState } from '../../context/AppStateContext';
+import { canonicalRankName } from '../../hooks/useRanks';
 import { Button } from '../common/Button';
 import { SelectInput } from '../common/SelectInput';
 import { TextArea } from '../common/TextArea';
@@ -29,18 +30,13 @@ export function BulkAddForm({ onSubmit, onCancel }: BulkAddFormProps) {
   const names = useMemo(() => parseNames(text), [text]);
   const trimmedRank =
     selectValue === CUSTOM_VALUE
-      ? customRank.trim() || undefined
+      ? canonicalRankName(ranks, customRank.trim()) || undefined
       : selectValue || undefined;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (names.length === 0) return;
-    if (
-      selectValue === CUSTOM_VALUE &&
-      trimmedRank &&
-      saveCustomRank &&
-      !ranks.some((r) => r.name === trimmedRank)
-    ) {
+    if (selectValue === CUSTOM_VALUE && trimmedRank && saveCustomRank) {
       addRank(trimmedRank);
     }
     onSubmit(names.map((name) => ({ name, rank: trimmedRank })));

@@ -25,7 +25,7 @@ function parseHash(hash: string): { page: Page; id: string | null } {
   return { page: segment as Page, id: id ?? null };
 }
 
-function toHash(page: Page, id?: string): string {
+export function toHash(page: Page, id?: string): string {
   return id ? `#/${page}/${id}` : `#/${page}`;
 }
 
