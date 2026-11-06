@@ -196,6 +196,27 @@ export function TemplateEditorPage({
           Default templates are read-only. Duplicate it to make your own
           version.
         </AlertBanner>
+        {template.description && (
+          <p className="text-sm text-dim">{template.description}</p>
+        )}
+        {template.groups.map((group) => (
+          <section
+            key={group.id}
+            className="bg-panel border border-trim rounded-lg"
+          >
+            <h2
+              className="px-3 py-2 border-b border-trim border-l-2 font-display font-semibold text-body"
+              style={{ borderLeftColor: group.color ?? 'transparent' }}
+            >
+              {group.name}
+            </h2>
+            <ul className="px-3 py-2 flex flex-col gap-1 text-sm text-sub">
+              {group.slots.map((slot) => (
+                <li key={slot.id}>{slot.roleLabel}</li>
+              ))}
+            </ul>
+          </section>
+        ))}
         <Button
           variant="ghost"
           size="sm"
