@@ -1,6 +1,6 @@
 import { ChevronsUp, Pencil, Plus, Trash2, UsersRound } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { useRanksState } from '../../context/AppStateContext';
+import { usePeopleState, useRanksState } from '../../context/AppStateContext';
 import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
 import type { Rank } from '../../types';
@@ -77,6 +77,7 @@ function RankForm({
 
 export function RanksPage() {
   const { ranks, addRank, updateRank, deleteRank, setRanks } = useRanksState();
+  const { setPeople } = usePeopleState();
   const toast = useToast();
 
   const rankNames = ranks.map((r) => r.name);
@@ -101,6 +102,13 @@ export function RanksPage() {
   const handleEditSubmit = (name: string) => {
     if (!editTarget) return;
     updateRank(editTarget.id, { name });
+    if (name !== editTarget.name) {
+      setPeople((prev) =>
+        prev.map((p) =>
+          p.rank === editTarget.name ? { ...p, rank: name } : p,
+        ),
+      );
+    }
     setEditTarget(null);
   };
 
