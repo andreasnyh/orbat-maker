@@ -1,4 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react';
+import { storageAdapter } from '../lib/storage';
 
 export type Theme = 'midnight' | 'olive' | 'sand';
 
@@ -6,8 +7,11 @@ const STORAGE_KEY = 'orbat-theme';
 const VALID_THEMES: Theme[] = ['midnight', 'olive', 'sand'];
 const DEFAULT_THEME: Theme = 'midnight';
 
+let chosenTheme: Theme | null = null;
+
 function getStoredTheme(): Theme {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  if (chosenTheme) return chosenTheme;
+  const raw = storageAdapter().read(STORAGE_KEY);
   return VALID_THEMES.includes(raw as Theme) ? (raw as Theme) : DEFAULT_THEME;
 }
 
@@ -37,7 +41,12 @@ export function useTheme() {
   const theme = useSyncExternalStore(subscribe, getStoredTheme);
 
   const setTheme = useCallback((next: Theme) => {
-    localStorage.setItem(STORAGE_KEY, next);
+    chosenTheme = next;
+    try {
+      localStorage.setItem(STORAGE_KEY, next);
+    } catch {
+      // Storage unavailable: the theme still applies for this session
+    }
     applyTheme(next);
     for (const cb of listeners) cb();
   }, []);
