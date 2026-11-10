@@ -23,3 +23,10 @@ export function liveAssignments(
   );
   return assignments.filter((a) => slotIds.has(a.slotId));
 }
+
+/** Copy the list and insert item at index, clamped to the list's bounds. */
+export function insertAt<T>(list: T[], index: number, item: T): T[] {
+  const copy = [...list];
+  copy.splice(Math.min(Math.max(index, 0), copy.length), 0, item);
+  return copy;
+}

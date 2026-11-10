@@ -21,7 +21,7 @@ import {
 import { toHash } from '../../hooks/useHashRouter';
 import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
-import { liveAssignments } from '../../lib/collections';
+import { insertAt, liveAssignments } from '../../lib/collections';
 import type { ORBAT, Page } from '../../types';
 import { AlertBanner } from '../common/AlertBanner';
 import { Button } from '../common/Button';
@@ -82,11 +82,7 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
     const index = orbats.indexOf(orbat);
     deleteOrbat(orbat.id);
     toast.undo(`Deleted "${orbat.name}"`, () => {
-      setOrbats((prev) => {
-        const restored = [...prev];
-        restored.splice(Math.min(index, restored.length), 0, snapshot);
-        return restored;
-      });
+      setOrbats((prev) => insertAt(prev, index, snapshot));
     });
   }
 
