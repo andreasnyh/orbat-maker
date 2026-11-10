@@ -6,6 +6,7 @@ import {
 } from '../../context/AppStateContext';
 import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
+import { insertAt } from '../../lib/collections';
 import type { Page, Template } from '../../types';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
@@ -81,11 +82,7 @@ export function TemplateListPage({ onNavigate }: TemplateListPageProps) {
     const index = templates.indexOf(template);
     deleteTemplate(template.id);
     toast.undo(`Deleted "${template.name}"`, () => {
-      setTemplates((prev) => {
-        const restored = [...prev];
-        restored.splice(Math.min(index, restored.length), 0, snapshot);
-        return restored;
-      });
+      setTemplates((prev) => insertAt(prev, index, snapshot));
     });
   }
 

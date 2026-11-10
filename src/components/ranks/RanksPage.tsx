@@ -4,6 +4,7 @@ import { usePeopleState, useRanksState } from '../../context/AppStateContext';
 import { isSameRankName } from '../../hooks/useRanks';
 import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
+import { insertAt } from '../../lib/collections';
 import type { Rank } from '../../types';
 import { Button } from '../common/Button';
 import { EmptyState } from '../common/EmptyState';
@@ -126,11 +127,7 @@ export function RanksPage() {
     const index = ranks.indexOf(rank);
     deleteRank(rank.id);
     toast.undo(`Deleted "${rank.name}"`, () => {
-      setRanks((prev) => {
-        const restored = [...prev];
-        restored.splice(Math.min(index, restored.length), 0, snapshot);
-        return restored;
-      });
+      setRanks((prev) => insertAt(prev, index, snapshot));
     });
   };
 

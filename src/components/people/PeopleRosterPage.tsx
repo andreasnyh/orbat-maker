@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { usePeopleState } from '../../context/AppStateContext';
 import { useToast } from '../../hooks/useToast';
 import { useToggle } from '../../hooks/useToggle';
+import { insertAt } from '../../lib/collections';
 import type { Person } from '../../types';
 import { Button } from '../common/Button';
 import { EmptyState } from '../common/EmptyState';
@@ -61,11 +62,7 @@ export function PeopleRosterPage() {
     deletePerson(person.id);
     const label = [snapshot.rank, snapshot.name].filter(Boolean).join(' ');
     toast.undo(`Deleted ${label}`, () => {
-      setPeople((prev) => {
-        const restored = [...prev];
-        restored.splice(Math.min(index, restored.length), 0, snapshot);
-        return restored;
-      });
+      setPeople((prev) => insertAt(prev, index, snapshot));
     });
   };
 
