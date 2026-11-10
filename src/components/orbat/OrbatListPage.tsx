@@ -1,6 +1,5 @@
 import {
   Check,
-  ChevronDown,
   ChevronRight,
   ChevronsUp,
   ClipboardList,
@@ -28,6 +27,7 @@ import { AlertBanner } from '../common/AlertBanner';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
 import { PageHeader } from '../common/PageHeader';
+import { SelectInput } from '../common/SelectInput';
 import { TextInput } from '../common/TextInput';
 
 interface OrbatListPageProps {
@@ -387,38 +387,23 @@ export function OrbatListPage({ onNavigate }: OrbatListPageProps) {
             autoFocus
           />
 
-          {/* Template picker */}
-          <div className="flex flex-col gap-1">
-            <label htmlFor="orbat-template" className="text-sm text-dim">
-              Template
-            </label>
-            <div className="relative">
-              <select
-                id="orbat-template"
-                value={newTemplateId}
-                onChange={(e) => setNewTemplateId(e.target.value)}
-                className="w-full bg-page border border-trim rounded-md px-3 py-2 pr-9 text-body text-sm
-                           focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/25
-                           appearance-none cursor-pointer"
-              >
-                {templates.length === 0 && (
-                  <option value="" disabled>
-                    No templates available
-                  </option>
-                )}
-                {templates.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                size={16}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-faint pointer-events-none"
-                aria-hidden="true"
-              />
-            </div>
-          </div>
+          <SelectInput
+            label="Template"
+            className="w-full"
+            value={newTemplateId}
+            onChange={(e) => setNewTemplateId(e.target.value)}
+          >
+            {templates.length === 0 && (
+              <option value="" disabled>
+                No templates available
+              </option>
+            )}
+            {templates.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </SelectInput>
 
           <div className="flex justify-end gap-3 pt-1">
             <Button variant="secondary" onClick={handleCloseNewModal}>
